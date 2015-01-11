@@ -33,7 +33,7 @@ Setting Up and Using ICA
 
 ```Bash
 go get github.com/dragonrider23/infrastructure-config-archive
-go get
+cd $GOPATH/src/github.com/dragonrider23/infrastructure-config-archive
 go build
 cp sample-configuration.toml configuration.toml
 vim configuration.toml
