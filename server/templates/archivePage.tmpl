@@ -1,0 +1,39 @@
+{{define "archivePage"}}
+    {{template "header"}}
+
+    <h2>Latest Configuration Archives:</h2>
+
+    <form>
+        <input type="text" id="searchAddress" value="">
+        <button type="button" id="searchBtn">Search By Address</button>
+    </form>
+
+    <br>
+    <span id="searchResults"></span>
+    <br>
+
+    <h4>Device List:</h4>
+    <table class="archiveList">
+        <thead>
+            <tr>
+                <td>IP Address</td>
+                <td>Name</td>
+                <td>Protocol</td>
+                <td>Path</td>
+            </tr>
+        </thead>
+        {{range .Devices}}
+            <tr>
+                <td>{{.Address}}</td>
+                <td>{{.Name}}</td>
+                <td>{{.Proto}}</td>
+                <td><a href="/view/{{.Path}}">{{.Path}}</a></td>
+            </tr>
+        {{end}}
+    </table>
+
+    {{template "scripts"}}
+    <!-- <script type="text/javascript" src="/scripts/archive.js"></script> -->
+    <script type="text/javascript" src="/js/prod.min.js"></script>
+    {{template "footer"}}
+{{end}}

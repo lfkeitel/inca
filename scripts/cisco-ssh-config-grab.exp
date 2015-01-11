@@ -1,0 +1,52 @@
+#!/usr/bin/expect -f
+
+# Set variables
+set tftphost [lindex $argv 0]
+set hostname [lindex $argv 1]
+set password [lindex $argv 2]
+set username [lindex $argv 3]
+set confFileName [lindex $argv 4]
+set enablepassword [lindex $argv 5]
+
+# Announce which device we are working on and at what time
+send_user "\n"
+send_user ">>>>>  Working on $hostname @ [exec date] <<<<<\n"
+send_user "\n"
+
+# Don't check keys
+spawn ssh -o StrictHostKeyChecking=no $username\@$hostname
+
+# Allow this script to handle ssh connection issues
+expect {
+    timeout { send_user "\nTimeout Exceeded - Check Host\n"; exit 1 }
+    eof { send_user "\nSSH Connection To $hostname Failed\n"; exit 1 }
+    "*yes/no*" {
+        send "yes\n"
+    }
+    "*#" {}
+    "*assword:" {
+        send "$password\n"
+    }
+}
+
+# If we're not already in enable mode, get us there
+expect {
+    default { send_user "\nEnable Mode Failed - Check Password\n"; exit 1 }
+    "*#" {}
+    "*>" {
+        send "enable\n"
+        expect "*assword"
+        send "$enablepassword\n"
+        expect "*#"
+    }
+}
+send_user "\n$confFileName\n"
+send "copy running-config tftp://$tftphost/$confFileName\n"
+expect "$tftphost"
+send "\n"
+expect "$confFileName"
+send "\n"
+
+expect "#"
+send "exit\n"
+exit

@@ -1,0 +1,79 @@
+package grabber
+
+import (
+    "os"
+    "time"
+
+    "github.com/dragonrider23/config-grabber/targz"
+    "github.com/dragonrider23/config-grabber/interfaces"
+    logger "github.com/dragonrider23/go-logger"
+)
+
+var appLogger *logger.Logger
+var stdOutLogger *logger.Logger
+var configGrabRunning bool
+var conf interfaces.Config
+
+var totalDevices = 0
+var finishedDevices = 0
+
+func init() {
+    appLogger = logger.New("grabber").Verbose(3)
+    stdOutLogger = logger.New("execStdOut")
+    configGrabRunning = false
+}
+
+func LoadConfig(config interfaces.Config) {
+    conf = config
+    return
+}
+
+func PerformConfigGrab() {
+    startTime := time.Now()
+    configGrabRunning = true
+    defer func() { configGrabRunning = false }()
+
+    // Clean up tftp directory
+    os.RemoveAll(conf.FullConfDir)
+    os.Truncate("results.log", 0)
+
+    hosts, err := loadDeviceList(conf)
+    if err != nil {
+        appLogger.Error(err.Error())
+        return
+    }
+
+    totalDevices = len(hosts)
+    finishedDevices = 0
+    dateSuffix := time.Now().Format("2006012")
+
+    grabConfigs(hosts, dateSuffix, conf)
+    tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+
+    endTime := time.Now()
+    appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())
+    return
+}
+
+func IsRunning() bool {
+    return configGrabRunning
+}
+
+func Remaining() (total, finished int) {
+    if !configGrabRunning {
+        if totalDevices == 0 {
+            hosts, err := loadDeviceList(conf)
+            if err != nil {
+                appLogger.Error(err.Error())
+                return
+            }
+            totalDevices = len(hosts)
+        }
+
+        if finishedDevices == 0 {
+            finishedDevices = -1
+        }
+    }
+
+    return totalDevices, finishedDevices
+}

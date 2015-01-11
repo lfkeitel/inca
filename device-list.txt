@@ -1,0 +1,6 @@
+#Use a pound sign for comments or to disable a device
+#device-name:hostname:manufacturer:protocol
+Keitel1:192.168.1.2:cisco:ssh
+Keitel1:192.168.1.2:cisco:telnet
+
+#Anon:192.168.1.4:juniper:ssh

@@ -1,0 +1,28 @@
+# TFTP server host address
+Tftphost = ""
+
+# Username and password to login to device
+RemoteUsername = ""
+RemotePassword = ""
+
+# Enable password for Cisco devices
+EnablePassword = ""
+
+# Filename of device list
+DeviceListFile = "device-list.txt"
+
+# Folder being served by the TFTP server
+FullConfDir    = "/tftpboot"
+
+# Maximum number of concurrent connections to devices
+MaxSimultaneousConn = 100
+
+[server]
+# Address to bind server (keep blank unless you know what you're doing)
+BindAddress = ""
+
+# Port to bind
+BindPort = 8080
+
+# Directory of server templates DO NOT CHANGE
+BaseDir = "server"

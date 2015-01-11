@@ -1,0 +1,4 @@
+configuration.toml
+node_modules/*
+archive/*
+*logs/*
