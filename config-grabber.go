@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/BurntSushi/toml"
 
-	"github.com/dragonrider23/config-grabber/server"
-	"github.com/dragonrider23/config-grabber/interfaces"
-    "github.com/dragonrider23/config-grabber/grabber"
+	"github.com/dragonrider23/infrastructure-config-archive/server"
+	"github.com/dragonrider23/infrastructure-config-archive/interfaces"
+    "github.com/dragonrider23/infrastructure-config-archive/grabber"
 	logger "github.com/dragonrider23/go-logger"
 )
 

@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"encoding/json"
 
-	"github.com/dragonrider23/config-grabber/interfaces"
-	"github.com/dragonrider23/config-grabber/grabber"
+	"github.com/dragonrider23/infrastructure-config-archive/interfaces"
+	"github.com/dragonrider23/infrastructure-config-archive/grabber"
 	logs "github.com/dragonrider23/go-logger"
 )
 

@@ -1,7 +1,7 @@
 package grabber
 
 import (
-    "github.com/dragonrider23/config-grabber/interfaces"
+    "github.com/dragonrider23/infrastructure-config-archive/interfaces"
 )
 
 type connGroup struct {

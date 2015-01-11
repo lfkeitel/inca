@@ -4,8 +4,8 @@ import (
     "os"
     "time"
 
-    "github.com/dragonrider23/config-grabber/targz"
-    "github.com/dragonrider23/config-grabber/interfaces"
+    "github.com/dragonrider23/infrastructure-config-archive/targz"
+    "github.com/dragonrider23/infrastructure-config-archive/interfaces"
     logger "github.com/dragonrider23/go-logger"
 )
 

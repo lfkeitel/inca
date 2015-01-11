@@ -8,7 +8,7 @@ import (
     "os/exec"
     "sync"
 
-    "github.com/dragonrider23/config-grabber/interfaces"
+    "github.com/dragonrider23/infrastructure-config-archive/interfaces"
 )
 
 func loadDeviceList(conf interfaces.Config) ([]host, error) {
