@@ -64,15 +64,15 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch splitUrl[2] {
 		case "running":
-			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+" }"
+			response = "{\"running\": "+strconv.FormatBool(grabber.IsRunning())+" }"
 			break
 		case "runnow":
-			go grabber.PerformConfigGrab()
-			response = "{\"status\": \"started\" }"
+			go grabber.PerformFakeConfigGrab()
+			response = "{\"status\": \"started\", \"running\": "+strconv.FormatBool(grabber.IsRunning())+" }"
 			break
 		case "status":
 			total, finished := grabber.Remaining()
-			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+", \"totalDevices\": "+strconv.Itoa(total)+", \"finished\": "+strconv.Itoa(finished)+"}"
+			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+", \"running\": "+strconv.FormatBool(grabber.IsRunning())+", \"totalDevices\": "+strconv.Itoa(total)+", \"finished\": "+strconv.Itoa(finished)+"}"
 			break
 		case "devicelist":
 			deviceList, _ := json.Marshal(getDeviceList())

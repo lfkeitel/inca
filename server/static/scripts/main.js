@@ -1,34 +1,41 @@
 /* global $:false, setInterval, clearInterval */
 
 "use strict"; // jshint ignore:line
-var refreshTimer;
+var runningRefreshTimer;
+var bgRefreshTimer;
 
 function run() {
     server.performRun(function(data) {
-        updateView({"status": true, "totalDevices": 1, "finished": 0});
+        updateView({"running": true, "totalDevices": 1, "finished": 0});
         progressBar.setProgressBarToRunning(true);
     });
-    refreshTimer = setInterval(function() { server.checkStatus(checkRequest); }, 750);
+    if (typeof runningRefreshTimer === 'undefined') {
+        runningRefreshTimer = setInterval(function() { server.checkStatus(checkRequest); }, 1000);
+    }
 }
 
 function checkRequest(data) {
     updateView(data);
 
-    if (!data.status) {
-        clearInterval(refreshTimer);
+    if (!data.running) {
+        clearInterval(runningRefreshTimer);
         progressBar.setProgressBarToRunning(false);
     }
 }
 
 function updateView(data) {
-    progressBar.setProgressBarActive(data.status);
+    progressBar.setProgressBarActive(data.running);
 
-    if (data.status === false) {
+    if (data.running === false) {
         $('#currentStatus').html('Idle').addClass('idleStatus');
         $('#currentStatus').removeClass('runningStatus');
     } else {
         $('#currentStatus').html('Running').addClass('runningStatus');
         $('#currentStatus').removeClass('idleStatus');
+        if (typeof runningRefreshTimer === 'undefined') {
+            progressBar.setProgressBarToRunning(true);
+            runningRefreshTimer = setInterval(function() { server.checkStatus(checkRequest); }, 1000);
+        }
     }
 
     if (data.finished < 0) {
@@ -101,4 +108,5 @@ var progressBar = {
 (function() {
     $('#startArchiveBtn').click(run);
     server.checkStatus(updateView);
+    bgRefreshTimer = setInterval(function() { server.checkStatus(updateView); }, 30000);
 })();
