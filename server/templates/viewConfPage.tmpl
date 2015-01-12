@@ -4,11 +4,12 @@
     <h2>Latest Configuration For {{.Name}} ({{.Address}}):</h2>
     <h4>Filename: {{.Path}} <a href="/download/{{.Path}}" download="{{.Path}}">Download File</a></h4>
 
-    <p>
+    <p class="configText">
     {{range .ConfText}}
         {{.}}<br>
     {{end}}
     </p>
 
+    {{template "scripts"}}
     {{template "footer"}}
 {{end}}
