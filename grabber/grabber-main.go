@@ -29,6 +29,11 @@ func LoadConfig(config interfaces.Config) {
 }
 
 func PerformConfigGrab() {
+    if configGrabRunning {
+        appLogger.Error("Job already running")
+        return
+    }
+
     startTime := time.Now()
     configGrabRunning = true
     defer func() { configGrabRunning = false }()
@@ -49,6 +54,30 @@ func PerformConfigGrab() {
 
     grabConfigs(hosts, dateSuffix, conf)
     tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+
+    endTime := time.Now()
+    appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())
+    return
+}
+
+// Used for testing purposes
+func PerformFakeConfigGrab() {
+    if configGrabRunning {
+        appLogger.Error("Job already running")
+        return
+    }
+
+    startTime := time.Now()
+    configGrabRunning = true
+    defer func() { configGrabRunning = false }()
+
+    totalDevices = 12
+    finishedDevices = 0
+
+    for i := 0; i < 12; i++ {
+        time.Sleep(5*time.Second)
+        finishedDevices++
+    }
 
     endTime := time.Now()
     appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())

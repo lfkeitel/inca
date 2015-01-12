@@ -3,6 +3,7 @@ package server
 import (
 	"html/template"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"io/ioutil"
@@ -64,20 +65,30 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch splitUrl[2] {
 		case "running":
-			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+" }"
+			response = "{\"running\": "+strconv.FormatBool(grabber.IsRunning())+" }"
 			break
 		case "runnow":
-			go grabber.PerformConfigGrab()
-			response = "{\"status\": \"started\" }"
+			go grabber.PerformFakeConfigGrab()
+			response = "{\"status\": \"started\", \"running\": "+strconv.FormatBool(grabber.IsRunning())+" }"
 			break
 		case "status":
 			total, finished := grabber.Remaining()
-			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+", \"totalDevices\": "+strconv.Itoa(total)+", \"finished\": "+strconv.Itoa(finished)+"}"
+			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+", \"running\": "+strconv.FormatBool(grabber.IsRunning())+", \"totalDevices\": "+strconv.Itoa(total)+", \"finished\": "+strconv.Itoa(finished)+"}"
 			break
 		case "devicelist":
 			deviceList, _ := json.Marshal(getDeviceList())
 			response = string(deviceList)
 			break
+		case "savedevicelist":
+			listText, _ := url.QueryUnescape(r.FormValue("text"))
+			err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
+			if err != nil {
+				response = "{\"success\": false, \"error\": \""+err.Error()+"\"}"
+			} else {
+				response = "{\"success\": true}"
+			}
+			break
+
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -89,6 +100,37 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 func archiveHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	renderTemplate(w, "archivePage", getDeviceList())
+	return
+}
+
+// Generate page with the application configuration
+func settingsHandler(w http.ResponseWriter, r *http.Request) {
+	defer httpRecovery(w)
+	confText, err := ioutil.ReadFile("configuration.toml")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	data := struct{
+		ConfText []string
+	}{strings.Split(string(confText), "\n")}
+	renderTemplate(w, "settingsPage", data)
+	return
+}
+
+// Generate page with the application configuration
+func deviceListHandler(w http.ResponseWriter, r *http.Request) {
+	defer httpRecovery(w)
+	confText, err := ioutil.ReadFile(config.DeviceListFile)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	data := struct{
+		ConfText string
+		Path string
+	}{string(confText), config.DeviceListFile}
+	renderTemplate(w, "deviceListPage", data)
 	return
 }
 
@@ -160,8 +202,10 @@ func StartServer(conf interfaces.Config) {
 	http.Handle("/", http.FileServer(http.Dir(conf.Server.BaseDir+"/static")))
 	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/archive", archiveHandler)
+	http.HandleFunc("/settings", settingsHandler)
 	http.HandleFunc("/view/", viewConfHandler)
 	http.HandleFunc("/download/", downloadConfHandler)
+	http.HandleFunc("/devicelist", deviceListHandler)
 
 	appLogger.Info("Server ready")
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)
