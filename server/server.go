@@ -1,24 +1,24 @@
 package server
 
 import (
+	"encoding/json"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"io/ioutil"
-	"encoding/json"
 
-	"github.com/dragonrider23/infrastructure-config-archive/interfaces"
-	"github.com/dragonrider23/infrastructure-config-archive/grabber"
 	logs "github.com/dragonrider23/go-logger"
+	"github.com/dragonrider23/infrastructure-config-archive/grabber"
+	"github.com/dragonrider23/infrastructure-config-archive/interfaces"
 )
 
 type deviceConfigFile struct {
-	Path string
-	Name string
-	Address string
-	Proto string
+	Path     string
+	Name     string
+	Address  string
+	Proto    string
 	ConfText []string
 }
 
@@ -33,7 +33,7 @@ var config interfaces.Config
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration interfaces.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob(config.Server.BaseDir+"/templates/*.tmpl"))
+	templates = template.Must(template.ParseGlob(config.Server.BaseDir + "/templates/*.tmpl"))
 	appLogger = logs.New("httpServer")
 }
 
@@ -64,30 +64,30 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	response := ""
 
 	switch splitUrl[2] {
-		case "running":
-			response = "{\"running\": "+strconv.FormatBool(grabber.IsRunning())+" }"
-			break
-		case "runnow":
-			go grabber.PerformFakeConfigGrab()
-			response = "{\"status\": \"started\", \"running\": "+strconv.FormatBool(grabber.IsRunning())+" }"
-			break
-		case "status":
-			total, finished := grabber.Remaining()
-			response = "{\"status\": "+strconv.FormatBool(grabber.IsRunning())+", \"running\": "+strconv.FormatBool(grabber.IsRunning())+", \"totalDevices\": "+strconv.Itoa(total)+", \"finished\": "+strconv.Itoa(finished)+"}"
-			break
-		case "devicelist":
-			deviceList, _ := json.Marshal(getDeviceList())
-			response = string(deviceList)
-			break
-		case "savedevicelist":
-			listText, _ := url.QueryUnescape(r.FormValue("text"))
-			err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
-			if err != nil {
-				response = "{\"success\": false, \"error\": \""+err.Error()+"\"}"
-			} else {
-				response = "{\"success\": true}"
-			}
-			break
+	case "running":
+		response = "{\"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
+		break
+	case "runnow":
+		go grabber.PerformConfigGrab()
+		response = "{\"status\": \"started\", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
+		break
+	case "status":
+		total, finished := grabber.Remaining()
+		response = "{\"status\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"totalDevices\": " + strconv.Itoa(total) + ", \"finished\": " + strconv.Itoa(finished) + "}"
+		break
+	case "devicelist":
+		deviceList, _ := json.Marshal(getDeviceList())
+		response = string(deviceList)
+		break
+	case "savedevicelist":
+		listText, _ := url.QueryUnescape(r.FormValue("text"))
+		err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
+		if err != nil {
+			response = "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
+		} else {
+			response = "{\"success\": true}"
+		}
+		break
 
 	}
 
@@ -111,7 +111,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 
-	data := struct{
+	data := struct {
 		ConfText []string
 	}{strings.Split(string(confText), "\n")}
 	renderTemplate(w, "settingsPage", data)
@@ -126,9 +126,9 @@ func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 
-	data := struct{
+	data := struct {
 		ConfText string
-		Path string
+		Path     string
 	}{string(confText), config.DeviceListFile}
 	renderTemplate(w, "deviceListPage", data)
 	return
@@ -137,19 +137,19 @@ func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 // Generate page to display configuration of given file (in URL)
 func viewConfHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
-	splitUrl := strings.Split(r.URL.Path, "/") // [0] = '', [1] = 'view', [2] = filename
-	splitName := strings.Split(splitUrl[2], "-") // [0] = name, [1] = datesuffix, [2] = hostname
+	splitUrl := strings.Split(r.URL.Path, "/")     // [0] = '', [1] = 'view', [2] = filename
+	splitName := strings.Split(splitUrl[2], "-")   // [0] = name, [1] = datesuffix, [2] = hostname
 	splitProto := strings.Split(splitName[3], ".") // [0] = protocol, [1] = ".conf"
-	confText, err := ioutil.ReadFile(config.FullConfDir+"/"+splitUrl[2])
+	confText, err := ioutil.ReadFile(config.FullConfDir + "/" + splitUrl[2])
 	if err != nil {
 		panic(err.Error())
 	}
 
 	device := deviceConfigFile{
-		Path: splitUrl[2],
-		Name: splitName[0],
-		Address: splitName[2],
-		Proto: splitProto[0],
+		Path:     splitUrl[2],
+		Name:     splitName[0],
+		Address:  splitName[2],
+		Proto:    splitProto[0],
 		ConfText: strings.Split(string(confText), "\n"),
 	}
 
@@ -161,7 +161,7 @@ func viewConfHandler(w http.ResponseWriter, r *http.Request) {
 func downloadConfHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	splitUrl := strings.Split(r.URL.Path, "/") // [0] = '', [1] = 'download', [2] = filename
-	confText, err := ioutil.ReadFile(config.FullConfDir+"/"+splitUrl[2])
+	confText, err := ioutil.ReadFile(config.FullConfDir + "/" + splitUrl[2])
 	if err != nil {
 		panic(err.Error())
 	}
@@ -172,19 +172,19 @@ func downloadConfHandler(w http.ResponseWriter, r *http.Request) {
 
 // Get a list of all devices in the configuration directory
 func getDeviceList() deviceList {
-	configFileList, _ := ioutil.ReadDir(config.FullConfDir);
+	configFileList, _ := ioutil.ReadDir(config.FullConfDir)
 
 	deviceConfigs := deviceList{}
 
 	for _, file := range configFileList {
-		splitName := strings.Split(file.Name(), "-") // [0] = name, [1] = datesuffix, [2] = hostname
+		splitName := strings.Split(file.Name(), "-")   // [0] = name, [1] = datesuffix, [2] = hostname
 		splitProto := strings.Split(splitName[3], ".") // [0] = protocol, [1] = ".conf"
 
 		device := deviceConfigFile{
-			Path: file.Name(),
-			Name: splitName[0],
+			Path:    file.Name(),
+			Name:    splitName[0],
 			Address: splitName[2],
-			Proto: splitProto[0],
+			Proto:   splitProto[0],
 		}
 		deviceConfigs.Devices = append(deviceConfigs.Devices, device)
 	}
@@ -197,7 +197,7 @@ func StartServer(conf interfaces.Config) {
 	initServer(conf)
 
 	appLogger.Verbose(3)
-	appLogger.Info("Starting webserver on port "+conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort))
+	appLogger.Info("Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort))
 
 	http.Handle("/", http.FileServer(http.Dir(conf.Server.BaseDir+"/static")))
 	http.HandleFunc("/api/", apiHandler)
