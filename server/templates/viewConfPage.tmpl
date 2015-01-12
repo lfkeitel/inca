@@ -1,7 +1,7 @@
 {{define "viewConfPage"}}
     {{template "header"}}
 
-    <h2>Latest Configuration For {{.Name}} ({{.Address}}):</h2>
+    <h2>Latest Configuration For {{.Name}} ({{.Address}} | {{.Manufacturer}}):</h2>
     <h4>Filename: {{.Path}} <a href="/download/{{.Path}}" download="{{.Path}}">Download File</a></h4>
 
     <p class="configText">

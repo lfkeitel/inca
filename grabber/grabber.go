@@ -111,6 +111,8 @@ func prepareTftpFile(host host, dateSuffix string, conf interfaces.Config) strin
 	filename.WriteString("-")
 	filename.WriteString(host.address)
 	filename.WriteString("-")
+	filename.WriteString(host.manufacturer)
+	filename.WriteString("-")
 	filename.WriteString(host.proto)
 	filename.WriteString(".conf")
 

@@ -15,11 +15,12 @@ import (
 )
 
 type deviceConfigFile struct {
-	Path     string
-	Name     string
-	Address  string
-	Proto    string
-	ConfText []string
+	Path         string
+	Name         string
+	Address      string
+	Proto        string
+	ConfText     []string
+	Manufacturer string
 }
 
 type deviceList struct {
@@ -138,19 +139,20 @@ func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 func viewConfHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	splitUrl := strings.Split(r.URL.Path, "/")     // [0] = '', [1] = 'view', [2] = filename
-	splitName := strings.Split(splitUrl[2], "-")   // [0] = name, [1] = datesuffix, [2] = hostname
-	splitProto := strings.Split(splitName[3], ".") // [0] = protocol, [1] = ".conf"
+	splitName := strings.Split(splitUrl[2], "-")   // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
+	splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
 	confText, err := ioutil.ReadFile(config.FullConfDir + "/" + splitUrl[2])
 	if err != nil {
 		panic(err.Error())
 	}
 
 	device := deviceConfigFile{
-		Path:     splitUrl[2],
-		Name:     splitName[0],
-		Address:  splitName[2],
-		Proto:    splitProto[0],
-		ConfText: strings.Split(string(confText), "\n"),
+		Path:         splitUrl[2],
+		Name:         splitName[0],
+		Address:      splitName[2],
+		Proto:        splitProto[0],
+		ConfText:     strings.Split(string(confText), "\n"),
+		Manufacturer: splitName[3],
 	}
 
 	renderTemplate(w, "viewConfPage", device)
