@@ -1,8 +1,8 @@
-Infrastructure Config Archive v1.0.0
+Infrastructure Config Archive v1.1.0
 ====================================
 
-Infrastructure Config Archive (ICA) was developed to solve the problem of backup network infrustructure configurations.
-ICA can be easily expanded to accomidate multiple types of devices since it uses Expect underneath to handle the
+Infrastructure Config Archive (ICA) was developed to solve the problem of backing up network infrustructure configurations.
+ICA can be easily expanded to accommodate multiple types of devices since it uses Expect underneath to handle the
 config grabbing.
 
 Requirements
@@ -25,7 +25,7 @@ Is it any good?
 Setting Up and Using ICA
 ------------------------
 
-1. Get the source code (current there's no precompiled binaries)
+1. Get the source code (currently there's no precompiled binaries)
 2. Compile with Go
 3. Copy sample-configuration.toml to configuration.toml
 4. Edit the file with the appropiate settings
@@ -46,23 +46,34 @@ Getting Started Developing
 ```Bash
 go get github.com/dragonrider23/infrastructure-config-archive
 npm install
-go get
 ```
 
 Setup Cron Job
 --------------
 
-To have configurations pulled on a schedules basis, you can setup a cron job that executes:
+To have configurations pulled on a scheduled basis, you can setup a cron job that executes:
 
 ```Bash
 curl http://[hostname]/api/runnow
 ```
 
-Set the job to run however often you feel necassary. Crontab is the recommend tool for setting this
-up and weekly is the recommeneded schedule.
+Set the job to run however often you feel necessary. Crontab is the recommended tool for setting this
+up and weekly is the recommended schedule.
+
+Setup Upstart Job
+-----------------
+
+ICA comes with a template upstart script called `upstart.conf`. You can use this file as a base to build an
+upstart job to start ICA on boot and to easily manage the service. Copy the completeled script to /etc/init/[servicename].conf.
 
 Release Notes
 -------------
+
+v1.1.0
+
+- Edit the device list from the UI
+- View application configuration from UI
+- Bug fixes
 
 v1.0.0
 
