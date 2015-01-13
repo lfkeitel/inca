@@ -25,7 +25,7 @@ Is it any good?
 Setting Up and Using ICA
 ------------------------
 
-1. Get the source code (currently there's no precompiled binaries)
+1. Get the source code (a precompiled build is available at [gzipped archive](/content/ica/infra-config-archive-v1.2.0.tar.gz))
 2. Compile with Go
 3. Run scripts/setup.sh as root. This will install expect and setup a TFTP server and icauser user account.
 4. Copy sample-configuration.toml to configuration.toml
