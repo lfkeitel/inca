@@ -1,4 +1,4 @@
-Infrastructure Config Archive v1.1.0
+Infrastructure Config Archive v1.2.0
 ====================================
 
 Infrastructure Config Archive (ICA) was developed to solve the problem of backing up network infrustructure configurations.
@@ -25,13 +25,15 @@ Is it any good?
 Setting Up and Using ICA
 ------------------------
 
-1. Get the source code (currently there's no precompiled binaries)
-2. Compile with Go
-3. Copy sample-configuration.toml to configuration.toml
-4. Edit the file with the appropiate settings
-5. Run executable from directory where you pulled/extracted the application
+1. Run scripts/setup.sh as root. This will install expect and setup a TFTP server and icauser user account.
+2. Get the source code (currently there's no precompiled binaries)
+3. Compile with Go
+4. Copy sample-configuration.toml to configuration.toml
+5. Edit the file with the appropiate settings
+6. Run executable from directory where you pulled/extracted the application
 
 ```Bash
+sudo ./scrips/setup.sh
 go get github.com/dragonrider23/infrastructure-config-archive
 cd $GOPATH/src/github.com/dragonrider23/infrastructure-config-archive
 go build
@@ -54,7 +56,7 @@ Setup Cron Job
 To have configurations pulled on a scheduled basis, you can setup a cron job that executes:
 
 ```Bash
-curl http://[hostname]/api/runnow
+curl http://[hostname]:[port]/api/runnow
 ```
 
 Set the job to run however often you feel necessary. Crontab is the recommended tool for setting this
@@ -64,10 +66,19 @@ Setup Upstart Job
 -----------------
 
 ICA comes with a template upstart script called `upstart.conf`. You can use this file as a base to build an
-upstart job to start ICA on boot and to easily manage the service. Copy the completeled script to /etc/init/[servicename].conf.
+upstart job to start ICA on boot and to easily manage the service. Copy the completed script to /etc/init/ica.conf.
+
+You can manage the service with the commands `start ica` `status ica` and `stop ica`. The upstart job by default
+will run on boot.
 
 Release Notes
 -------------
+
+v1.2.0
+
+- Archive a single device configuration
+- Added support for Juniper switches
+- Bug fixes
 
 v1.1.0
 

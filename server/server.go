@@ -68,18 +68,31 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	case "running":
 		response = "{\"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
 		break
+
 	case "runnow":
 		go grabber.PerformConfigGrab()
-		response = "{\"status\": \"started\", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
+		response = "{\"status\": \"started\", \"running\": true}"
 		break
+
+	case "singlerun":
+		name := r.FormValue("name")
+		hostname := r.FormValue("hostname")
+		brand := r.FormValue("brand")
+		proto := r.FormValue("proto")
+		go grabber.PerformSingleRun(name, hostname, brand, proto)
+		response = "{\"status\": \"started\", \"running\": true}"
+		break
+
 	case "status":
 		total, finished := grabber.Remaining()
 		response = "{\"status\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"totalDevices\": " + strconv.Itoa(total) + ", \"finished\": " + strconv.Itoa(finished) + "}"
 		break
+
 	case "devicelist":
 		deviceList, _ := json.Marshal(getDeviceList())
 		response = string(deviceList)
 		break
+
 	case "savedevicelist":
 		listText, _ := url.QueryUnescape(r.FormValue("text"))
 		err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
@@ -89,7 +102,6 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			response = "{\"success\": true}"
 		}
 		break
-
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -179,14 +191,15 @@ func getDeviceList() deviceList {
 	deviceConfigs := deviceList{}
 
 	for _, file := range configFileList {
-		splitName := strings.Split(file.Name(), "-")   // [0] = name, [1] = datesuffix, [2] = hostname
-		splitProto := strings.Split(splitName[3], ".") // [0] = protocol, [1] = ".conf"
+		splitName := strings.Split(file.Name(), "-")   // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
+		splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
 
 		device := deviceConfigFile{
 			Path:    file.Name(),
 			Name:    splitName[0],
 			Address: splitName[2],
 			Proto:   splitProto[0],
+			Manufacturer: splitName[3],
 		}
 		deviceConfigs.Devices = append(deviceConfigs.Devices, device)
 	}

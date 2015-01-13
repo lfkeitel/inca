@@ -1,4 +1,4 @@
-/* global $:false, event */
+/* global $:false, event, alert */
 
 "use strict"; // jshint ignore:line
 
@@ -15,7 +15,23 @@ var server = {
             });
         return;
     },
+
+    runSingleDeviceGrab: function(address, brand, proto, name, callback) {
+        $.get('/api/singlerun', {hostname: address, name: name, proto: proto, brand: brand}, null, 'json')
+            .done(function(data) {
+                if (typeof callback !== 'undefined') {
+                    callback(data);
+                }
+                return;
+            });
+        return;
+    }
 };
+
+function singleRun(address, brand, proto, name) {
+    server.runSingleDeviceGrab(address, brand, proto, name, function(data){alert("Downloading new config. Check Status page.");});
+    return;
+}
 
 function check(e) {
     if (e.keyCode == 13) {
