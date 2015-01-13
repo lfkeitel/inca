@@ -39,7 +39,7 @@ func PerformConfigGrab() {
     defer func() { configGrabRunning = false }()
 
     // Clean up tftp directory
-    os.RemoveAll(conf.FullConfDir)
+    removeDir(conf.FullConfDir)
     os.Truncate("results.log", 0)
 
     hosts, err := loadDeviceList(conf)
