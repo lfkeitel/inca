@@ -25,18 +25,18 @@ Is it any good?
 Setting Up and Using ICA
 ------------------------
 
-1. Run scripts/setup.sh as root. This will install expect and setup a TFTP server and icauser user account.
-2. Get the source code (currently there's no precompiled binaries)
-3. Compile with Go
+1. Get the source code (currently there's no precompiled binaries)
+2. Compile with Go
+3. Run scripts/setup.sh as root. This will install expect and setup a TFTP server and icauser user account.
 4. Copy sample-configuration.toml to configuration.toml
 5. Edit the file with the appropiate settings
 6. Run executable from directory where you pulled/extracted the application
 
 ```Bash
-sudo ./scrips/setup.sh
 go get github.com/dragonrider23/infrastructure-config-archive
 cd $GOPATH/src/github.com/dragonrider23/infrastructure-config-archive
 go build
+sudo ./scrips/setup.sh
 cp sample-configuration.toml configuration.toml
 vim configuration.toml
 ./infrastructure-config-archive
