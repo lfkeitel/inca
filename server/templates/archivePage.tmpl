@@ -16,15 +16,17 @@
     <table class="archiveList">
         <thead>
             <tr>
+                <td>New Config</td>
                 <td>IP Address</td>
                 <td>Name</td>
                 <td>Protocol</td>
                 <td>Manufacturer</td>
-                <td>Path</td>
+                <td>View Config</td>
             </tr>
         </thead>
         {{range .Devices}}
             <tr>
+                <td style="text-align: center;"><button type="button" onClick="singleRun('{{.Address}}', '{{.Manufacturer}}', '{{.Proto}}', '{{.Name}}');"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button></td>
                 <td>{{.Address}}</td>
                 <td>{{.Name}}</td>
                 <td>{{.Proto}}</td>

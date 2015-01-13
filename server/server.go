@@ -68,18 +68,31 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	case "running":
 		response = "{\"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
 		break
+
 	case "runnow":
 		go grabber.PerformConfigGrab()
-		response = "{\"status\": \"started\", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
+		response = "{\"status\": \"started\", \"running\": true}"
 		break
+
+	case "singlerun":
+		name := r.FormValue("name")
+		hostname := r.FormValue("hostname")
+		brand := r.FormValue("brand")
+		proto := r.FormValue("proto")
+		go grabber.PerformSingleRun(name, hostname, brand, proto)
+		response = "{\"status\": \"started\", \"running\": true}"
+		break
+
 	case "status":
 		total, finished := grabber.Remaining()
 		response = "{\"status\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"totalDevices\": " + strconv.Itoa(total) + ", \"finished\": " + strconv.Itoa(finished) + "}"
 		break
+
 	case "devicelist":
 		deviceList, _ := json.Marshal(getDeviceList())
 		response = string(deviceList)
 		break
+
 	case "savedevicelist":
 		listText, _ := url.QueryUnescape(r.FormValue("text"))
 		err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
@@ -89,7 +102,6 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			response = "{\"success\": true}"
 		}
 		break
-
 	}
 
 	w.Header().Set("Content-Type", "application/json")
