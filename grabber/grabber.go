@@ -24,7 +24,7 @@ func loadDeviceList(conf interfaces.Config) ([]host, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if len(line) < 1 || line[0] == '#' {
+		if len(line) < 1 || line[0] == '#' || line[0] == ' ' {
 			continue
 		}
 

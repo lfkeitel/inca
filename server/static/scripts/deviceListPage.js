@@ -9,6 +9,8 @@ function saveDeviceList() {
         .done(function(data) {
             if (!data.success) {
                 alert(data.error);
+            } else {
+                alert("Device list saved");
             }
         });
 }
