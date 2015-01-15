@@ -36,7 +36,7 @@ Setting Up and Using ICA
 go get github.com/dragonrider23/infrastructure-config-archive
 cd $GOPATH/src/github.com/dragonrider23/infrastructure-config-archive
 go build
-sudo ./scrips/setup.sh
+sudo ./scripts/setup.sh
 cp sample-configuration.toml configuration.toml
 vim configuration.toml
 ./infrastructure-config-archive
