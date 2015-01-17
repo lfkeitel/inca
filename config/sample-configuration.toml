@@ -9,7 +9,7 @@ RemotePassword = ""
 EnablePassword = ""
 
 # Filename of device list
-DeviceListFile = "config/device-list.txt"
+DeviceListFile = "config/device-definitions.conf"
 
 # Folder being served by the TFTP server
 FullConfDir    = "/tftpboot"

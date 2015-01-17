@@ -1,6 +1,6 @@
 configuration.toml
-device-list-dev.txt
+device-definitions-dev.conf
 node_modules/*
 archive/*
-*logs/*
+logs/*
 tmp/*
