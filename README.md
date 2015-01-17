@@ -1,4 +1,4 @@
-Infrastructure Config Archive v1.2.0
+Infrastructure Config Archive v2.0.0
 ====================================
 
 Infrastructure Config Archive (ICA) was developed to solve the problem of backing up network infrustructure configurations.
@@ -11,7 +11,6 @@ Requirements
 To Run:
 
 * Expect
-* tftp server
 
 To Build:
 
@@ -22,25 +21,10 @@ Is it any good?
 
 [Yes](https://news.ycombinator.com/item?id=3067434)
 
-Setting Up and Using ICA
-------------------------
+Setting ICA
+-----------
 
-1. Get the source code (a precompiled build is available at [gzipped archive](/content/ica/infra-config-archive-v1.2.0.tar.gz))
-2. Compile with Go
-3. Run scripts/setup.sh as root. This will install expect and setup a TFTP server and icauser user account.
-4. Copy sample-configuration.toml to configuration.toml
-5. Edit the file with the appropiate settings
-6. Run executable from directory where you pulled/extracted the application
-
-```Bash
-go get github.com/dragonrider23/infrastructure-config-archive
-cd $GOPATH/src/github.com/dragonrider23/infrastructure-config-archive
-go build
-sudo ./scripts/setup.sh
-cp sample-configuration.toml configuration.toml
-vim configuration.toml
-./infrastructure-config-archive
-```
+For documentation on setting up ICA, please go to [http://onesimussystems.com/ica](http://onesimussystems.com/ica).
 
 Getting Started Developing
 --------------------------
@@ -73,6 +57,16 @@ will run on boot.
 
 Release Notes
 -------------
+
+v2.0.0
+
+- Custom device types: You can now define your own device types and methods. Each type/method combo has a script file
+associated with it that is located under the scripts folder. That script will be executed with the arguments defined in
+your device-types.conf.
+- Manual device runs: You can manually run a job for a device by entering the device information without requiring a full
+job to be completed first.
+- TFTP server no longer required: The Cisco scripts have been changed to no longer require a tftp server
+- Bug fixes and code cleanup
 
 v1.2.0
 
