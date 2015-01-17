@@ -97,8 +97,9 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf interface
 
 	for _, host := range hosts {
 		host := host
+		match := false
 		for _, dtype := range dtypes {
-			if host.dtype == dtype.deviceType && host.method == dtype.method {
+			if host.dtype == dtype.deviceType && (dtype.method == "*" || host.method == dtype.method) {
 				fname := getConfigFileName(host, dateSuffix, conf)
 				args := getArguments(dtype.args, host, fname, conf)
 
@@ -111,8 +112,14 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf interface
 					}()
 					scriptExecute(dtype.scriptfile, args)
 				}()
+				match = true
 				break
 			}
+		}
+
+		if !match {
+			appLogger.Warning("Device type '%s' using method '%s' wasn't found.", host.dtype, host.method)
+			finishedDevices++
 		}
 		ccg.wait()
 	}
