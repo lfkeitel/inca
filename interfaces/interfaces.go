@@ -1,7 +1,6 @@
 package interfaces
 
 type Config struct {
-	Tftphost            string
 	RemoteUsername      string
 	RemotePassword      string
 	EnablePassword      string

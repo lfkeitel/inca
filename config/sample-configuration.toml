@@ -1,6 +1,3 @@
-# TFTP server host address
-Tftphost = ""
-
 # Username and password to login to device
 RemoteUsername = ""
 RemotePassword = ""
