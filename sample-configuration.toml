@@ -23,6 +23,3 @@ BindAddress = ""
 
 # Port to bind
 BindPort = 8080
-
-# Directory of server templates DO NOT CHANGE
-BaseDir = "server"

@@ -14,5 +14,4 @@ type Config struct {
 type serverConf struct {
     BindAddress string
     BindPort    int
-    BaseDir     string
 }

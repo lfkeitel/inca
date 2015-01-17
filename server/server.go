@@ -34,7 +34,7 @@ var config interfaces.Config
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration interfaces.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob(config.Server.BaseDir + "/templates/*.tmpl"))
+	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
 	appLogger = logs.New("httpServer")
 }
 
@@ -214,7 +214,7 @@ func StartServer(conf interfaces.Config) {
 	appLogger.Verbose(3)
 	appLogger.Info("Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort))
 
-	http.Handle("/", http.FileServer(http.Dir(conf.Server.BaseDir+"/static")))
+	http.Handle("/", http.FileServer(http.Dir("server/static")))
 	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/archive", archiveHandler)
 	http.HandleFunc("/settings", settingsHandler)
