@@ -40,7 +40,6 @@ func PerformConfigGrab() {
 
     // Clean up tftp directory
     removeDir(conf.FullConfDir)
-    os.Truncate("results.log", 0)
 
     hosts, err := loadDeviceList(conf)
     if err != nil {
@@ -70,9 +69,6 @@ func PerformSingleRun(name, hostname, brand, proto string) {
     configGrabRunning = true
     defer func() { configGrabRunning = false }()
 
-    // Clean up tftp directory
-    os.Truncate("results.log", 0)
-
     hosts := make([]host, 1)
 
     hosts[0] = host{
@@ -88,30 +84,6 @@ func PerformSingleRun(name, hostname, brand, proto string) {
 
     grabConfigs(hosts, dateSuffix, conf)
     tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
-
-    endTime := time.Now()
-    appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())
-    return
-}
-
-// Used for testing purposes
-func PerformFakeConfigGrab() {
-    if configGrabRunning {
-        appLogger.Error("Job already running")
-        return
-    }
-
-    startTime := time.Now()
-    configGrabRunning = true
-    defer func() { configGrabRunning = false }()
-
-    totalDevices = 12
-    finishedDevices = 0
-
-    for i := 0; i < 12; i++ {
-        time.Sleep(5*time.Second)
-        finishedDevices++
-    }
 
     endTime := time.Now()
     appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())
