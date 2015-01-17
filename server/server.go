@@ -102,6 +102,16 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			response = "{\"success\": true}"
 		}
 		break
+
+	case "savedevicetypes":
+		listText, _ := url.QueryUnescape(r.FormValue("text"))
+		err := ioutil.WriteFile(config.DeviceTypeFile, []byte(listText), 0664)
+		if err != nil {
+			response = "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
+		} else {
+			response = "{\"success\": true}"
+		}
+		break
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -119,7 +129,7 @@ func archiveHandler(w http.ResponseWriter, r *http.Request) {
 // Generate page with the application configuration
 func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
-	confText, err := ioutil.ReadFile("configuration.toml")
+	confText, err := ioutil.ReadFile("config/configuration.toml")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -131,7 +141,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// Generate page with the application configuration
+// Generate page with the device definitions
 func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	confText, err := ioutil.ReadFile(config.DeviceListFile)
@@ -144,6 +154,22 @@ func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 		Path     string
 	}{string(confText), config.DeviceListFile}
 	renderTemplate(w, "deviceListPage", data)
+	return
+}
+
+// Generate page with the device type definitions
+func deviceTypesHandler(w http.ResponseWriter, r *http.Request) {
+	defer httpRecovery(w)
+	confText, err := ioutil.ReadFile(config.DeviceTypeFile)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	data := struct {
+		ConfText string
+		Path     string
+	}{string(confText), config.DeviceTypeFile}
+	renderTemplate(w, "deviceTypePage", data)
 	return
 }
 
@@ -225,6 +251,7 @@ func StartServer(conf interfaces.Config) {
 	http.HandleFunc("/view/", viewConfHandler)
 	http.HandleFunc("/download/", downloadConfHandler)
 	http.HandleFunc("/devicelist", deviceListHandler)
+	http.HandleFunc("/devicetypes", deviceTypesHandler)
 
 	appLogger.Info("Server ready")
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)

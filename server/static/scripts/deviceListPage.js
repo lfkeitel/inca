@@ -15,7 +15,16 @@ function saveDeviceList() {
         });
 }
 
-(function() {
-    $('#saveDeviceListBtn').click(saveDeviceList);
-    return;
-})();
+function saveDeviceTypes() {
+    var listText = $('#deviceTypeConfig').val();
+
+    $.post('/api/savedevicetypes', {text: encodeURIComponent(listText)}, null, "json")
+        .done(function(data) {
+            if (!data.success) {
+                alert(data.error);
+            } else {
+                alert("Device type definitions saved");
+            }
+        });
+
+}
