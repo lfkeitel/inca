@@ -1,14 +1,9 @@
 package server
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strconv"
 	"strings"
-
-	"github.com/dragonrider23/infrastructure-config-archive/grabber"
 )
 
 // Handler for general API functions such as status, and initiating a config run
@@ -16,55 +11,36 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 
 	splitUrl := strings.Split(r.URL.Path, "/") // [0] = '', [1] = 'api', [2:] = Custom path
-	response := ""
+	var response string
+	api := apiRequest{}
 
 	switch splitUrl[2] {
 	case "running":
-		response = "{\"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
+		response = api.running()
 		break
 
 	case "runnow":
-		go grabber.PerformConfigGrab()
-		response = "{\"status\": \"started\", \"running\": true}"
+		response = api.runnow()
 		break
 
 	case "singlerun":
-		name := r.FormValue("name")
-		hostname := r.FormValue("hostname")
-		brand := r.FormValue("brand")
-		proto := r.FormValue("proto")
-		go grabber.PerformSingleRun(name, hostname, brand, proto)
-		response = "{\"status\": \"started\", \"running\": true}"
+		response = api.singlerun(r)
 		break
 
 	case "status":
-		total, finished := grabber.Remaining()
-		response = "{\"status\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"totalDevices\": " + strconv.Itoa(total) + ", \"finished\": " + strconv.Itoa(finished) + "}"
+		response = api.status()
 		break
 
 	case "devicelist":
-		deviceList, _ := json.Marshal(getDeviceList())
-		response = string(deviceList)
+		response = api.devicelist()
 		break
 
 	case "savedevicelist":
-		listText, _ := url.QueryUnescape(r.FormValue("text"))
-		err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
-		if err != nil {
-			response = "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
-		} else {
-			response = "{\"success\": true}"
-		}
+		response = api.savedevicelist(r)
 		break
 
 	case "savedevicetypes":
-		listText, _ := url.QueryUnescape(r.FormValue("text"))
-		err := ioutil.WriteFile(config.DeviceTypeFile, []byte(listText), 0664)
-		if err != nil {
-			response = "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
-		} else {
-			response = "{\"success\": true}"
-		}
+		response = api.savedevicetypes(r)
 		break
 	}
 
