@@ -4,28 +4,30 @@
 
 var deviceList;
 
-var server = {
-    getDeviceList: function(callback) {
-        $.get('/api/devicelist', {}, null, 'json')
-            .done(function(data) {
-                if (typeof callback !== 'undefined') {
-                    callback(data);
-                }
-                return;
-            });
-        return;
-    },
+if (typeof server === 'undefined') {
+    var server = {};
+}
 
-    runSingleDeviceGrab: function(address, brand, proto, name, callback) {
-        $.get('/api/singlerun', {hostname: address, name: name, proto: proto, brand: brand}, null, 'json')
-            .done(function(data) {
-                if (typeof callback !== 'undefined') {
-                    callback(data);
-                }
-                return;
-            });
-        return;
-    }
+server.getDeviceList = function(callback) {
+    $.get('/api/devicelist', {}, null, 'json')
+        .done(function(data) {
+            if (typeof callback !== 'undefined') {
+                callback(data);
+            }
+            return;
+        });
+    return;
+};
+
+server.runSingleDeviceGrab = function(address, brand, proto, name, callback) {
+    $.get('/api/singlerun', {hostname: address, name: name, proto: proto, brand: brand}, null, 'json')
+        .done(function(data) {
+            if (typeof callback !== 'undefined') {
+                callback(data);
+            }
+            return;
+        });
+    return;
 };
 
 function singleRun(address, brand, proto, name) {

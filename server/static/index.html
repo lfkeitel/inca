@@ -36,6 +36,9 @@
 					<li>
 						<a href="/devicelist">Device List</a>
 					</li>
+                    <li>
+                        <a href="/devicetypes">Device Types</a>
+                    </li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<li><a href="/settings"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></li>
@@ -56,25 +59,45 @@
 	            <button type="button" class="btn btn-default" id="startArchiveBtn">Start Archive Job</button>
 			</div>
 		</div>
-		<div class="row clearfix">
-			<div class="col-md-4 column">
+		<div class="row clearfix top-buffer">
+			<div class="col-md-6 column">
+				<h3>Manually Run Device</h3>
+				<form>
+					<div class="form-group">
+						<label for="manName">Name</label>
+						<input type="email" class="form-control" id="manName">
+					</div>
+					<div class="form-group">
+						<label for="manAddr">Address</label>
+						<input type="email" class="form-control" id="manAddr">
+					</div>
+					<div class="form-group">
+						<label for="manType">Type</label>
+						<input type="email" class="form-control" id="manType">
+					</div>
+					<div class="form-group">
+						<label for="manProto">Protocol</label>
+						<input type="email" class="form-control" id="manProto">
+					</div>
+					<button class="btn btn-default" type="button" id="manualRunBtn">Run</button>
+				</form>
 			</div>
-			<div class="col-md-4 column">
-			</div>
-			<div class="col-md-4 column">
+			<div class="col-md-6 column">
 			</div>
 		</div>
 	</div>
 
 	<footer class="footer">
       <div class="container">
-        <p class="text-muted">This application is copyright &copy; 2014 Onesimus Computer Systems. This application is released under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html" target="_blank">GNU General Public License version 3</a>.</p>
+        <p class="text-muted">This application is copyright &copy; 2015 Onesimus Computer Systems. This application is released under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html" target="_blank">GNU General Public License version 3</a>.</p>
       </div>
     </footer>
 
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+
     <script type="text/javascript" src="/scripts/main.js"></script>
+    <script type="text/javascript" src="/scripts/archive.js"></script>
     <!-- <script type="text/javascript" src="/js/prod.min.js"></script> -->
 </body>
 </html>

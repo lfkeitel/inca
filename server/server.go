@@ -34,7 +34,7 @@ var config interfaces.Config
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration interfaces.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob(config.Server.BaseDir + "/templates/*.tmpl"))
+	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
 	appLogger = logs.New("httpServer")
 }
 
@@ -102,6 +102,16 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			response = "{\"success\": true}"
 		}
 		break
+
+	case "savedevicetypes":
+		listText, _ := url.QueryUnescape(r.FormValue("text"))
+		err := ioutil.WriteFile(config.DeviceTypeFile, []byte(listText), 0664)
+		if err != nil {
+			response = "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
+		} else {
+			response = "{\"success\": true}"
+		}
+		break
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -119,7 +129,7 @@ func archiveHandler(w http.ResponseWriter, r *http.Request) {
 // Generate page with the application configuration
 func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
-	confText, err := ioutil.ReadFile("configuration.toml")
+	confText, err := ioutil.ReadFile("config/configuration.toml")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -131,7 +141,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// Generate page with the application configuration
+// Generate page with the device definitions
 func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	confText, err := ioutil.ReadFile(config.DeviceListFile)
@@ -144,6 +154,22 @@ func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 		Path     string
 	}{string(confText), config.DeviceListFile}
 	renderTemplate(w, "deviceListPage", data)
+	return
+}
+
+// Generate page with the device type definitions
+func deviceTypesHandler(w http.ResponseWriter, r *http.Request) {
+	defer httpRecovery(w)
+	confText, err := ioutil.ReadFile(config.DeviceTypeFile)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	data := struct {
+		ConfText string
+		Path     string
+	}{string(confText), config.DeviceTypeFile}
+	renderTemplate(w, "deviceTypePage", data)
 	return
 }
 
@@ -191,14 +217,18 @@ func getDeviceList() deviceList {
 	deviceConfigs := deviceList{}
 
 	for _, file := range configFileList {
-		splitName := strings.Split(file.Name(), "-")   // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
+		filename := file.Name()
+		if filename[0] == '.' {
+			continue
+		}
+		splitName := strings.Split(filename, "-")      // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
 		splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
 
 		device := deviceConfigFile{
-			Path:    file.Name(),
-			Name:    splitName[0],
-			Address: splitName[2],
-			Proto:   splitProto[0],
+			Path:         file.Name(),
+			Name:         splitName[0],
+			Address:      splitName[2],
+			Proto:        splitProto[0],
 			Manufacturer: splitName[3],
 		}
 		deviceConfigs.Devices = append(deviceConfigs.Devices, device)
@@ -214,13 +244,14 @@ func StartServer(conf interfaces.Config) {
 	appLogger.Verbose(3)
 	appLogger.Info("Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort))
 
-	http.Handle("/", http.FileServer(http.Dir(conf.Server.BaseDir+"/static")))
+	http.Handle("/", http.FileServer(http.Dir("server/static")))
 	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/archive", archiveHandler)
 	http.HandleFunc("/settings", settingsHandler)
 	http.HandleFunc("/view/", viewConfHandler)
 	http.HandleFunc("/download/", downloadConfHandler)
 	http.HandleFunc("/devicelist", deviceListHandler)
+	http.HandleFunc("/devicetypes", deviceTypesHandler)
 
 	appLogger.Info("Server ready")
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)
