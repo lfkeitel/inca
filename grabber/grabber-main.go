@@ -46,11 +46,17 @@ func PerformConfigGrab() {
 		return
 	}
 
+	dtypes, err := loadDeviceTypes(conf)
+	if err != nil {
+		appLogger.Error(err.Error())
+		return
+	}
+
 	totalDevices = len(hosts)
 	finishedDevices = 0
 	dateSuffix := time.Now().Format("2006012")
 
-	grabConfigs(hosts, dateSuffix, conf)
+	grabConfigs(hosts, dtypes, dateSuffix, conf)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()
@@ -58,7 +64,7 @@ func PerformConfigGrab() {
 	return
 }
 
-func PerformSingleRun(name, hostname, brand, proto string) {
+func PerformSingleRun(name, hostname, brand, method string) {
 	if configGrabRunning {
 		appLogger.Error("Job already running")
 		return
@@ -71,17 +77,23 @@ func PerformSingleRun(name, hostname, brand, proto string) {
 	hosts := make([]host, 1)
 
 	hosts[0] = host{
-		name:         name,
-		address:      hostname,
-		manufacturer: brand,
-		proto:        proto,
+		name:    name,
+		address: hostname,
+		dtype:   brand,
+		method:  method,
+	}
+
+	dtypes, err := loadDeviceTypes(conf)
+	if err != nil {
+		appLogger.Error(err.Error())
+		return
 	}
 
 	totalDevices = 1
 	finishedDevices = 0
 	dateSuffix := time.Now().Format("2006012")
 
-	grabConfigs(hosts, dateSuffix, conf)
+	grabConfigs(hosts, dtypes, dateSuffix, conf)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()

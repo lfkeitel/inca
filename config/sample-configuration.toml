@@ -10,9 +10,10 @@ EnablePassword = ""
 
 # Filename of device list
 DeviceListFile = "config/device-definitions.conf"
+DeviceTypeFile = "config/device-types.conf"
 
 # Folder being served by the TFTP server
-FullConfDir    = "/tftpboot"
+FullConfDir    = "latest"
 
 # Maximum number of concurrent connections to devices
 MaxSimultaneousConn = 100

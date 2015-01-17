@@ -191,14 +191,18 @@ func getDeviceList() deviceList {
 	deviceConfigs := deviceList{}
 
 	for _, file := range configFileList {
-		splitName := strings.Split(file.Name(), "-")   // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
+		filename := file.Name()
+		if filename[0] == '.' {
+			continue
+		}
+		splitName := strings.Split(filename, "-")      // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
 		splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
 
 		device := deviceConfigFile{
-			Path:    file.Name(),
-			Name:    splitName[0],
-			Address: splitName[2],
-			Proto:   splitProto[0],
+			Path:         file.Name(),
+			Name:         splitName[0],
+			Address:      splitName[2],
+			Proto:        splitProto[0],
 			Manufacturer: splitName[3],
 		}
 		deviceConfigs.Devices = append(deviceConfigs.Devices, device)

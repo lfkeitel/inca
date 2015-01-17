@@ -2,8 +2,8 @@
 
 # Set variables
 set hostname [lindex $argv 0]
-set password [lindex $argv 1]
-set username [lindex $argv 2]
+set username [lindex $argv 1]
+set password [lindex $argv 2]
 set confFileName [lindex $argv 3]
 
 # Announce which device we are working on and at what time

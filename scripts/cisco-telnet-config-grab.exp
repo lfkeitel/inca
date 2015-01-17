@@ -1,12 +1,11 @@
 #!/usr/bin/expect -f
 
 # Set variables
-set tftphost [lindex $argv 0]
-set hostname [lindex $argv 1]
+set hostname [lindex $argv 0]
+set username [lindex $argv 1]
 set password [lindex $argv 2]
-set username [lindex $argv 3]
-set confFileName [lindex $argv 4]
-set enablepassword [lindex $argv 5]
+set confFileName [lindex $argv 3]
+set enablepassword [lindex $argv 4]
 
 # Announce which device we are working on and at what time
 send_user "\n"
@@ -42,13 +41,14 @@ expect {
         expect "*#"
     }
 }
-send_user "\n$confFileName\n"
-send "copy running-config tftp://$tftphost/$confFileName\n"
-expect "$tftphost"
-send "\n"
-expect "$confFileName"
-send "\n"
 
+send "terminal length 0\n"
 expect "#"
+
+log_file -noappend $confFileName
+send "show running-config\n"
+expect "#"
+log_file
+
 send "exit\n"
 exit
