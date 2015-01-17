@@ -1,4 +1,4 @@
-/* global $:false, setInterval, clearInterval */
+/* global $:false, setInterval, clearInterval, alert */
 
 "use strict"; // jshint ignore:line
 var runningRefreshTimer = null;
@@ -52,6 +52,15 @@ function updateView(data) {
         progressBar.setProgressBarValue(data.finished);
     }
 
+    return;
+}
+
+function manualSingleDeviceRun() {
+    var manName = $('#manName').val();
+    var manAddr = $('#manAddr').val();
+    var manType = $('#manType').val();
+    var manProto = $('#manProto').val();
+    server.runSingleDeviceGrab(manAddr, manType, manProto, manName, function(data){alert("Downloading new config. Check Status page.");});
     return;
 }
 
@@ -113,6 +122,7 @@ var progressBar = {
 
 (function() {
     $('#startArchiveBtn').click(run);
+    $('#manualRunBtn').click(manualSingleDeviceRun);
     server.checkStatus(updateView);
     bgRefreshTimer = setInterval(function() { server.checkStatus(updateView); }, 30000);
 })();

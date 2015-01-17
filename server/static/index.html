@@ -56,12 +56,30 @@
 	            <button type="button" class="btn btn-default" id="startArchiveBtn">Start Archive Job</button>
 			</div>
 		</div>
-		<div class="row clearfix">
-			<div class="col-md-4 column">
+		<div class="row clearfix top-buffer">
+			<div class="col-md-6 column">
+				<h3>Manually Run Device</h3>
+				<form>
+					<div class="form-group">
+						<label for="manName">Name</label>
+						<input type="email" class="form-control" id="manName">
+					</div>
+					<div class="form-group">
+						<label for="manAddr">Address</label>
+						<input type="email" class="form-control" id="manAddr">
+					</div>
+					<div class="form-group">
+						<label for="manType">Type</label>
+						<input type="email" class="form-control" id="manType">
+					</div>
+					<div class="form-group">
+						<label for="manProto">Protocol</label>
+						<input type="email" class="form-control" id="manProto">
+					</div>
+					<button class="btn btn-default" type="button" id="manualRunBtn">Run</button>
+				</form>
 			</div>
-			<div class="col-md-4 column">
-			</div>
-			<div class="col-md-4 column">
+			<div class="col-md-6 column">
 			</div>
 		</div>
 	</div>
@@ -74,7 +92,9 @@
 
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+
     <script type="text/javascript" src="/scripts/main.js"></script>
+    <script type="text/javascript" src="/scripts/archive.js"></script>
     <!-- <script type="text/javascript" src="/js/prod.min.js"></script> -->
 </body>
 </html>
