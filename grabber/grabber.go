@@ -21,14 +21,22 @@ func loadDeviceList(conf interfaces.Config) ([]host, error) {
 	scanner := bufio.NewScanner(listFile)
 	scanner.Split(bufio.ScanLines)
 	hostList := make([]host, 0)
+	lineNum := 0
 
 	for scanner.Scan() {
 		line := scanner.Text()
+		lineNum++
+
 		if len(line) < 1 || line[0] == '#' || line[0] == ' ' {
 			continue
 		}
 
-		splitLine := strings.Split(line, ":")
+		splitLine := strings.Split(line, "::")
+
+		if len(splitLine) != 4 {
+			appLogger.Error("Error on line %d in device configuration", lineNum)
+			continue
+		}
 
 		device := host{
 			name:         splitLine[0],
