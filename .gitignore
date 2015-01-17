@@ -1,4 +1,5 @@
 configuration.toml
+device-list-dev.txt
 node_modules/*
 archive/*
 *logs/*
