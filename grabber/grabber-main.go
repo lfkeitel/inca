@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	logger "github.com/dragonrider23/go-logger"
+	"github.com/dragonrider23/go-logger"
 	"github.com/dragonrider23/infrastructure-config-archive/comm"
 	"github.com/dragonrider23/infrastructure-config-archive/targz"
 )

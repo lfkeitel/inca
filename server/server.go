@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	logs "github.com/dragonrider23/go-logger"
+	"github.com/dragonrider23/go-logger"
 	"github.com/dragonrider23/infrastructure-config-archive/comm"
 )
 
@@ -25,14 +25,14 @@ type deviceList struct {
 }
 
 var templates *template.Template
-var appLogger *logs.Logger
+var appLogger *logger.Logger
 var config comm.Config
 
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration comm.Config) {
 	config = configuration
 	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
-	appLogger = logs.New("httpServer").Path("logs/server/")
+	appLogger = logger.New("httpServer").Path("logs/server/")
 }
 
 // Start front-end HTTP server
@@ -63,7 +63,7 @@ func StartServer(conf comm.Config) {
 // Wrapper to render template of name
 func renderTemplate(w http.ResponseWriter, name string, d interface{}) {
 	err := templates.ExecuteTemplate(w, name, d)
-	if isErr := logs.CheckError(err, appLogger); isErr {
+	if isErr := logger.CheckError(err, appLogger); isErr {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	return

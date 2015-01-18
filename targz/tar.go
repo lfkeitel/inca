@@ -11,7 +11,7 @@ import (
 	"io"
 	"os"
 
-	logger "github.com/dragonrider23/go-logger"
+	"github.com/dragonrider23/go-logger"
 )
 
 var appLogger *logger.Logger
