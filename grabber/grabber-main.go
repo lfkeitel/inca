@@ -1,28 +1,29 @@
 package grabber
 
 import (
+	"fmt"
 	"time"
 
 	logger "github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/interfaces"
+	"github.com/dragonrider23/infrastructure-config-archive/comm"
 	"github.com/dragonrider23/infrastructure-config-archive/targz"
 )
 
 var appLogger *logger.Logger
 var stdOutLogger *logger.Logger
 var configGrabRunning bool
-var conf interfaces.Config
+var conf comm.Config
 
 var totalDevices = 0
 var finishedDevices = 0
 
 func init() {
-	appLogger = logger.New("grabber").Verbose(3)
-	stdOutLogger = logger.New("execStdOut")
+	appLogger = logger.New("grabber").Verbose(3).Path("logs/main/")
+	stdOutLogger = logger.New("execStdOut").Path("logs/main/")
 	configGrabRunning = false
 }
 
-func LoadConfig(config interfaces.Config) {
+func LoadConfig(config comm.Config) {
 	conf = config
 	return
 }
@@ -60,7 +61,9 @@ func PerformConfigGrab() {
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()
-	appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())
+	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
+	appLogger.Info(logText)
+	comm.UserLogInfo(logText)
 	return
 }
 
@@ -97,7 +100,9 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()
-	appLogger.Info("Config grab took %s", endTime.Sub(startTime).String())
+	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
+	appLogger.Info(logText)
+	comm.UserLogInfo(logText)
 	return
 }
 

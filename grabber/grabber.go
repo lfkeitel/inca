@@ -3,15 +3,16 @@ package grabber
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
 
-	"github.com/dragonrider23/infrastructure-config-archive/interfaces"
+	"github.com/dragonrider23/infrastructure-config-archive/comm"
 )
 
-func loadDeviceList(conf interfaces.Config) ([]host, error) {
+func loadDeviceList(conf comm.Config) ([]host, error) {
 	listFile, err := os.Open(conf.DeviceListFile)
 	if err != nil {
 		return nil, err
@@ -34,7 +35,9 @@ func loadDeviceList(conf interfaces.Config) ([]host, error) {
 		splitLine := strings.Split(line, "::")
 
 		if len(splitLine) != 4 {
-			appLogger.Error("Error on line %d in device configuration", lineNum)
+			logText := fmt.Sprintf("Error on line %d in device configuration", lineNum)
+			appLogger.Warning(logText)
+			comm.UserLogWarning(logText)
 			continue
 		}
 
@@ -51,7 +54,7 @@ func loadDeviceList(conf interfaces.Config) ([]host, error) {
 	return hostList, nil
 }
 
-func loadDeviceTypes(conf interfaces.Config) ([]dtype, error) {
+func loadDeviceTypes(conf comm.Config) ([]dtype, error) {
 	typeFile, err := os.Open(conf.DeviceTypeFile)
 	if err != nil {
 		return nil, err
@@ -74,7 +77,9 @@ func loadDeviceTypes(conf interfaces.Config) ([]dtype, error) {
 		splitLine := strings.Split(line, "::")
 
 		if len(splitLine) != 4 {
-			appLogger.Error("Error on line %d in device type configuration", lineNum)
+			logText := fmt.Sprintf("Error on line %d in device type configuration", lineNum)
+			appLogger.Warning(logText)
+			comm.UserLogWarning(logText)
 			continue
 		}
 
@@ -91,7 +96,7 @@ func loadDeviceTypes(conf interfaces.Config) ([]dtype, error) {
 	return dtypeList, nil
 }
 
-func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf interfaces.Config) error {
+func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf comm.Config) error {
 	var wg sync.WaitGroup
 	ccg := newConnGroup(conf) // Used to enforce a maximum number of connections
 
@@ -118,7 +123,9 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf interface
 		}
 
 		if !match {
-			appLogger.Warning("Device type '%s' using method '%s' wasn't found.", host.dtype, host.method)
+			logText := fmt.Sprintf("Device type '%s' using method '%s' wasn't found.", host.dtype, host.method)
+			appLogger.Warning(logText)
+			comm.UserLogWarning(logText)
 			finishedDevices++
 		}
 		ccg.wait()
@@ -128,7 +135,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf interface
 	return nil
 }
 
-func getConfigFileName(host host, dateSuffix string, conf interfaces.Config) string {
+func getConfigFileName(host host, dateSuffix string, conf comm.Config) string {
 	var filename bytes.Buffer
 
 	filename.WriteString(conf.FullConfDir)
@@ -149,7 +156,7 @@ func getConfigFileName(host host, dateSuffix string, conf interfaces.Config) str
 	return filename.String()
 }
 
-func getArguments(argStr string, host host, filename string, conf interfaces.Config) []string {
+func getArguments(argStr string, host host, filename string, conf comm.Config) []string {
 	args := strings.Split(argStr, ",")
 	argList := make([]string, len(args))
 	for i, a := range args {

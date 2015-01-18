@@ -42,6 +42,10 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	case "savedevicetypes":
 		response = api.savedevicetypes(r)
 		break
+
+	case "errorlog":
+		response = api.errorlog(r)
+		break
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -58,3 +58,35 @@ code {
 .top-buffer {
   margin-top: 20px;
 }
+
+#appLogs {
+  table {
+    width: 100%;
+
+    thead {
+      background-color: #e6e6fa;
+      font-weight: bold;
+      border-bottom: solid black 1px;
+    }
+
+    td {
+      padding: 4px 7px;
+    }
+
+    tr {
+      .warning {
+        background-color: orange;
+      }
+
+      .error {
+        background-color: #FF6666;
+        color: white;
+      }
+
+      .fatal {
+        background-color: red;
+        color: white;
+      }
+    }
+  }
+}

@@ -21,10 +21,26 @@ module.exports = function(grunt) {
       }
     },
 
+    less: {
+      dev: {
+        files: [{
+          expand: true,
+          cwd: 'server/static/styles/less',
+          src: ['*.less'],
+          dest: 'server/static/styles/css/',
+          ext: '.css'
+        }]
+      }
+    },
+
     watch: {
       scripts: {
         files: ['server/static/scripts/*.js'],
         tasks: ['newer:jshint:all']
+      },
+      less: {
+        files: ['server/static/styles/less/*.less'],
+        tasks: ['newer:less:dev']
       }
     }
   });
@@ -36,9 +52,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-newer');
 
-  grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('prod', ['jshint', 'uglify'])
+  grunt.registerTask('default', ['jshint', 'less:dev']);
+  grunt.registerTask('prod', ['jshint', 'uglify', 'less:dev'])
 
 };

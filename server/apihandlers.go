@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
+	"github.com/dragonrider23/infrastructure-config-archive/comm"
 	"github.com/dragonrider23/infrastructure-config-archive/grabber"
 )
 
@@ -58,4 +60,51 @@ func (a *apiRequest) savedevicetypes(r *http.Request) string {
 	} else {
 		return "{\"success\": true}"
 	}
+}
+
+type errorLogLine struct {
+	Etype   string
+	Time    string
+	Message string
+}
+
+func (a *apiRequest) errorlog(r *http.Request) string {
+	limit, _ := strconv.Atoi(r.FormValue("limit"))
+	log, err := ioutil.ReadFile("logs/endUser/enduserlog-log.log")
+	if err != nil {
+		return "{}"
+	}
+
+	logLines := strings.Split(string(log), "\n")
+
+	// Remove last element if blank line
+	if logLines[len(logLines)-1] == "" {
+		logLines = logLines[:len(logLines)-1]
+	}
+
+	logLines = comm.ReverseSlice(logLines)
+
+	// If the slice is longer than the requested events, shorten it
+	if len(logLines) > limit {
+		logLines = append([]string(nil), logLines[:limit]...)
+	}
+
+	// Parse the log lines into their elemental parts
+	parsedLines := []errorLogLine{}
+	for _, l := range logLines {
+		line := strings.Split(l, ":-:")
+
+		sLine := errorLogLine{
+			Etype:   line[0],
+			Time:    line[1],
+			Message: line[2],
+		}
+		parsedLines = append(parsedLines, sLine)
+	}
+
+	logJson, err := json.Marshal(parsedLines)
+	if err != nil {
+		return "{}"
+	}
+	return string(logJson)
 }

@@ -17,7 +17,7 @@ import (
 var appLogger *logger.Logger
 
 func init() {
-	appLogger = logger.New("tarGz-log")
+	appLogger = logger.New("tarGz-log").Path("logs/tar/")
 }
 
 func handleError(_e error) {
