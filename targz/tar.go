@@ -6,78 +6,77 @@ package tarGz
  */
 
 import (
-    "os"
-    "io"
-    "archive/tar"
-    "compress/gzip"
+	"archive/tar"
+	"compress/gzip"
+	"io"
+	"os"
 
-    logger "github.com/dragonrider23/go-logger"
+	"github.com/dragonrider23/go-logger"
 )
 
 var appLogger *logger.Logger
 
 func init() {
-    appLogger = logger.New("tarGz-log")
+	appLogger = logger.New("tarGz-log").Path("logs/tar/")
 }
 
 func handleError(_e error) {
-    if _e != nil {
-        appLogger.Error(_e.Error())
-    }
+	if _e != nil {
+		appLogger.Error(_e.Error())
+	}
 }
 
-func TarGzWrite(_path string, tw *tar.Writer, fi os.FileInfo) {
-    fr, err := os.Open(_path)
-    handleError(err)
-    defer fr.Close()
+func tarGzWrite(_path string, tw *tar.Writer, fi os.FileInfo) {
+	fr, err := os.Open(_path)
+	handleError(err)
+	defer fr.Close()
 
-    h := new(tar.Header)
-    h.Name = _path
-    h.Size = fi.Size()
-    h.Mode = int64(fi.Mode())
-    h.ModTime = fi.ModTime()
+	h := new(tar.Header)
+	h.Name = _path
+	h.Size = fi.Size()
+	h.Mode = int64(fi.Mode())
+	h.ModTime = fi.ModTime()
 
-    err = tw.WriteHeader(h)
-    handleError(err)
+	err = tw.WriteHeader(h)
+	handleError(err)
 
-    _, err = io.Copy(tw, fr)
-    handleError(err)
-    return
+	_, err = io.Copy(tw, fr)
+	handleError(err)
+	return
 }
 
-func IterDirectory(dirPath string, tw *tar.Writer) {
-    dir, err := os.Open(dirPath)
-    handleError(err)
-    defer dir.Close()
-    fis, err := dir.Readdir(0)
-    handleError(err)
-    for _, fi := range fis {
-        curPath := dirPath + "/" + fi.Name()
-        if fi.IsDir() {
-            //TarGzWrite(curPath, tw, fi)
-            IterDirectory(curPath, tw)
-        } else {
-            appLogger.Info("adding... %s", curPath)
-            TarGzWrite(curPath, tw, fi)
-        }
-    }
-    return
+func iterDirectory(dirPath string, tw *tar.Writer) {
+	dir, err := os.Open(dirPath)
+	handleError(err)
+	defer dir.Close()
+	fis, err := dir.Readdir(0)
+	handleError(err)
+	for _, fi := range fis {
+		curPath := dirPath + "/" + fi.Name()
+		if fi.IsDir() {
+			iterDirectory(curPath, tw)
+		} else {
+			appLogger.Info("adding... %s", curPath)
+			tarGzWrite(curPath, tw, fi)
+		}
+	}
+	return
 }
 
 func TarGz(outFilePath string, inPath string) {
-    // file write
-    fw, err := os.Create(outFilePath)
-    handleError(err)
-    defer fw.Close()
+	// file write
+	fw, err := os.Create(outFilePath)
+	handleError(err)
+	defer fw.Close()
 
-    // gzip write
-    gw := gzip.NewWriter(fw)
-    defer gw.Close()
+	// gzip write
+	gw := gzip.NewWriter(fw)
+	defer gw.Close()
 
-    // tar write
-    tw := tar.NewWriter(gw)
-    defer tw.Close()
+	// tar write
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
 
-    IterDirectory(inPath, tw)
-    return
+	iterDirectory(inPath, tw)
+	return
 }

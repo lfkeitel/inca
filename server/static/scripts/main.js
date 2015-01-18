@@ -6,7 +6,7 @@ var bgRefreshTimer = null;
 
 function run() {
     server.performRun(function(data) {
-        updateView({"running": true, "totalDevices": 1, "finished": 0});
+        view.updateView({"running": true, "totalDevices": 1, "finished": 0});
         progressBar.setProgressBarToRunning(true);
     });
     if (runningRefreshTimer === null) {
@@ -15,7 +15,7 @@ function run() {
 }
 
 function checkRequest(data) {
-    updateView(data);
+    view.updateView(data);
 
     if (!data.running) {
         clearInterval(runningRefreshTimer);
@@ -24,36 +24,71 @@ function checkRequest(data) {
     }
 }
 
-function updateView(data) {
-    progressBar.setProgressBarActive(data.running);
+var view = {
+    updateView: function(data) {
+        progressBar.setProgressBarActive(data.running);
 
-    if (data.running === false) {
-        $('#currentStatus').html('Idle').addClass('idleStatus');
-        $('#currentStatus').removeClass('runningStatus');
-        if (bgRefreshTimer === null) {
-            bgRefreshTimer = setInterval(function() { server.checkStatus(updateView); }, 30000);
+        if (data.running === false) {
+            $('#currentStatus').html('Idle').addClass('idleStatus');
+            $('#currentStatus').removeClass('runningStatus');
+            server.getErrorLog(view.updateLogView);
+            if (bgRefreshTimer === null) {
+                bgRefreshTimer = setInterval(function() { server.checkStatus(view.updateView); }, 30000);
+            }
+        } else {
+            $('#currentStatus').html('Running').addClass('runningStatus');
+            $('#currentStatus').removeClass('idleStatus');
+            server.getErrorLog(view.updateLogView);
+            if (runningRefreshTimer === null) {
+                clearInterval(bgRefreshTimer);
+                bgRefreshTimer = null;
+                progressBar.setProgressBarToRunning(true);
+                runningRefreshTimer = setInterval(function() { server.checkStatus(checkRequest); }, 1000);
+            }
         }
-    } else {
-        $('#currentStatus').html('Running').addClass('runningStatus');
-        $('#currentStatus').removeClass('idleStatus');
-        if (runningRefreshTimer === null) {
-            clearInterval(bgRefreshTimer);
-            bgRefreshTimer = null;
-            progressBar.setProgressBarToRunning(true);
-            runningRefreshTimer = setInterval(function() { server.checkStatus(checkRequest); }, 1000);
+
+        if (data.finished < 0) {
+            progressBar.setProgressBarMax(100);
+            progressBar.setProgressBarValue(100);
+        } else {
+            progressBar.setProgressBarMax(data.totalDevices);
+            progressBar.setProgressBarValue(data.finished);
         }
-    }
 
-    if (data.finished < 0) {
-        progressBar.setProgressBarMax(100);
-        progressBar.setProgressBarValue(100);
-    } else {
-        progressBar.setProgressBarMax(data.totalDevices);
-        progressBar.setProgressBarValue(data.finished);
-    }
+        return;
+    },
 
-    return;
-}
+    updateLogView: function(data) {
+        // jshint multistr:true
+        var table = $('<table/>');
+        var tableHead = '<thead><tr>\
+            <td>Type</td>\
+            <td>Time</td>\
+            <td>Message</td>\
+            </tr></thead>';
+
+        table.append(tableHead);
+
+        for (var key in data) {
+            if (!data.hasOwnProperty(key))
+                continue;
+
+            var log = data[key];
+
+            var html = '<tr class="'+log.Etype.toLowerCase()+'">\
+                <td class="'+log.Etype.toLowerCase()+'">'+log.Etype+'</td>\
+                <td>'+log.Time+'</td>\
+                <td>'+log.Message+'</td>\
+                </tr>';
+
+            table.append(html);
+        }
+
+        $('#appLogs').empty();
+        $('#appLogs').append(table);
+        return;
+    }
+};
 
 function manualSingleDeviceRun() {
     var manName = $('#manName').val();
@@ -68,23 +103,43 @@ var server = {
     checkStatus: function(callback) {
         $.get('/api/status', {}, null, 'json')
             .done(function(data) {
-                callback(data);
+                if (typeof callback !== 'undefined') {
+                    callback(data);
+                }
+                return;
             });
     },
 
     performRun: function(callback) {
         $.get('/api/runnow', {}, null, 'json')
             .done(function(data) {
-                callback(data);
+                if (typeof callback !== 'undefined') {
+                    callback(data);
+                }
+                return;
             });
     },
 
     getDeviceList: function(callback) {
         $.get('/api/devicelist', {}, null, 'json')
             .done(function(data) {
-                callback(data);
+                if (typeof callback !== 'undefined') {
+                    callback(data);
+                }
+                return;
             });
     },
+
+    getErrorLog: function(callback) {
+        $.get('/api/errorlog', {limit: 10}, null, 'json')
+            .done(function(data) {
+                if (typeof callback !== 'undefined') {
+                    callback(data);
+                }
+                return;
+            });
+
+    }
 }; // server
 
 var progressBar = {
@@ -123,6 +178,7 @@ var progressBar = {
 (function() {
     $('#startArchiveBtn').click(run);
     $('#manualRunBtn').click(manualSingleDeviceRun);
-    server.checkStatus(updateView);
-    bgRefreshTimer = setInterval(function() { server.checkStatus(updateView); }, 30000);
+    server.checkStatus(view.updateView);
+    server.getErrorLog(view.updateLogView);
+    bgRefreshTimer = setInterval(function() { server.checkStatus(view.updateView); }, 30000);
 })();

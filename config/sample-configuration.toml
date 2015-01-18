@@ -13,7 +13,7 @@ DeviceTypeFile = "config/device-types.conf"
 FullConfDir    = "latest"
 
 # Maximum number of concurrent connections to devices
-MaxSimultaneousConn = 100
+MaxSimultaneousConn = 1000
 
 [server]
 # Address to bind server (keep blank unless you know what you're doing)
