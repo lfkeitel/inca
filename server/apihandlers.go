@@ -44,22 +44,28 @@ func (a *apiRequest) devicelist() string {
 
 func (a *apiRequest) savedevicelist(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
-	err := ioutil.WriteFile(config.DeviceListFile, []byte(listText), 0664)
-	if err != nil {
-		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
-	} else {
-		return "{\"success\": true}"
-	}
+	return saveDeviceConfigFile(config.DeviceListFile, listText)
 }
 
 func (a *apiRequest) savedevicetypes(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
-	err := ioutil.WriteFile(config.DeviceTypeFile, []byte(listText), 0664)
+	return saveDeviceConfigFile(config.DeviceTypeFile, listText)
+
+}
+
+// Save text t to file n after validating the text formatting
+func saveDeviceConfigFile(n, t string) string {
+	if err := grabber.CheckDeviceList(t); err != nil {
+		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
+	}
+
+	err := ioutil.WriteFile(n, []byte(t), 0664)
 	if err != nil {
 		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
 	} else {
 		return "{\"success\": true}"
 	}
+
 }
 
 type errorLogLine struct {

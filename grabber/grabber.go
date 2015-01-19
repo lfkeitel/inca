@@ -54,6 +54,23 @@ func loadDeviceList(conf comm.Config) ([]host, error) {
 	return hostList, nil
 }
 
+// Parses string s as if it was a device [type] list and checks for errors
+func CheckDeviceList(s string) error {
+	lines := strings.Split(s, "\n")
+
+	for i, line := range lines {
+		if len(line) < 1 || line[0] == '#' || line[0] == ' ' {
+			continue
+		}
+
+		parsedLine := strings.Split(line, "::")
+		if len(parsedLine) != 4 {
+			return fmt.Errorf("Error on line %d. Expected 4 fields, got %d.\\n'%s'", i+1, len(parsedLine), lines[i])
+		}
+	}
+	return nil
+}
+
 func loadDeviceTypes(conf comm.Config) ([]dtype, error) {
 	typeFile, err := os.Open(conf.DeviceTypeFile)
 	if err != nil {
