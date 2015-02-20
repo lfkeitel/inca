@@ -59,13 +59,12 @@ func saveDeviceConfigFile(n, t string) string {
 		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
 	}
 
+	t = strings.Replace(t, "-", "_", -1)
 	err := ioutil.WriteFile(n, []byte(t), 0664)
 	if err != nil {
 		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
-	} else {
-		return "{\"success\": true}"
 	}
-
+	return "{\"success\": true}"
 }
 
 type errorLogLine struct {
