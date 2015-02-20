@@ -2,6 +2,7 @@ package grabber
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/dragonrider23/go-logger"
@@ -76,6 +77,7 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	startTime := time.Now()
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
+	name = strings.Replace(name, "-", "_", -1)
 
 	hosts := make([]host, 1)
 
