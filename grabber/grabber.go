@@ -199,10 +199,10 @@ func getArguments(argStr string, host host, filename string, conf comm.Config) [
 }
 
 func scriptExecute(sfn string, args []string) error {
-	_, err := exec.Command("scripts/"+sfn, args...).Output()
+	out, err := exec.Command("scripts/"+sfn, args...).Output()
 	if err != nil {
 		appLogger.Error(err.Error())
+		appLogger.Error(string(out))
 	}
-	//stdOutLogger.Info(string(out))
 	return nil
 }
