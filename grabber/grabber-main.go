@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
+	"github.com/dragonrider23/infrastructure-config-archive/common"
 	"github.com/dragonrider23/infrastructure-config-archive/targz"
 )
 
 var appLogger *logger.Logger
 var stdOutLogger *logger.Logger
 var configGrabRunning bool
-var conf comm.Config
+var conf common.Config
 
 var totalDevices = 0
 var finishedDevices = 0
@@ -24,7 +24,7 @@ func init() {
 	configGrabRunning = false
 }
 
-func LoadConfig(config comm.Config) {
+func LoadConfig(config common.Config) {
 	conf = config
 	return
 }
@@ -64,7 +64,7 @@ func PerformConfigGrab() {
 	endTime := time.Now()
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
 	appLogger.Info(logText)
-	comm.UserLogInfo(logText)
+	common.UserLogInfo(logText)
 	return
 }
 
@@ -104,7 +104,7 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	endTime := time.Now()
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
 	appLogger.Info(logText)
-	comm.UserLogInfo(logText)
+	common.UserLogInfo(logText)
 	return
 }
 

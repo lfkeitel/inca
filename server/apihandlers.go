@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
+	"github.com/dragonrider23/infrastructure-config-archive/common"
 	"github.com/dragonrider23/infrastructure-config-archive/grabber"
 )
 
@@ -87,7 +87,7 @@ func (a *apiRequest) errorlog(r *http.Request) string {
 		logLines = logLines[:len(logLines)-1]
 	}
 
-	logLines = comm.ReverseSlice(logLines)
+	logLines = common.ReverseSlice(logLines)
 
 	// If the slice is longer than the requested events, shorten it
 	if len(logLines) > limit {

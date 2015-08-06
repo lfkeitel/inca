@@ -4,18 +4,18 @@ import (
 	"github.com/BurntSushi/toml"
 
 	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
+	"github.com/dragonrider23/infrastructure-config-archive/common"
 	"github.com/dragonrider23/infrastructure-config-archive/grabber"
 	"github.com/dragonrider23/infrastructure-config-archive/server"
 )
 
 var appLogger *logger.Logger
 
-func loadAppConfig() (comm.Config, error) {
-	var conf comm.Config
+func loadAppConfig() (common.Config, error) {
+	var conf common.Config
 	if _, err := toml.DecodeFile("config/configuration.toml", &conf); err != nil {
 		appLogger.Fatal("Couldn't load configuration: %s", err.Error())
-		return comm.Config{}, err
+		return common.Config{}, err
 	}
 	return conf, nil
 }

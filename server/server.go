@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
+	"github.com/dragonrider23/infrastructure-config-archive/common"
 )
 
 type deviceConfigFile struct {
@@ -26,23 +26,23 @@ type deviceList struct {
 
 var templates *template.Template
 var appLogger *logger.Logger
-var config comm.Config
+var config common.Config
 
 // Initialize HTTP server with app configuration and templates
-func initServer(configuration comm.Config) {
+func initServer(configuration common.Config) {
 	config = configuration
 	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
 	appLogger = logger.New("httpServer").Path("logs/server/")
 }
 
 // Start front-end HTTP server
-func StartServer(conf comm.Config) {
+func StartServer(conf common.Config) {
 	initServer(conf)
 
 	logText := "Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort)
 	appLogger.Verbose(3)
 	appLogger.Info(logText)
-	comm.UserLogInfo(logText)
+	common.UserLogInfo(logText)
 
 	http.Handle("/", http.FileServer(http.Dir("server/static")))
 	http.HandleFunc("/api/", apiHandler)
