@@ -1,22 +1,18 @@
 package grabber
 
-import (
-	"github.com/dragonrider23/infrastructure-config-archive/common"
-)
-
-type connGroup struct {
+type maxChanGroup struct {
 	numOfConnections int
 	goChan           chan bool
-	conf             common.Config
+	maxConnections   int
 }
 
-func newConnGroup(conf common.Config) connGroup {
-	return connGroup{
-		conf: conf,
+func newMaxChanGroup(max int) maxChanGroup {
+	return maxChanGroup{
+		maxConnections: max,
 	}
 }
 
-func (c *connGroup) add(delta int) {
+func (c *maxChanGroup) add(delta int) {
 	if c.goChan == nil {
 		c.goChan = make(chan bool)
 	}
@@ -24,17 +20,17 @@ func (c *connGroup) add(delta int) {
 	return
 }
 
-func (c *connGroup) done() {
+func (c *maxChanGroup) done() {
 	c.add(-1)
 	finishedDevices++
-	if c.numOfConnections < c.conf.MaxSimultaneousConn {
+	if c.numOfConnections < c.maxConnections {
 		c.goChan <- true
 	}
 	return
 }
 
-func (c *connGroup) wait() {
-	if c.numOfConnections < c.conf.MaxSimultaneousConn {
+func (c *maxChanGroup) wait() {
+	if c.numOfConnections < c.maxConnections {
 		return
 	}
 	<-c.goChan

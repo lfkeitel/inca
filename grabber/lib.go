@@ -7,18 +7,11 @@ import (
 	"time"
 )
 
-type host struct {
-	name    string
-	address string
-	dtype   string
-	method  string
-}
-
-type dtype struct {
-	deviceType string
-	method     string
-	scriptfile string
-	args       string
+type device struct {
+	deviceid int
+	name     string
+	address  string
+	// Other information
 }
 
 func touch(filename string) error {
@@ -54,4 +47,22 @@ func removeDir(path string) error {
 	}
 
 	return nil
+}
+
+func stringInSlice(needle string, haystack []string) bool {
+	for _, item := range haystack {
+		if item == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func intInSlice(needle int, haystack []int) bool {
+	for _, item := range haystack {
+		if item == needle {
+			return true
+		}
+	}
+	return false
 }

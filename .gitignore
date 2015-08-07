@@ -3,4 +3,4 @@ device-definitions-dev.conf
 node_modules/*
 archive/*
 logs/*
-latest/*
+data/*

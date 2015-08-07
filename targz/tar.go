@@ -63,6 +63,7 @@ func iterDirectory(dirPath string, tw *tar.Writer) {
 	return
 }
 
+// TarGz creates a gzipped tarball named outFilePath from the directory inPath
 func TarGz(outFilePath string, inPath string) {
 	// file write
 	fw, err := os.Create(outFilePath)

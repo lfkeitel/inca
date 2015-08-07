@@ -39,16 +39,9 @@ func PerformConfigGrab() {
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
 
-	// Clean up tftp directory
 	removeDir(conf.FullConfDir)
 
-	hosts, err := loadDeviceList(conf)
-	if err != nil {
-		appLogger.Error(err.Error())
-		return
-	}
-
-	dtypes, err := loadDeviceTypes(conf)
+	hosts, err := loadDeviceList()
 	if err != nil {
 		appLogger.Error(err.Error())
 		return
@@ -56,50 +49,10 @@ func PerformConfigGrab() {
 
 	totalDevices = len(hosts)
 	finishedDevices = 0
-	dateSuffix := time.Now().Format("2006012")
+	dateSuffix := time.Now().Format("20061215")
 
-	grabConfigs(hosts, dtypes, dateSuffix, conf)
-	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
-
-	endTime := time.Now()
-	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
-	appLogger.Info(logText)
-	common.UserLogInfo(logText)
-	return
-}
-
-func PerformSingleRun(name, hostname, brand, method string) {
-	if configGrabRunning {
-		appLogger.Error("Job already running")
-		return
-	}
-
-	startTime := time.Now()
-	configGrabRunning = true
-	defer func() { configGrabRunning = false }()
-	name = strings.Replace(name, "-", "_", -1)
-
-	hosts := make([]host, 1)
-
-	hosts[0] = host{
-		name:    name,
-		address: hostname,
-		dtype:   brand,
-		method:  method,
-	}
-
-	dtypes, err := loadDeviceTypes(conf)
-	if err != nil {
-		appLogger.Error(err.Error())
-		return
-	}
-
-	totalDevices = 1
-	finishedDevices = 0
-	dateSuffix := time.Now().Format("2006012")
-
-	grabConfigs(hosts, dtypes, dateSuffix, conf)
-	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+	grabConfigs(hosts, dateSuffix)
+	//tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
@@ -115,7 +68,7 @@ func IsRunning() bool {
 func Remaining() (total, finished int) {
 	if !configGrabRunning {
 		if totalDevices == 0 {
-			hosts, err := loadDeviceList(conf)
+			hosts, err := loadDeviceList()
 			if err != nil {
 				appLogger.Error(err.Error())
 				return
