@@ -1,13 +1,13 @@
-package grabber
+package configs
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/dragonrider23/go-logger"
+
 	"github.com/dragonrider23/infrastructure-config-archive/common"
-	"github.com/dragonrider23/infrastructure-config-archive/targz"
+	"github.com/dragonrider23/infrastructure-config-archive/devices"
 )
 
 var appLogger *logger.Logger
@@ -39,25 +39,29 @@ func PerformConfigGrab() {
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
 
-	removeDir(conf.FullConfDir)
-
-	hosts, err := loadDeviceList()
+	hosts, err := devices.GetAllDevices()
 	if err != nil {
 		appLogger.Error(err.Error())
 		return
 	}
+	//fmt.Printf("%#v", hosts)
+
+	connProfiles, err := devices.GetConnProfiles()
+	if err != nil {
+		appLogger.Error(err.Error())
+		return
+	}
+	//fmt.Printf("%#v", connProfiles)
 
 	totalDevices = len(hosts)
 	finishedDevices = 0
-	dateSuffix := time.Now().Format("20061215")
 
-	grabConfigs(hosts, dateSuffix)
-	//tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+	grabConfigs(hosts, connProfiles)
 
 	endTime := time.Now()
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
 	appLogger.Info(logText)
-	common.UserLogInfo(logText)
+	// common.UserLogInfo(logText)
 	return
 }
 
@@ -68,7 +72,7 @@ func IsRunning() bool {
 func Remaining() (total, finished int) {
 	if !configGrabRunning {
 		if totalDevices == 0 {
-			hosts, err := loadDeviceList()
+			hosts, err := devices.GetAllDevices()
 			if err != nil {
 				appLogger.Error(err.Error())
 				return

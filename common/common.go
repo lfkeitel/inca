@@ -2,20 +2,16 @@ package common
 
 import (
 	"os"
-	"time"
+	//"time"
 
 	"github.com/dragonrider23/go-logger"
 )
 
 type Config struct {
-	RemoteUsername      string
-	RemotePassword      string
-	EnablePassword      string
-	DeviceListFile      string
-	DeviceTypeFile      string
-	FullConfDir         string
 	MaxSimultaneousConn int
+	DataDir             string
 	Server              serverConf
+	Database            databaseConf
 }
 
 type serverConf struct {
@@ -23,38 +19,39 @@ type serverConf struct {
 	BindPort    int
 }
 
+type databaseConf struct {
+	Address  string
+	Port     int
+	Username string
+	Password string
+	Name     string
+}
+
 func init() {
 	logger.New("endUserLog").NoStdout().Raw().Path("logs/endUser/")
 }
 
-func ReverseSlice(s []string) []string {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
-	}
-	return s
-}
-
 func UserLogInfo(format string, v ...interface{}) {
-	format = "INFO:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
+	// format = "INFO:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
+	// logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
 	return
 }
 
 func UserLogWarning(format string, v ...interface{}) {
-	format = "WARNING:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
+	// format = "WARNING:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
+	// logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
 	return
 }
 
 func UserLogError(format string, v ...interface{}) {
-	format = "ERROR:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
+	// format = "ERROR:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
+	// logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
 	return
 }
 
 func UserLogFatal(format string, v ...interface{}) {
-	format = "FATAL:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
+	// format = "FATAL:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
+	// logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
 	os.Exit(1)
 	return
 }

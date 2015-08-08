@@ -2,10 +2,10 @@ package server
 
 import (
 	"html/template"
-	"io/ioutil"
+	//"io/ioutil"
 	"net/http"
 	"strconv"
-	"strings"
+	//"strings"
 
 	"github.com/dragonrider23/go-logger"
 	"github.com/dragonrider23/infrastructure-config-archive/common"
@@ -35,7 +35,7 @@ func initServer(configuration common.Config) {
 	appLogger = logger.New("httpServer").Path("logs/server/")
 }
 
-// Start front-end HTTP server
+// StartServer Start front-end HTTP server
 func StartServer(conf common.Config) {
 	initServer(conf)
 
@@ -46,12 +46,12 @@ func StartServer(conf common.Config) {
 
 	http.Handle("/", http.FileServer(http.Dir("server/static")))
 	http.HandleFunc("/api/", apiHandler)
-	http.HandleFunc("/archive", archiveHandler)
+	//http.HandleFunc("/archive", archiveHandler)
 	http.HandleFunc("/settings", settingsHandler)
-	http.HandleFunc("/view/", viewConfHandler)
-	http.HandleFunc("/download/", downloadConfHandler)
-	http.HandleFunc("/devicelist", deviceListHandler)
-	http.HandleFunc("/devicetypes", deviceTypesHandler)
+	// http.HandleFunc("/view/", viewConfHandler)
+	// http.HandleFunc("/download/", downloadConfHandler)
+	// http.HandleFunc("/devicelist", deviceListHandler)
+	// http.HandleFunc("/devicetypes", deviceTypesHandler)
 
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)
 	if err != nil {
@@ -80,28 +80,28 @@ func httpRecovery(w http.ResponseWriter) {
 }
 
 // Get a list of all devices in the config.FullConfDir directory
-func getDeviceList() deviceList {
-	configFileList, _ := ioutil.ReadDir(config.FullConfDir)
-
-	deviceConfigs := deviceList{}
-
-	for _, file := range configFileList {
-		filename := file.Name()
-		if filename[0] == '.' {
-			continue
-		}
-		splitName := strings.Split(filename, "-")      // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
-		splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
-
-		device := deviceConfigFile{
-			Path:         file.Name(),
-			Name:         splitName[0],
-			Address:      splitName[2],
-			Proto:        splitProto[0],
-			Manufacturer: splitName[3],
-		}
-		deviceConfigs.Devices = append(deviceConfigs.Devices, device)
-	}
-
-	return deviceConfigs
-}
+// func getDeviceList() deviceList {
+// 	configFileList, _ := ioutil.ReadDir(config.FullConfDir)
+//
+// 	deviceConfigs := deviceList{}
+//
+// 	for _, file := range configFileList {
+// 		filename := file.Name()
+// 		if filename[0] == '.' {
+// 			continue
+// 		}
+// 		splitName := strings.Split(filename, "-")      // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
+// 		splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
+//
+// 		device := deviceConfigFile{
+// 			Path:         file.Name(),
+// 			Name:         splitName[0],
+// 			Address:      splitName[2],
+// 			Proto:        splitProto[0],
+// 			Manufacturer: splitName[3],
+// 		}
+// 		deviceConfigs.Devices = append(deviceConfigs.Devices, device)
+// 	}
+//
+// 	return deviceConfigs
+// }
