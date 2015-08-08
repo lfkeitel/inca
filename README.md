@@ -1,4 +1,4 @@
-Infrastructure Config Archive v2.1.0
+Infrastructure Config Archive v2.2.0
 ====================================
 
 Infrastructure Config Archive (ICA) was developed to solve the problem of backing up network infrustructure configurations.
@@ -57,6 +57,10 @@ will run on boot.
 
 Release Notes
 -------------
+
+v2.2.0
+
+- Validates format for device configuration files before saving
 
 v2.1.0
 
