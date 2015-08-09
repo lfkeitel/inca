@@ -4,3 +4,4 @@ node_modules/*
 archive/*
 logs/*
 data/*
+private/*

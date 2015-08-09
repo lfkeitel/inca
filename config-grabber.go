@@ -42,6 +42,6 @@ func main() {
 	conf, _ := loadAppConfig()
 	configs.LoadConfig(conf)
 	database.Prepare(conf)
-	server.StartServer(conf)
+	server.Start(conf)
 	return
 }

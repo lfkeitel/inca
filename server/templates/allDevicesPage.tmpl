@@ -1,0 +1,93 @@
+{{define "allDevicesPage"}}
+    {{template "header"}}
+
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <h2>Device Table</h2>
+
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                    <div class="btn-toolbar" role="toolbar" >
+                        <div class="btn-group" role="group" >
+                            <button type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus"></span> Create
+                            </button>
+                            <button type="button" class="btn btn-default" disabled="disabled">
+                                <span class="glyphicon glyphicon-cog"></span> Edit
+                            </button>
+                            <button type="button" class="btn btn-default" disabled="disabled">
+                                <span class="glyphicon glyphicon-remove"></span> Delete
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group" >
+                            <button type="button" class="btn btn-default" disabled="disabled">
+                                <span class="glyphicon glyphicon-repeat"></span> Update
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group" >
+                            <button type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-refresh"></span> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix top-buffer">
+                <div class="col-md-12 column">
+                    <table class="table table-hover1">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAllDevices" disabled="disabled"></th>
+                                <th>Status</th>
+                                <th>Enabled</th>
+                                <th>Device Name</th>
+                                <th>Hostname</th>
+                                <th>Manufacturer</th>
+                                <th>Model</th>
+                                <th>Config</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {{range .}}
+                            <tr class="selectable_row" data-id="{{.Deviceid}}">
+                                <td><input type="checkbox" id="device-{{.Deviceid}}" class="deviceChecked"></td>
+                                {{if .Status.Status}}
+                                    <td class="glyph-cell">
+                                        <span style="color: red;" class="glyphicon glyphicon-remove"></span>
+                                    </td>
+                                {{else}}
+                                    <td class="glyph-cell">
+                                        <span style="color: green;" class="glyphicon glyphicon-ok"></span>
+                                    </td>
+                                {{end}}
+                                {{if .Disabled}}
+                                    <td class="glyph-cell">
+                                        <span style="color: red;" class="glyphicon glyphicon-remove"></span>
+                                    </td>
+                                {{else}}
+                                    <td class="glyph-cell">
+                                        <span style="color: green;" class="glyphicon glyphicon-ok"></span>
+                                    </td>
+                                {{end}}
+                                <td>{{.Name}}</td>
+                                <td>{{.Hostname}}</td>
+                                <td>{{.Manufacturer}}</td>
+                                <td>{{.Model}}</td>
+                                <td class="glyph-hover glyph-cell" onclick="goToConfigs({{.Deviceid}})">
+                                    <span class="glyphicon glyphicon-file"></span>
+                                </td>
+                            </tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{template "scripts"}}
+    <script type="text/javascript" src="/static/scripts/allDevices.js"></script>
+    <!-- <script type="text/javascript" src="/js/prod.min.js"></script> -->
+    {{template "footer"}}
+{{end}}

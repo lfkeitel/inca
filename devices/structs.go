@@ -25,3 +25,12 @@ type ConnProfile struct {
 	Password  string
 	Enable    string
 }
+
+var supportedDeviceTypes = map[string][]string{
+	"Cisco": []string{
+		"2950",
+	},
+	"Juniper": []string{
+		"2200",
+	},
+}

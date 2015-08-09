@@ -1,0 +1,97 @@
+{{define "index"}}
+    {{template "header"}}
+
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="upDownPie" style="width: 250px; height: 250px;">
+                    </div>
+
+                    <h3>Down Devices</h3>
+                    <table class="table table-striped table-hover1">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Status</th>
+                                <th>Last Polled</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="console.log('Keitel1');">
+                                <td>Keitel1</td>
+                                <td>Offline</td>
+                                <td>2015-08-05</td>
+                            </tr>
+                            <tr onclick="console.log('Cisco_Test');">
+                                <td>Cisco_Test</td>
+                                <td>Offline</td>
+                                <td>2015-08-05</td>
+                            </tr>
+                            <tr onclick="console.log('Core Router');">
+                                <td>Core Router</td>
+                                <td>Offline</td>
+                                <td>2015-08-05</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>Application Health:</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>System</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="success">
+                                <td>Inca</td>
+                                <td>Running</td>
+                            </tr>
+                            <tr class="danger">
+                                <td>Poller</td>
+                                <td>Stopped</td>
+                            </tr>
+                            <tr class="danger">
+                                <td>Garbage Collector</td>
+                                <td>Stopped</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 column">
+            <h3>Error Logs</h3>
+            <div id="appLogs">
+                <table class="table">
+                    <tr class="warning">
+                        <td>Warning</td>
+                        <td>Device has bad connection profile</td>
+                    </tr>
+                    <tr class="danger">
+                        <td>Error</td>
+                        <td>Poller stopped and won't start again</td>
+                    </tr>
+                    <tr>
+                        <td>Info</td>
+                        <td>Poller finished</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{template "scripts"}}
+    <script type="text/javascript" src="/static/js/vendors/d3/d3.min.js"></script>
+    <script type="text/javascript" src="/static/js/vendors/d3pie/d3pie.min.js"></script>
+    <script type="text/javascript" src="/static/scripts/main.js"></script>
+    <!-- <script type="text/javascript" src="/js/prod.min.js"></script> -->
+    {{template "footer"}}
+{{end}}

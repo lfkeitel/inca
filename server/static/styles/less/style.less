@@ -38,55 +38,24 @@ code {
 /* Custom page CSS
 -------------------------------------------------- */
 
-.archiveList thead {
-  font-weight: bold;
-}
+.table-hover1 tbody tr {
+    cursor: pointer;
 
-.archiveList td {
-  border: 1px solid black;
-  padding: 5px;
-}
-
-.idleStatus {
-  color: black;
-}
-
-.runningStatus {
-  color: green;
+    &:hover, &:nth-of-type(odd):hover {
+        background-color: #E0E0E0
+    }
 }
 
 .top-buffer {
-  margin-top: 20px;
+    margin-top: 10px;
 }
 
-#appLogs {
-  table {
-    width: 100%;
-
-    thead {
-      background-color: #e6e6fa;
-      font-weight: bold;
-      border-bottom: solid black 1px;
+.glyph-hover {
+    &:hover {
+        color: blue;
     }
+}
 
-    td {
-      padding: 4px 7px;
-    }
-
-    tr {
-      .warning {
-        background-color: orange;
-      }
-
-      .error {
-        background-color: #FF6666;
-        color: white;
-      }
-
-      .fatal {
-        background-color: red;
-        color: white;
-      }
-    }
-  }
+.glyph-cell span {
+    padding-left: 10px;
 }

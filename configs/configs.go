@@ -39,7 +39,7 @@ func PerformConfigGrab() {
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
 
-	hosts, err := devices.GetAllDevices()
+	hosts, err := devices.GetDevicesForConfigs()
 	if err != nil {
 		appLogger.Error(err.Error())
 		return
