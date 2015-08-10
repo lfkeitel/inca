@@ -5,7 +5,7 @@ func newError(text string, code int) *apiError {
 }
 
 func newEmptyError() *apiError {
-	return &apiError{"", 0}
+	return newError("", 0)
 }
 
 type apiError struct {

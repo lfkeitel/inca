@@ -9,23 +9,23 @@
                 <div class="col-md-12 column">
                     <div class="btn-toolbar" role="toolbar" >
                         <div class="btn-group" role="group" >
-                            <button type="button" class="btn btn-default">
+                            <button type="button" class="btn btn-default" id="deviceCreateBtn">
                                 <span class="glyphicon glyphicon-plus"></span> Create
                             </button>
-                            <button type="button" class="btn btn-default" disabled="disabled">
+                            <button type="button" class="btn btn-default" id="deviceEditBtn" disabled="disabled">
                                 <span class="glyphicon glyphicon-cog"></span> Edit
                             </button>
-                            <button type="button" class="btn btn-default" disabled="disabled">
+                            <button type="button" class="btn btn-default" id="deviceDeleteBtn" disabled="disabled">
                                 <span class="glyphicon glyphicon-remove"></span> Delete
                             </button>
                         </div>
                         <div class="btn-group" role="group" >
-                            <button type="button" class="btn btn-default" disabled="disabled">
+                            <button type="button" class="btn btn-default" id="deviceUpdateBtn" disabled="disabled">
                                 <span class="glyphicon glyphicon-repeat"></span> Update
                             </button>
                         </div>
                         <div class="btn-group" role="group" >
-                            <button type="button" class="btn btn-default">
+                            <button type="button" class="btn btn-default" id="refreshBtn">
                                 <span class="glyphicon glyphicon-refresh"></span> Refresh
                             </button>
                         </div>
@@ -50,23 +50,27 @@
                         </thead>
                         <tbody>
                         {{range .}}
-                            <tr class="selectable_row" data-id="{{.Deviceid}}">
+                            <tr class="selectable_row" data-did="{{.Deviceid}}">
                                 <td><input type="checkbox" id="device-{{.Deviceid}}" class="deviceChecked"></td>
-                                {{if .Status.Status}}
-                                    <td class="glyph-cell">
+                                {{if eq .Status.Status 2}}
+                                    <td class="glyph-cell" title="Device down">
                                         <span style="color: red;" class="glyphicon glyphicon-remove"></span>
                                     </td>
+                                {{else if eq .Status.Status 1}}
+                                    <td class="glyph-cell" title="Status unknown">
+                                        <span style="color: blue;" class="glyphicon glyphicon-question-sign"></span>
+                                    </td>
                                 {{else}}
-                                    <td class="glyph-cell">
+                                    <td class="glyph-cell" title="Device up">
                                         <span style="color: green;" class="glyphicon glyphicon-ok"></span>
                                     </td>
                                 {{end}}
                                 {{if .Disabled}}
-                                    <td class="glyph-cell">
+                                    <td class="glyph-cell" title="Disabled">
                                         <span style="color: red;" class="glyphicon glyphicon-remove"></span>
                                     </td>
                                 {{else}}
-                                    <td class="glyph-cell">
+                                    <td class="glyph-cell" title="Enabled">
                                         <span style="color: green;" class="glyphicon glyphicon-ok"></span>
                                     </td>
                                 {{end}}
@@ -74,7 +78,7 @@
                                 <td>{{.Hostname}}</td>
                                 <td>{{.Manufacturer}}</td>
                                 <td>{{.Model}}</td>
-                                <td class="glyph-hover glyph-cell" onclick="goToConfigs({{.Deviceid}})">
+                                <td class="glyph-hover glyph-cell" onclick="goToConfigs({{.Deviceid}})" title="View configuration">
                                     <span class="glyphicon glyphicon-file"></span>
                                 </td>
                             </tr>

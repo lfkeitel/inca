@@ -25,6 +25,17 @@ func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			httpErrorPage(w, "Failed to load device management page")
 		}
+	} else if deviceID == "new" {
+		connProfiles, err := devices.GetConnProfiles()
+		if err != nil {
+			httpErrorPage(w, "Failed to load device management page")
+		} else {
+			data := struct {
+				Device       devices.Device
+				ConnProfiles []devices.ConnProfile
+			}{devices.Device{}, connProfiles}
+			renderTemplate(w, "singleDevicePage", data)
+		}
 	} else {
 		v, err := strconv.Atoi(deviceID)
 		if err == nil {

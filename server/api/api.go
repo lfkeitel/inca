@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -48,4 +49,18 @@ func prepareResponseJSON(d interface{}, e *apiError, p string) ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
+}
+
+func getRequiredParams(r *http.Request, k []string) (map[string]string, error) {
+	var values map[string]string
+
+	for _, key := range k {
+		v := r.FormValue(key)
+		if v == "" {
+			return nil, errors.New("Parameter '" + key + "' missing")
+		}
+		values[key] = v
+	}
+
+	return values, nil
 }

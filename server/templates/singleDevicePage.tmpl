@@ -3,9 +3,17 @@
 
     <div class="row clearfix">
         <div class="col-md-12 column">
+            {{if .Device.Name}}
             <h2>Device - {{.Device.Name}} ({{.Device.Hostname}})</h2>
 
             <form>
+                <input type="hidden" id="deviceID" value="{{.Device.Deviceid}}">
+            {{else}}
+            <h2>New Device</h2>
+
+            <form>
+                <input type="hidden" id="deviceID" value="-1">
+            {{end}}
                 <div class="form-group">
                     <label for="deviceName">Name:</label>
                     <input type="text" class="form-control" id="deviceName" value="{{.Device.Name}}">

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -12,16 +11,17 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 	r.ParseForm()
 
 	switch urlPieces[0] {
-	case "create":
-		return "", create(r)
+	case "save":
+		return "", save(r)
 	}
 
 	return "Invalid job", nil
 }
 
-func create(r *http.Request) *apiError {
+func save(r *http.Request) *apiError {
 	formValues, err := getRequiredParams(r,
 		[]string{
+			"deviceid",
 			"name",
 			"hostname",
 			"connprofile",
@@ -38,6 +38,11 @@ func create(r *http.Request) *apiError {
 		cp = 0
 	}
 
+	id, err := strconv.Atoi(formValues["deviceid"])
+	if err != nil {
+		id = -1
+	}
+
 	disabled, err := strconv.ParseBool(formValues["disabled"])
 	if err != nil {
 		disabled = false
@@ -52,23 +57,17 @@ func create(r *http.Request) *apiError {
 		Disabled:     disabled,
 	}
 
-	err = devices.CreateDevice(d)
-	if err == nil {
-		return newEmptyError()
-	}
-	return newError(err.Error(), 1)
-}
-
-func getRequiredParams(r *http.Request, k []string) (map[string]string, error) {
-	var values map[string]string
-
-	for _, key := range k {
-		v := r.FormValue(key)
-		if v == "" {
-			return nil, errors.New("Parameter '" + key + "' missing")
+	if id == -1 {
+		err = devices.CreateDevice(d)
+		if err != nil {
+			return newError(err.Error(), 1)
 		}
-		values[key] = v
+	} else {
+		d.Deviceid = id
+		err = devices.EditDevice(d)
+		if err != nil {
+			return newError(err.Error(), 1)
+		}
 	}
-
-	return values, nil
+	return newEmptyError()
 }
