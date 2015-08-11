@@ -9,6 +9,7 @@ type Device struct {
 	Model        string
 	Custom       bool
 	Disabled     bool
+	ParseConfig  bool
 	Status       dStatus
 }
 
@@ -27,6 +28,15 @@ type ConnProfile struct {
 }
 
 var supportedDeviceTypes = map[string][]string{
+	"Cisco": []string{
+		"2950",
+	},
+	"Juniper": []string{
+		"2200",
+	},
+}
+
+var parsableDeviceTypes = map[string][]string{
 	"Cisco": []string{
 		"2950",
 	},

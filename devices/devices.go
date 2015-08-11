@@ -48,6 +48,7 @@ func getDevices(disabled bool, id int) ([]Device, error) {
 			&d.Model,
 			&d.Custom,
 			&d.Disabled,
+			&d.ParseConfig,
 			&d.Status.Status,
 			&d.Status.LastPolled,
 		)
@@ -78,14 +79,15 @@ func CreateDevice(d Device) error {
 	d.Custom = !isSupportedDevice(d)
 
 	_, err := db.Conn.Exec(`INSERT INTO devices
-		VALUES (null, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		d.Name,
 		d.Hostname,
 		d.ConnProfile,
 		d.Manufacturer,
 		d.Model,
 		d.Custom,
-		d.Disabled)
+		d.Disabled,
+		d.ParseConfig)
 
 	return err
 }
@@ -100,7 +102,8 @@ func EditDevice(d Device) error {
 			manufacturer = ?,
 			model = ?,
 			custom = ?,
-			disabled = ?
+			disabled = ?,
+			parse_config = ?
 		WHERE deviceid = ?`,
 		d.Name,
 		d.Hostname,
@@ -109,6 +112,7 @@ func EditDevice(d Device) error {
 		d.Model,
 		d.Custom,
 		d.Disabled,
+		d.ParseConfig,
 		d.Deviceid)
 
 	return err
@@ -129,6 +133,12 @@ func DeleteDevices(id []int) error {
 // A supported device here is if Inca will get the configuration off the device
 func isSupportedDevice(d Device) bool {
 	ma, ok := supportedDeviceTypes[d.Manufacturer]
+	return ok && slices.StringInSlice(d.Model, ma)
+}
+
+// A parsable device here is if Inca can parse the config for more advanced management
+func isParsableDevice(d Device) bool {
+	ma, ok := parsableDeviceTypes[d.Manufacturer]
 	return ok && slices.StringInSlice(d.Model, ma)
 }
 
