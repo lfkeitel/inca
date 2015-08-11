@@ -24,6 +24,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch urlPieces[0] {
 	case "devices":
 		data, err = devicesAPI(r, urlPieces[1:])
+	default:
+		err = newError("Module "+urlPieces[0]+" not found", 1)
 	}
 
 	if err == nil {
@@ -52,7 +54,7 @@ func prepareResponseJSON(d interface{}, e *apiError, p string) ([]byte, error) {
 }
 
 func getRequiredParams(r *http.Request, k []string) (map[string]string, error) {
-	var values map[string]string
+	values := make(map[string]string)
 
 	for _, key := range k {
 		v := r.FormValue(key)

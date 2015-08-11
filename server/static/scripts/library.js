@@ -1,4 +1,4 @@
-var lib = {
+$.extend({
     // Array Remove - By John Resig (MIT Licensed)
     arrayRemove: function(array, from, to) {
         var rest = array.slice((to || from) + 1 || array.length);
@@ -7,15 +7,15 @@ var lib = {
     },
 
     disableInput: function(elem) {
-        lib.changeDisabledState(elem, true);
+        $.changeDisabledState(elem, true);
     },
 
     enableInput: function(elem) {
-        lib.changeDisabledState(elem, false);
+        $.changeDisabledState(elem, false);
     },
 
     changeDisabledState: function(elem, disabled) {
         elem = (elem instanceof jQuery) ? elem : $(elem);
         elem.prop("disabled", disabled);
     }
-};
+});

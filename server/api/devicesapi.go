@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+	//"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,6 +15,12 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 	switch urlPieces[0] {
 	case "save":
 		return "", save(r)
+	case "delete":
+		return "", delete(r)
+	// case "update":
+	// 	return "", update(r)
+	default:
+		return "", newError("Endpoint /devices/"+urlPieces[0]+" not found", 1)
 	}
 
 	return "Invalid job", nil
@@ -30,7 +38,7 @@ func save(r *http.Request) *apiError {
 			"disabled",
 		})
 	if err != nil {
-		return newError("Make sure all required fields are filled in", 1)
+		return newError("Make sure all required fields are filled in", 2)
 	}
 
 	cp, err := strconv.Atoi(formValues["connprofile"])
@@ -60,14 +68,65 @@ func save(r *http.Request) *apiError {
 	if id == -1 {
 		err = devices.CreateDevice(d)
 		if err != nil {
-			return newError(err.Error(), 1)
+			return newError(err.Error(), 2)
 		}
 	} else {
 		d.Deviceid = id
 		err = devices.EditDevice(d)
 		if err != nil {
-			return newError(err.Error(), 1)
+			return newError(err.Error(), 2)
 		}
 	}
 	return newEmptyError()
+}
+
+func delete(r *http.Request) *apiError {
+	formValues, err := getRequiredParams(r,
+		[]string{
+			"deviceids",
+		})
+	if err != nil {
+		return newError("Make sure all required fields are filled in", 2)
+	}
+
+	ids, err := jsonUnmarshallDeviceIDs(formValues["deviceids"])
+	if err != nil {
+		return newError(err.Error(), 2)
+	}
+
+	err = devices.DeleteDevices(ids)
+	if err != nil {
+		return newError(err.Error(), 2)
+	}
+
+	return newEmptyError()
+}
+
+func update(r *http.Request) *apiError {
+	// formValues, err := getRequiredParams(r,
+	// 	[]string{
+	// 		"deviceids",
+	// 	})
+	// if err != nil {
+	// 	return newError("Make sure all required fields are filled in", 2)
+	// }
+	//
+	// ids, err := jsonUnmarshallDeviceIDs(formValues["deviceids"])
+	// if err != nil {
+	// 	return newError(err.Error(), 2)
+	// }
+
+	// err = devices.DeleteDevices(ids)
+	// if err != nil {
+	// 	return newError(err.Error(), 2)
+	// }
+	return newEmptyError()
+}
+
+func jsonUnmarshallDeviceIDs(s string) ([]int, error) {
+	var ids []int
+	if err := json.Unmarshal([]byte(s), &ids); err != nil {
+		return nil, err
+	}
+	return ids, nil
 }
