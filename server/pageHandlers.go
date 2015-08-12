@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dragonrider23/infrastructure-config-archive/devices"
+	"github.com/dragonrider23/inca/devices"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,13 +20,27 @@ func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 
 	if deviceID == "" {
 		// Main management page
-		devices, err := devices.GetAllDevices()
+		query := r.FormValue("query")
+		var err error
+		var hosts []devices.Device
+
+		if query == "" {
+			hosts, err = devices.GetAllDevices()
+		} else {
+			hosts, err = devices.Search(query)
+		}
+
 		if err != nil {
 			httpErrorPage(w, "Failed to load device management page")
 			return
 		}
 
-		renderTemplate(w, "allDevicesPage", devices)
+		data := struct {
+			Hosts []devices.Device
+			Query string
+		}{hosts, query}
+
+		renderTemplate(w, "allDevicesPage", data)
 	} else if deviceID == "new" {
 		// Empty device page for new device
 		connProfiles, err := devices.GetConnProfiles()

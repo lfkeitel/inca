@@ -1,7 +1,7 @@
 package devices
 
 import (
-	db "github.com/dragonrider23/infrastructure-config-archive/database"
+	db "github.com/dragonrider23/inca/database"
 )
 
 func GetConnProfiles() ([]ConnProfile, error) {

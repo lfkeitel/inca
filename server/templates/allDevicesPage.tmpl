@@ -35,7 +35,7 @@
                 <div class="col-md-4 column text-right">
                     <form>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="searchbox" placeholder="Search">
+                            <input type="text" class="form-control" id="searchbox" value="{{.Query}}" placeholder="Search">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button" id="searchBtn">
                                     <span class="glyphicon glyphicon-search"></span> Search
@@ -62,7 +62,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {{range .}}
+                        {{range .Hosts}}
                             <tr class="selectable_row" data-did="{{.Deviceid}}">
                                 <td><input type="checkbox" id="device-{{.Deviceid}}" class="deviceChecked"></td>
                                 {{if eq .Status.Status 2}}

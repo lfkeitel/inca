@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/common"
-	"github.com/dragonrider23/infrastructure-config-archive/server/api"
+	"github.com/dragonrider23/inca/common"
+	"github.com/dragonrider23/inca/server/api"
 )
 
 const (

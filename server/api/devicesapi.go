@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dragonrider23/infrastructure-config-archive/devices"
+	"github.com/dragonrider23/inca/devices"
 )
 
 func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {

@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/dragonrider23/infrastructure-config-archive/common"
+	"github.com/dragonrider23/inca/common"
 )
 
 var conf common.Config

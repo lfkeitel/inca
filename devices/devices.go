@@ -5,7 +5,7 @@ import (
 
 	"github.com/dragonrider23/utils/slices"
 
-	db "github.com/dragonrider23/infrastructure-config-archive/database"
+	db "github.com/dragonrider23/inca/database"
 )
 
 func GetDevicesForConfigs() ([]Device, error) {

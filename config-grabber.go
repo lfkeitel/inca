@@ -10,9 +10,9 @@ import (
 	"github.com/naoina/toml"
 
 	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/common"
-	"github.com/dragonrider23/infrastructure-config-archive/database"
-	"github.com/dragonrider23/infrastructure-config-archive/server"
+	"github.com/dragonrider23/inca/common"
+	"github.com/dragonrider23/inca/database"
+	"github.com/dragonrider23/inca/server"
 )
 
 const (

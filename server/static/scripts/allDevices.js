@@ -8,7 +8,8 @@
         create: $("#deviceCreateBtn"),
         delete: $("#deviceDeleteBtn"),
         update: $("#deviceUpdateBtn"),
-        refresh: $("#refreshBtn")
+        refresh: $("#refreshBtn"),
+        search: $("#searchBtn"),
     };
 
     // Collection of click handlers
@@ -49,6 +50,11 @@
 
             refresh: function() {
                 location.reload();
+            },
+
+            search: function() {
+                var query = $('#searchbox').val();
+                location.assign("/devices/?query="+encodeURIComponent(query));
             },
         },
 
@@ -112,4 +118,12 @@
             btnEl.click(handler);
         }
     });
+
+    $('#searchbox').keypress(function(e) {
+        if (e.keyCode === 13) {
+            e.stopPropagation();
+            clickHandlers.buttons.search();
+            return false;
+        }
+    })
 })();
