@@ -6,27 +6,27 @@
             {{if .Device.Name}}
             <h2>Device - {{.Device.Name}} ({{.Device.Hostname}})</h2>
 
-            <form>
-                <input type="hidden" id="deviceID" value="{{.Device.Deviceid}}">
+            <form name="deviceForm">
+                <input type="hidden" name="device-deviceid" value="{{.Device.Deviceid}}">
             {{else}}
             <h2>New Device</h2>
 
-            <form>
-                <input type="hidden" id="deviceID" value="-1">
+            <form name="deviceForm">
+                <input type="hidden" name="device-deviceid" value="-1">
             {{end}}
                 <div class="form-group">
-                    <label for="deviceName">Name:</label>
-                    <input type="text" class="form-control" id="deviceName" value="{{.Device.Name}}">
+                    <label for="device-name">Name:</label>
+                    <input type="text" class="form-control" name="device-name" value="{{.Device.Name}}">
                 </div>
 
                 <div class="form-group">
-                    <label for="deviceHostName">Hostname:</label>
-                    <input type="text" class="form-control" id="deviceHostName" value="{{.Device.Hostname}}">
+                    <label for="device-hostname">Hostname:</label>
+                    <input type="text" class="form-control" name="device-hostname" value="{{.Device.Hostname}}">
                 </div>
 
                 <div class="form-group">
-                    <label for="deviceConnProfile">Connection Profile:</label>
-                    <select class="form-control" id="deviceConnProfile">
+                    <label for="device-connprofile">Connection Profile:</label>
+                    <select class="form-control" name="device-connprofile">
                     {{range .ConnProfiles}}
                         {{if eq $.Device.ConnProfile .Profileid}}
                             <option value="{{.Profileid}}" selected="selected">{{.Name}}</option>
@@ -38,32 +38,34 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="deviceMan">Manufacturer:</label>
-                    <input type="text" class="form-control" id="deviceMan" value="{{.Device.Manufacturer}}">
+                    <label for="device-manufacturer">Manufacturer:</label>
+                    <input type="text" class="form-control" name="device-manufacturer" value="{{.Device.Manufacturer}}">
                 </div>
 
                 <div class="form-group">
-                    <label for="deviceModel">Model:</label>
-                    <input type="text" class="form-control" id="deviceModel" value="{{.Device.Model}}">
+                    <label for="device-model">Model:</label>
+                    <input type="text" class="form-control" name="device-model" value="{{.Device.Model}}">
                 </div>
 
                 <div class="form-group">
-                    <label for="deviceDisabled">Disabled:</label>
-                    {{if .Device.Hostname}}
-                        <input type="checkbox" id="deviceDisabled">
+                    <label for="device-disabled">Disabled:</label>
+                    {{if .Device.Disabled}}
+                        <input type="checkbox" name="device-disabled" checked="checked">
                     {{else}}
-                        <input type="checkbox" id="deviceDisabled" checked="checked">
+                        <input type="checkbox" name="device-disabled">
                     {{end}}
                 </div>
 
                 <div class="form-group">
                     <button class="btn btn-default" type="button" id="saveDeviceBtn">Save</button>
+                    <button class="btn btn-default" type="button" id="saveListDeviceBtn">Save and List</button>
                 </div>
             </form>
         </div>
     </div>
 
     {{template "scripts"}}
+    <script src="/static/scripts/deviceMgt.js"></script>
     <!-- <script type="text/javascript" src="/js/prod.min.js"></script> -->
     {{template "footer"}}
 {{end}}

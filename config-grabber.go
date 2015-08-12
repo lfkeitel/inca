@@ -1,25 +1,51 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 
-	"github.com/BurntSushi/toml"
+	"github.com/naoina/toml"
 
 	"github.com/dragonrider23/go-logger"
 	"github.com/dragonrider23/infrastructure-config-archive/common"
-	"github.com/dragonrider23/infrastructure-config-archive/configs"
 	"github.com/dragonrider23/infrastructure-config-archive/database"
 	"github.com/dragonrider23/infrastructure-config-archive/server"
 )
 
-var appLogger *logger.Logger
+const (
+	configFile = "config/configuration.toml"
+)
 
-func loadAppConfig() (common.Config, error) {
+var (
+	appLogger *logger.Logger
+)
+
+func loadAppConfig(fn string) (common.Config, error) {
 	var conf common.Config
-	if _, err := toml.DecodeFile("config/configuration.toml", &conf); err != nil {
-		appLogger.Fatal("Couldn't load configuration: %s", err.Error())
+
+	f, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return common.Config{}, err
+	}
+
+	if err = toml.Unmarshal(f, &conf); err != nil {
+		// Attempt to print a meaningful error message
+		errRegEx, rerr := regexp.Compile(`^toml:.*?line (\d+):`)
+		if rerr != nil {
+			appLogger.Fatal("Invalid configuration. %s", err.Error())
+			return common.Config{}, err
+		}
+
+		line := errRegEx.FindStringSubmatch(err.Error())
+		if line == nil {
+			appLogger.Fatal("Invalid configuration. %s", err.Error())
+			return common.Config{}, err
+		}
+
+		appLogger.Fatal("Invalid configuration. Check line %s.", line[1])
 		return common.Config{}, err
 	}
 	return conf, nil
@@ -39,8 +65,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	conf, _ := loadAppConfig()
-	configs.LoadConfig(conf)
+	conf, _ := loadAppConfig(configFile)
 	database.Prepare(conf)
 	server.Start(conf)
 	return

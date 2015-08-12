@@ -1,6 +1,8 @@
 package devices
 
 import (
+	"strings"
+
 	"github.com/dragonrider23/utils/slices"
 
 	db "github.com/dragonrider23/infrastructure-config-archive/database"
@@ -77,8 +79,14 @@ func GetDevice(id int) (Device, error) {
 
 func CreateDevice(d Device) error {
 	d.Custom = !isSupportedDevice(d)
+	d.ParseConfig = isParsableDevice(d)
 
-	_, err := db.Conn.Exec(`INSERT INTO devices
+	tx, err := db.Conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	r, err := tx.Exec(`INSERT INTO devices
 		VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		d.Name,
 		d.Hostname,
@@ -88,12 +96,35 @@ func CreateDevice(d Device) error {
 		d.Custom,
 		d.Disabled,
 		d.ParseConfig)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
-	return err
+	dID, err := r.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(`INSERT INTO device_status
+		VALUES (null, ?, 1, 0)`, dID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func EditDevice(d Device) error {
 	d.Custom = !isSupportedDevice(d)
+	d.ParseConfig = isParsableDevice(d)
 
 	_, err := db.Conn.Exec(`UPDATE devices
 		SET name = ?,
@@ -132,13 +163,15 @@ func DeleteDevices(id []int) error {
 
 // A supported device here is if Inca will get the configuration off the device
 func isSupportedDevice(d Device) bool {
-	ma, ok := supportedDeviceTypes[d.Manufacturer]
+	man := strings.ToLower(d.Manufacturer)
+	ma, ok := supportedDeviceTypes[man]
 	return ok && slices.StringInSlice(d.Model, ma)
 }
 
 // A parsable device here is if Inca can parse the config for more advanced management
 func isParsableDevice(d Device) bool {
-	ma, ok := parsableDeviceTypes[d.Manufacturer]
+	man := strings.ToLower(d.Manufacturer)
+	ma, ok := parsableDeviceTypes[man]
 	return ok && slices.StringInSlice(d.Model, ma)
 }
 
