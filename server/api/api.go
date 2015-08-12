@@ -24,6 +24,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch urlPieces[0] {
 	case "devices":
 		data, err = devicesAPI(r, urlPieces[1:])
+	// case "inca":
+	// 	data, err = incaAPI(r, urlPieces[1:])
+	// case "scripts":
+	// 	data, err = scriptsAPI(r, urlPieces[1:])
 	default:
 		err = newError("Module "+urlPieces[0]+" not found", 1)
 	}

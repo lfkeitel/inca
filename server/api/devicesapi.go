@@ -19,6 +19,8 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 		return "", delete(r)
 	// case "update":
 	// 	return "", update(r)
+	case "status":
+		return status(r)
 	default:
 		return "", newError("Endpoint /devices/"+urlPieces[0]+" not found", 1)
 	}
@@ -129,4 +131,12 @@ func jsonUnmarshallDeviceIDs(s string) ([]int, error) {
 		return nil, err
 	}
 	return ids, nil
+}
+
+func status(r *http.Request) (devices.DeviceStatus, *apiError) {
+	d, err := devices.GetDeviceStats()
+	if err != nil {
+		return d, newError(err.Error(), 2)
+	}
+	return d, newEmptyError()
 }

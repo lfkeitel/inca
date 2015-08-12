@@ -9,14 +9,14 @@ import (
 )
 
 func GetDevicesForConfigs() ([]Device, error) {
-	return getDevices(true, 0)
+	return getDevices(true, 0, -1)
 }
 
 func GetAllDevices() ([]Device, error) {
-	return getDevices(false, 0)
+	return getDevices(false, 0, -1)
 }
 
-func getDevices(disabled bool, id int) ([]Device, error) {
+func getDevices(disabled bool, id int, status int) ([]Device, error) {
 	var args []interface{}
 	statement := `SELECT d.*, s.status, s.last_polled
 		FROM devices AS d
@@ -30,6 +30,11 @@ func getDevices(disabled bool, id int) ([]Device, error) {
 	if id > 0 {
 		statement += " WHERE d.deviceid = ?"
 		args = append(args, id)
+	}
+
+	if status > -1 {
+		statement += " WHERE s.status != ?"
+		args = append(args, status)
 	}
 
 	rows, err := db.Conn.Query(statement, args...)
@@ -66,7 +71,7 @@ func getDevices(disabled bool, id int) ([]Device, error) {
 }
 
 func GetDevice(id int) (Device, error) {
-	d, err := getDevices(false, id)
+	d, err := getDevices(false, id, -1)
 	if err != nil {
 		return Device{}, err
 	}
@@ -181,4 +186,39 @@ func convertIntSliceToInterface(s []int) []interface{} {
 		is[i] = d
 	}
 	return is
+}
+
+func GetDeviceStats() (DeviceStatus, error) {
+	devices, err := getDevices(false, 0, 0)
+	if err != nil {
+		return DeviceStatus{}, err
+	}
+	devLength := len(devices)
+	var total int
+	var unknownTotal int
+
+	r := db.Conn.QueryRow(`SELECT COUNT(statusid)
+		FROM device_status`)
+	err = r.Scan(&total)
+	if err != nil {
+		return DeviceStatus{}, err
+	}
+
+	r = db.Conn.QueryRow(`SELECT COUNT(statusid)
+		FROM device_status
+		WHERE status = 1`)
+	err = r.Scan(&unknownTotal)
+	if err != nil {
+		return DeviceStatus{}, err
+	}
+
+	d := DeviceStatus{
+		Total:       total,
+		Down:        devLength - unknownTotal,
+		Up:          total - devLength,
+		Unknown:     unknownTotal,
+		DownDevices: devices,
+	}
+
+	return d, nil
 }

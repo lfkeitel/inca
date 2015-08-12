@@ -27,6 +27,14 @@ type ConnProfile struct {
 	Enable    string
 }
 
+type DeviceStatus struct {
+	Total       int
+	Down        int
+	Up          int
+	Unknown     int
+	DownDevices []Device
+}
+
 var supportedDeviceTypes = map[string][]string{
 	"cisco": []string{
 		"2950",

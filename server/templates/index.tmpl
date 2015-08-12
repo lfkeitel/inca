@@ -5,7 +5,7 @@
         <div class="col-md-6 column">
             <div class="row">
                 <div class="col-md-12">
-                    <div id="upDownPie" style="width: 250px; height: 250px;">
+                    <div id="upDownPie" style="width: 400px; height: 250px;">
                     </div>
 
                     <h3>Down Devices</h3>
@@ -17,21 +17,11 @@
                                 <th>Last Polled</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr onclick="console.log('Keitel1');">
-                                <td>Keitel1</td>
-                                <td>Offline</td>
-                                <td>2015-08-05</td>
-                            </tr>
-                            <tr onclick="console.log('Cisco_Test');">
-                                <td>Cisco_Test</td>
-                                <td>Offline</td>
-                                <td>2015-08-05</td>
-                            </tr>
-                            <tr onclick="console.log('Core Router');">
-                                <td>Core Router</td>
-                                <td>Offline</td>
-                                <td>2015-08-05</td>
+                        <tbody id="down-table-body">
+                            <tr>
+                                <td>Loading...</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
                             </tr>
                         </tbody>
                     </table>
