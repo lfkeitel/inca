@@ -1,17 +1,12 @@
 package devices
 
 import (
-	"regexp"
+	"net"
 
 	db "github.com/dragonrider23/inca/database"
 )
 
-const (
-	ipRegex = `^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$`
-)
-
 func Search(q string) ([]Device, error) {
-	var args []string
 	statement := `SELECT d.*, s.status, s.last_polled
 		FROM devices AS d
 		LEFT JOIN device_status AS s
@@ -19,11 +14,9 @@ func Search(q string) ([]Device, error) {
 
 	if isIPAddress(q) {
 		statement += " WHERE d.hostname = ?"
-		args = append(args, q)
 	} else {
 		statement += " WHERE d.name LIKE ?"
 		q = "%" + q + "%"
-		args = append(args, q)
 	}
 
 	rows, err := db.Conn.Query(statement, q)
@@ -60,15 +53,6 @@ func Search(q string) ([]Device, error) {
 }
 
 func isIPAddress(a string) bool {
-	errRegEx, rerr := regexp.Compile(ipRegex)
-	if rerr != nil {
-		return false
-	}
-
-	line := errRegEx.FindStringSubmatch(a)
-	if line == nil {
-		return false
-	}
-
-	return true
+	ip := net.ParseIP(a)
+	return ip != nil
 }

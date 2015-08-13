@@ -1,7 +1,6 @@
 configuration.toml
-device-definitions-dev.conf
 node_modules/*
-archive/*
 logs/*
 data/*
 private/*
+inca
