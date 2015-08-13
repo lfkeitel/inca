@@ -9,9 +9,9 @@ import (
 
 	"github.com/naoina/toml"
 
-	"github.com/dragonrider23/go-logger"
 	"github.com/dragonrider23/inca/common"
 	"github.com/dragonrider23/inca/database"
+	"github.com/dragonrider23/inca/logger"
 	"github.com/dragonrider23/inca/server"
 )
 
@@ -52,7 +52,7 @@ func loadAppConfig(fn string) (common.Config, error) {
 }
 
 func init() {
-	appLogger = logger.New("app").Verbose(3).Path("logs/app/")
+	appLogger = logger.New("core")
 }
 
 func main() {

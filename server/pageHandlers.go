@@ -31,7 +31,8 @@ func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err != nil {
-			httpErrorPage(w, "Failed to load device management page")
+			appLogger.Error(err.Error())
+			httpErrorPage(w, "Failed to load device management page", false)
 			return
 		}
 
@@ -45,7 +46,8 @@ func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 		// Empty device page for new device
 		connProfiles, err := devices.GetConnProfiles()
 		if err != nil {
-			httpErrorPage(w, "Failed to load device management page")
+			appLogger.Error(err.Error())
+			httpErrorPage(w, "Failed to load device management page", false)
 			return
 		}
 
@@ -69,7 +71,8 @@ func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 			if devices.IsEmptyResultErr(err) {
 				http.Redirect(w, r, deviceMgt, http.StatusTemporaryRedirect)
 			} else {
-				httpErrorPage(w, "Failed to load device management page")
+				appLogger.Error(err.Error())
+				httpErrorPage(w, "Failed to load device management page", false)
 			}
 			return
 		}
@@ -77,7 +80,8 @@ func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 		// Get connection profiles
 		connProfiles, err := devices.GetConnProfiles()
 		if err != nil {
-			httpErrorPage(w, "Failed to load device management page")
+			appLogger.Error(err.Error())
+			httpErrorPage(w, "Failed to load device management page", false)
 			return
 		}
 

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dragonrider23/go-logger"
 	"github.com/dragonrider23/inca/common"
+	"github.com/dragonrider23/inca/logger"
 	"github.com/dragonrider23/inca/server/api"
 )
 
@@ -25,7 +25,7 @@ var config common.Config
 func initServer(configuration common.Config) {
 	config = configuration
 	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
-	appLogger = logger.New("httpServer").Path("logs/server/")
+	appLogger = logger.New("webserver")
 }
 
 // Start Start front-end HTTP server
@@ -33,9 +33,7 @@ func Start(conf common.Config) {
 	initServer(conf)
 
 	logText := "Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort)
-	appLogger.Verbose(3)
 	appLogger.Info(logText)
-	common.UserLogInfo(logText)
 
 	http.Handle(staticContent, http.FileServer(http.Dir("server")))
 	http.HandleFunc(rootPath, indexHandler)
@@ -52,7 +50,7 @@ func Start(conf common.Config) {
 // Wrapper to render template of name
 func renderTemplate(w http.ResponseWriter, name string, d interface{}) {
 	err := templates.ExecuteTemplate(w, name, d)
-	if isErr := logger.CheckError(err, appLogger); isErr {
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	return
@@ -68,8 +66,10 @@ func httpRecovery(w http.ResponseWriter) {
 	}
 }
 
-func httpErrorPage(w http.ResponseWriter, msg string) {
-	appLogger.Error("%s", msg)
+func httpErrorPage(w http.ResponseWriter, msg string, log bool) {
+	if log {
+		appLogger.Error("%s", msg)
+	}
 	errorMess := struct{ ErrorMessage string }{msg}
 	renderTemplate(w, "errorpage", errorMess)
 	return
