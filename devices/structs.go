@@ -52,3 +52,11 @@ var parsableDeviceTypes = map[string][]string{
 		"2200",
 	},
 }
+
+func convertIntSliceToInterface(s []int) []interface{} {
+	is := make([]interface{}, len(s))
+	for i, d := range s {
+		is[i] = d
+	}
+	return is
+}

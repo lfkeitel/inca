@@ -81,7 +81,14 @@ func EditConnProfile(c ConnProfile) error {
 	return err
 }
 
-func DeleteConnProfile(id string) error {
-	_, err := db.Conn.Exec(`DELETE FROM conn_profiles WHERE profileid = ?`, id)
+func DeleteConnProfiles(id []int) error {
+	statement := "DELETE FROM conn_profiles WHERE 0"
+
+	for range id {
+		statement += " OR profileid = ?"
+	}
+
+	ids := convertIntSliceToInterface(id)
+	_, err := db.Conn.Exec(statement, ids...)
 	return err
 }

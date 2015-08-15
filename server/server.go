@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ const (
 	staticContent = rootPath + "static/"
 	deviceMgt     = rootPath + "devices/"
 	apiPath       = rootPath + "api/"
+	adminPage     = rootPath + "admin/"
 )
 
 var templates *template.Template
@@ -24,7 +26,32 @@ var config common.Config
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration common.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
+
+	templates = template.Must(template.New("").Funcs(template.FuncMap{
+		"dict": func(v ...interface{}) (map[string]interface{}, error) {
+			if len(v)%2 != 0 {
+				return nil, errors.New("Invalid dict call")
+			}
+			dict := make(map[string]interface{}, len(v)/2)
+			for i := 0; i < len(v); i += 2 {
+				key, ok := v[i].(string)
+				if !ok {
+					return nil, errors.New("dict keys must be strings")
+				}
+				dict[key] = v[i+1]
+			}
+			return dict, nil
+		},
+
+		"list": func(v ...interface{}) ([]interface{}, error) {
+			list := make([]interface{}, len(v))
+			for i := 0; i < len(v); i++ {
+				list[i] = v[i]
+			}
+			return list, nil
+		},
+	}).ParseGlob("server/templates/*/*.tmpl"))
+
 	appLogger = logger.New("webserver")
 }
 
@@ -39,6 +66,7 @@ func Start(conf common.Config) {
 	http.HandleFunc(rootPath, indexHandler)
 	http.HandleFunc(deviceMgt, deviceMgtHandler)
 	http.HandleFunc(apiPath, api.Handler)
+	http.HandleFunc(adminPage, adminPageHandler)
 
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)
 	if err != nil {

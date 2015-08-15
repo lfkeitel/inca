@@ -6,7 +6,7 @@ import ()
 type Config struct {
 	MaxSimultaneousConn int
 	DataDir             string
-	DashboardLogLevel   bool
+	DashboardLogLevel   string
 	Server              serverConf
 	Database            databaseConf
 }

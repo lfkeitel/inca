@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,6 +14,7 @@ type jsonResponse struct {
 	Path         string
 }
 
+// Handler dispatches an api request to its appropiate module
 func Handler(w http.ResponseWriter, r *http.Request) {
 	urlPieces := strings.Split(r.URL.Path, "/")[2:]
 	apiPath := r.URL.Path[len("/api"):]
@@ -24,6 +24,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch urlPieces[0] {
 	case "devices":
 		data, err = devicesAPI(r, urlPieces[1:])
+	case "cp":
+		data, err = cpAPI(r, urlPieces[1:])
 	// case "inca":
 	// 	data, err = incaAPI(r, urlPieces[1:])
 	// case "scripts":
@@ -57,15 +59,35 @@ func prepareResponseJSON(d interface{}, e *apiError, p string) ([]byte, error) {
 	return b, nil
 }
 
-func getRequiredParams(r *http.Request, k []string) (map[string]string, error) {
-	values := make(map[string]string)
+func getParams(r *http.Request, req []string, opt map[string]string) (map[string]string, *apiError) {
+	r.ParseForm()
+	form := r.Form
+	values := make(map[string]string, len(opt)+len(req))
 
-	for _, key := range k {
-		v := r.FormValue(key)
-		if v == "" {
-			return nil, errors.New("Parameter '" + key + "' missing")
+	if req != nil {
+		for _, key := range req {
+			v, ok := form[key]
+			if !ok {
+				return nil, newError("Parameter '"+key+"' missing", 3)
+			}
+			values[key] = v[0]
 		}
-		values[key] = v
+	}
+
+	if opt != nil {
+		for key, def := range opt {
+			v, ok := form[key]
+			if ok {
+				v2 := v[0]
+				if v2 == "" {
+					values[key] = def
+				} else {
+					values[key] = v2
+				}
+			} else {
+				values[key] = def
+			}
+		}
 	}
 
 	return values, nil

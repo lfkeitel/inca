@@ -14,13 +14,13 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 
 	switch urlPieces[0] {
 	case "save":
-		return "", save(r)
+		return "", deviceSave(r)
 	case "delete":
-		return "", delete(r)
+		return "", deviceDelete(r)
 	// case "update":
 	// 	return "", update(r)
 	case "status":
-		return status(r)
+		return deviceStatus(r)
 	default:
 		return "", newError("Endpoint /devices/"+urlPieces[0]+" not found", 1)
 	}
@@ -28,8 +28,8 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 	return "Invalid job", nil
 }
 
-func save(r *http.Request) *apiError {
-	formValues, err := getRequiredParams(r,
+func deviceSave(r *http.Request) *apiError {
+	formValues, err := getParams(r,
 		[]string{
 			"deviceid",
 			"name",
@@ -38,23 +38,23 @@ func save(r *http.Request) *apiError {
 			"manufacturer",
 			"model",
 			"disabled",
-		})
+		}, nil)
 	if err != nil {
 		return newError("Make sure all required fields are filled in", 2)
 	}
 
-	cp, err := strconv.Atoi(formValues["connprofile"])
-	if err != nil {
+	cp, err1 := strconv.Atoi(formValues["connprofile"])
+	if err1 != nil {
 		cp = 0
 	}
 
-	id, err := strconv.Atoi(formValues["deviceid"])
-	if err != nil {
+	id, err1 := strconv.Atoi(formValues["deviceid"])
+	if err1 != nil {
 		id = -1
 	}
 
-	disabled, err := strconv.ParseBool(formValues["disabled"])
-	if err != nil {
+	disabled, err1 := strconv.ParseBool(formValues["disabled"])
+	if err1 != nil {
 		disabled = false
 	}
 
@@ -68,36 +68,36 @@ func save(r *http.Request) *apiError {
 	}
 
 	if id == -1 {
-		err = devices.CreateDevice(d)
-		if err != nil {
+		err1 = devices.CreateDevice(d)
+		if err1 != nil {
 			return newError(err.Error(), 2)
 		}
 	} else {
 		d.Deviceid = id
-		err = devices.EditDevice(d)
-		if err != nil {
+		err1 = devices.EditDevice(d)
+		if err1 != nil {
 			return newError(err.Error(), 2)
 		}
 	}
 	return newEmptyError()
 }
 
-func delete(r *http.Request) *apiError {
-	formValues, err := getRequiredParams(r,
+func deviceDelete(r *http.Request) *apiError {
+	formValues, err := getParams(r,
 		[]string{
 			"deviceids",
-		})
+		}, nil)
 	if err != nil {
 		return newError("Make sure all required fields are filled in", 2)
 	}
 
-	ids, err := jsonUnmarshallDeviceIDs(formValues["deviceids"])
-	if err != nil {
+	ids, err1 := jsonUnmarshallIntArray(formValues["deviceids"])
+	if err1 != nil {
 		return newError(err.Error(), 2)
 	}
 
-	err = devices.DeleteDevices(ids)
-	if err != nil {
+	err1 = devices.DeleteDevices(ids)
+	if err1 != nil {
 		return newError(err.Error(), 2)
 	}
 
@@ -125,15 +125,15 @@ func update(r *http.Request) *apiError {
 	return newEmptyError()
 }
 
-func jsonUnmarshallDeviceIDs(s string) ([]int, error) {
-	var ids []int
-	if err := json.Unmarshal([]byte(s), &ids); err != nil {
+func jsonUnmarshallIntArray(s string) ([]int, error) {
+	var ints []int
+	if err := json.Unmarshal([]byte(s), &ints); err != nil {
 		return nil, err
 	}
-	return ids, nil
+	return ints, nil
 }
 
-func status(r *http.Request) (devices.DeviceStatus, *apiError) {
+func deviceStatus(r *http.Request) (devices.DeviceStatus, *apiError) {
 	d, err := devices.GetDeviceStats()
 	if err != nil {
 		return d, newError(err.Error(), 2)

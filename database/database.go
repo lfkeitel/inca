@@ -12,6 +12,7 @@ import (
 
 var conf common.Config
 var Conn *sql.DB
+var Ready = false
 
 func Prepare(config common.Config) error {
 	conf = config
@@ -28,6 +29,7 @@ func Prepare(config common.Config) error {
 		errors.New("Failed to open database")
 	}
 	Conn = db
+	Ready = true
 	return nil
 }
 

@@ -106,6 +106,10 @@ func (l *Logger) writeLogToFile(m string) {
 }
 
 func (l *Logger) writeLogToDB(level string, t time.Time, m string) {
+	if !db.Ready {
+		return
+	}
+
 	level = strings.ToLower(level)
 	levelCode := logLevelCodes[level]
 

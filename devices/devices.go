@@ -180,14 +180,6 @@ func isParsableDevice(d Device) bool {
 	return ok && slices.StringInSlice(d.Model, ma)
 }
 
-func convertIntSliceToInterface(s []int) []interface{} {
-	is := make([]interface{}, len(s))
-	for i, d := range s {
-		is[i] = d
-	}
-	return is
-}
-
 func GetDeviceStats() (DeviceStatus, error) {
 	devices, err := getDevices(false, 0, 0)
 	if err != nil {

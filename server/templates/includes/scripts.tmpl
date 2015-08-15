@@ -1,0 +1,15 @@
+{{define "scripts"}}
+    <script type="text/javascript" src="/static/js/vendors/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/vendors/bootstrap/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="/static/scripts/library.js"></script>
+
+    {{range .}}
+        {{if eq . "piechart"}}
+            <script type="text/javascript" src="/static/js/vendors/d3/d3.min.js"></script>
+            <script type="text/javascript" src="/static/js/vendors/d3pie/d3pie.min.js"></script>
+        {{else}}
+            <script type="text/javascript" src="/static/scripts/{{.}}.js"></script>
+        {{end}}
+    {{end}}
+{{end}}

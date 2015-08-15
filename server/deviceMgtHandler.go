@@ -7,14 +7,6 @@ import (
 	"github.com/dragonrider23/inca/devices"
 )
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == rootPath {
-		renderTemplate(w, "index", nil)
-	} else {
-		http.NotFound(w, r)
-	}
-}
-
 func deviceMgtHandler(w http.ResponseWriter, r *http.Request) {
 	deviceID := r.URL.Path[len(deviceMgt):]
 
