@@ -16,6 +16,8 @@ type jsonResponse struct {
 
 // Handler dispatches an api request to its appropiate module
 func Handler(w http.ResponseWriter, r *http.Request) {
+	defer apiRecovery(w)
+
 	urlPieces := strings.Split(r.URL.Path, "/")[2:]
 	apiPath := r.URL.Path[len("/api"):]
 	var data interface{}
@@ -67,7 +69,7 @@ func getParams(r *http.Request, req []string, opt map[string]string) (map[string
 	if req != nil {
 		for _, key := range req {
 			v, ok := form[key]
-			if !ok {
+			if !ok || v[0] == "" {
 				return nil, newError("Parameter '"+key+"' missing", 3)
 			}
 			values[key] = v[0]
@@ -91,4 +93,21 @@ func getParams(r *http.Request, req []string, opt map[string]string) (map[string
 	}
 
 	return values, nil
+}
+
+func jsonUnmarshallIntArray(s string) ([]int, error) {
+	var ints []int
+	if err := json.Unmarshal([]byte(s), &ints); err != nil {
+		return nil, err
+	}
+	return ints, nil
+}
+
+func apiRecovery(w http.ResponseWriter) {
+	if re := recover(); re != nil {
+		errorMess := newError("An internal server error has occured.", 1)
+		res, _ := prepareResponseJSON("", errorMess, "")
+		w.Write(res)
+		return
+	}
 }

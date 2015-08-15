@@ -1,8 +1,6 @@
 package api
 
 import (
-	"encoding/json"
-	//"fmt"
 	"net/http"
 	"strconv"
 
@@ -123,14 +121,6 @@ func update(r *http.Request) *apiError {
 	// 	return newError(err.Error(), 2)
 	// }
 	return newEmptyError()
-}
-
-func jsonUnmarshallIntArray(s string) ([]int, error) {
-	var ints []int
-	if err := json.Unmarshal([]byte(s), &ints); err != nil {
-		return nil, err
-	}
-	return ints, nil
 }
 
 func deviceStatus(r *http.Request) (devices.DeviceStatus, *apiError) {

@@ -23,16 +23,16 @@ func cpAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 func cpSave(r *http.Request) *apiError {
 	formValues, err := getParams(r,
 		[]string{
-			"id",
 			"name",
 			"protocol",
 		}, map[string]string{
+			"id":       "-1",
 			"username": "",
 			"password": "",
 			"enable":   "",
 		})
 	if err != nil {
-		return newError("Make sure all required fields are filled in", 2)
+		return newError("Make sure name and protocol are filled in", 2)
 	}
 
 	id, err1 := strconv.Atoi(formValues["id"])
@@ -63,17 +63,24 @@ func cpDelete(r *http.Request) *apiError {
 			"ids",
 		}, nil)
 	if err != nil {
-		return newError("Make sure all required fields are filled in", 2)
+		return newError("Make sure all profile ids are being sent", 2)
 	}
 
-	ids, err1 := jsonUnmarshallIntArray(formValues["ids"])
+	var ids []int
+
+	id, err1 := strconv.Atoi(formValues["ids"])
 	if err1 != nil {
-		return newError(err.Error(), 2)
+		ids, err1 = jsonUnmarshallIntArray(formValues["ids"])
+		if err1 != nil {
+			return newError(err1.Error(), 2)
+		}
+	} else {
+		ids = []int{id}
 	}
 
 	err1 = devices.DeleteConnProfiles(ids)
 	if err1 != nil {
-		return newError(err.Error(), 2)
+		return newError(err1.Error(), 2)
 	}
 
 	return newEmptyError()

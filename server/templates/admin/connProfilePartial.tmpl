@@ -1,3 +1,142 @@
 {{define "admin-cppartial"}}
     <h2>Connection Profiles</h2>
+
+    {{if .}}
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="cp-ids" class="col-sm-1 control-label">Profiles:</label>
+                <div class="col-sm-11">
+                    <select id="cp-ids" class="form-control">
+                        <option value=""> </option>
+                        <option value="-1">--New</option>
+                    {{range .}}
+                        <option value="{{.Profileid}}">{{.Name}}</option>
+                    {{end}}
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <form class="form-horizontal cp-form" id="cp--1-form" style="display: none;">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Profile ID:</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">New Profile</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-name" class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="text" name="cp-name" value="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-protocol" class="col-sm-2 control-label">Protocol:</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="cp-protocol">
+                        <option value="ssh">ssh</option>
+                        <option value="telnet">telnet</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-username" class="col-sm-2 control-label">Username:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="text" name="cp-username" value="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-password" class="col-sm-2 control-label">Password:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="password" name="cp-password" value="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-enable" class="col-sm-2 control-label">Enable Password:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="password" name="cp-enable" value="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10">
+                    <button class="btn btn-default save-btn" type="button">Save</button>
+                </div>
+            </div>
+        </form>
+
+        {{range .}}
+        <form class="form-horizontal cp-form" id="cp-{{.Profileid}}-form" style="display: none;">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Profile ID:</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">{{.Profileid}}</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-name" class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="text" name="cp-name" value="{{.Name}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-protocol" class="col-sm-2 control-label">Protocol:</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="cp-protocol">
+                        {{if eq .Protocol "ssh"}}
+                        <option value="ssh" selected="selected">ssh</option>
+                        {{else}}
+                        <option value="ssh">ssh</option>
+                        {{end}}
+
+                        {{if eq .Protocol "telnet"}}
+                        <option value="telnet" selected="selected">telnet</option>
+                        {{else}}
+                        <option value="telnet">telnet</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-username" class="col-sm-2 control-label">Username:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="text" name="cp-username" value="{{.Username}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-password" class="col-sm-2 control-label">Password:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="password" name="cp-password" value="{{.Password}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cp-enable" class="col-sm-2 control-label">Enable Password:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="password" name="cp-enable" value="{{.Enable}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10">
+                    <button class="btn btn-default save-btn" type="button">Save</button>
+                    <button class="btn btn-default delete-btn" type="button">Delete</button>
+                </div>
+            </div>
+        </form>
+        {{end}}
+    {{else}}
+        <p>Failed to load connection profiles</p>
+    {{end}}
 {{end}}

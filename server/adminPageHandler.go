@@ -5,7 +5,7 @@ import (
 	"strings"
 	// "strconv"
 	//
-	// "github.com/dragonrider23/inca/devices"
+	"github.com/dragonrider23/inca/devices"
 )
 
 func adminPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,8 @@ func adminRenderPartial(w http.ResponseWriter, r *http.Request, p []string) {
 
 	switch p[0] {
 	case "cp":
-		renderTemplate(w, "admin-cppartial", nil)
+		cps, _ := devices.GetConnProfiles()
+		renderTemplate(w, "admin-cppartial", cps)
 	case "dt":
 		renderTemplate(w, "admin-dtpartial", nil)
 	default:
