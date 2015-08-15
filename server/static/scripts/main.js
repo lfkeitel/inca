@@ -111,7 +111,9 @@ function updateDeviceStatus(timeout) {
     });
 
     if (timeout) {
-        setTimeout(updateDeviceStatus, timeout);
+        setTimeout(function() {
+            updateDeviceStatus(timeout);
+        }, timeout);
     }
 }
 
