@@ -18,5 +18,9 @@ func incaAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 }
 
 func incaHeartbeat(r *http.Request) (string, *apiError) {
-	return configs.HeartBeat(), nil
+	s, e := configs.HeartBeat()
+	if e != nil {
+		return "", newError(e.Error(), 1)
+	}
+	return s, nil
 }

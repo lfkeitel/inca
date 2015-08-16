@@ -21,10 +21,10 @@ const (
 
 var templates *template.Template
 var appLogger *logger.Logger
-var config common.Config
+var config *common.Config
 
 // Initialize HTTP server with app configuration and templates
-func initServer(configuration common.Config) {
+func initServer(configuration *common.Config) {
 	config = configuration
 
 	templates = template.Must(template.New("").Funcs(template.FuncMap{
@@ -56,7 +56,7 @@ func initServer(configuration common.Config) {
 }
 
 // Start Start front-end HTTP server
-func Start(conf common.Config) {
+func Start(conf *common.Config) {
 	initServer(conf)
 
 	logText := "Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort)

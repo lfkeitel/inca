@@ -1,20 +1,15 @@
 package configs
 
 import (
-	"bytes"
 	"encoding/gob"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/dragonrider23/inca/common"
 	"github.com/dragonrider23/inca/manager"
 )
-
-var pollerRWMutex sync.RWMutex
 
 func startPoller() error {
 	var path string
@@ -37,15 +32,20 @@ func startPoller() error {
 		return errors.New("Poller Connection must be either ip or unix")
 	}
 
+	if config.Poller.Exec == "" {
+		config.Poller.Exec = "./poller"
+	}
+
 	poller = &manager.Program{
 		ConnType:        config.Poller.Connection,
 		Path:            path,
-		Exec:            "./poller",
+		Exec:            config.Poller.Exec,
 		AttemptRestarts: 3,
 	}
 	if err := poller.Start(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -58,52 +58,38 @@ func PollerStatus() int {
 }
 
 // HeartBeat sends a heartbeat to the poller and returns the poller's response
-func HeartBeat() string {
-	cmd := common.PollerCommand{
+func HeartBeat() (string, error) {
+	cmd := common.PollerJob{
 		Cmd:  "echo",
 		Data: "heartbeat",
 	}
 
-	err := sendCommandToPoller(cmd)
+	c, err := sendJobToPoller(cmd)
 	if err != nil {
-		return "There was an error"
+		return "", err
 	}
 
-	r, err := readFromPoller()
-	if err != nil {
-		return "There was an error"
-	}
-	return r.Data.(string)
+	r := <-c
+	r.Received()
+	return r.Data.(string), nil
 }
 
-func readFromPoller() (*common.PollerResponse, error) {
-	pollerRWMutex.RLock()
-	c := poller.Conn()
-	dec := gob.NewDecoder(c)
-
-	var r common.PollerResponse
-	err := dec.Decode(&r)
-	if err != nil {
-		return nil, err
+func pollerSendConfig() error {
+	gob.Register(config)
+	cmd := common.PollerJob{
+		Cmd:  "config",
+		Data: config,
 	}
-	pollerRWMutex.RUnlock()
-	return &r, nil
-}
 
-func sendCommandToPoller(cmd common.PollerCommand) error {
-	pollerRWMutex.Lock()
-	var d bytes.Buffer
-	enc := gob.NewEncoder(&d)
-	if err := enc.Encode(cmd); err != nil {
-		fmt.Println(err.Error())
+	c, err := sendJobToPoller(cmd)
+	if err != nil {
 		return err
 	}
 
-	if err := poller.Write(d.Bytes()); err != nil {
-		fmt.Println(err.Error())
-		return err
+	r := <-c
+	r.Received()
+	if r.Error != "" {
+		return errors.New(r.Error)
 	}
-	pollerRWMutex.Unlock()
-
 	return nil
 }

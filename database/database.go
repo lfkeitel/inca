@@ -10,11 +10,11 @@ import (
 	"github.com/dragonrider23/inca/common"
 )
 
-var conf common.Config
+var conf *common.Config
 var Conn *sql.DB
 var Ready = false
 
-func Prepare(config common.Config) error {
+func Prepare(config *common.Config) error {
 	conf = config
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
 		conf.Database.Username,

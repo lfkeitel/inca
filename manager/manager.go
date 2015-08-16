@@ -15,6 +15,7 @@ type Program struct {
 	Path              string
 	Exec              string
 	Exit              chan bool
+	Started           chan bool
 	AttemptRestarts   int
 	attemptedRestarts int
 	status            int
@@ -30,6 +31,9 @@ func (p *Program) Start() error {
 	}
 	if p.Exit == nil {
 		p.Exit = make(chan bool)
+	}
+	if p.Started == nil {
+		p.Started = make(chan bool, 1)
 	}
 	return p.start()
 }
@@ -65,7 +69,11 @@ func (p *Program) start() error {
 	}
 	p.conn = c
 	p.status = 0
-	go p.monitorPoller()
+	go p.monitorProgram()
+	select {
+	case p.Started <- true:
+	default:
+	}
 	return nil
 }
 
@@ -95,22 +103,28 @@ func (p *Program) Stop() error {
 	return nil
 }
 
-// monitorPoller will sit and wait for the process to exit. If it exits with an error code,
-// it will output it to the console. If the poller has AttemptRestart set to true, monitorPoller
+// monitorProgram will sit and wait for the process to exit. If it exits with an error code,
+// it will output it to the console. If the poller has AttemptRestart set to true, monitorProgram
 // will attempt a restart
-func (p *Program) monitorPoller() {
+func (p *Program) monitorProgram() {
 	err := p.cmd.Wait()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	p.Exit <- true
+	fmt.Println("Program died")
+	select {
+	case p.Exit <- true:
+	default:
+	}
 	p.cmd = nil
 	p.status = 2
 
-	if p.AttemptRestarts > 0 && p.AttemptRestarts < p.attemptedRestarts {
-		if err = p.Restart(); err != nil {
-			p.attemptedRestarts++
-		}
+	if p.AttemptRestarts > 0 && p.AttemptRestarts > p.attemptedRestarts {
+		fmt.Println("Attempting restart", p.attemptedRestarts+1, "of", p.AttemptRestarts)
+		p.attemptedRestarts++
+		p.Restart()
+	} else {
+		fmt.Println("No more attempted restarts")
 	}
 	return
 }

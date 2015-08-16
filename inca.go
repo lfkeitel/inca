@@ -5,7 +5,9 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"runtime"
 	"syscall"
+	//"time"
 
 	"github.com/naoina/toml"
 
@@ -57,6 +59,8 @@ func init() {
 }
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -68,10 +72,12 @@ func main() {
 	}()
 
 	conf, _ := loadAppConfig(configFile)
-	database.Prepare(conf)
-	if err := configs.Prepare(conf); err != nil {
-		appLogger.Fatal("Failed to start poller: %s", err.Error())
+	database.Prepare(&conf)
+
+	if err := configs.Prepare(&conf); err != nil {
+		appLogger.Fatal("Faild to start poller: %s", err.Error())
 	}
-	server.Start(conf)
+
+	server.Start(&conf)
 	return
 }

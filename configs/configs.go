@@ -8,14 +8,29 @@ import (
 )
 
 var (
-	config common.Config
+	config *common.Config
 	poller *manager.Program
 )
 
 // Prepare sets the configuration for the package and starts the poller executable
-func Prepare(conf common.Config) error {
+func Prepare(conf *common.Config) error {
 	config = conf
-	return startPoller()
+	if err := startPoller(); err != nil {
+		return err
+	}
+
+	go readPollerResponses()
+	go detectPollerRestart()
+	return nil
+}
+
+func detectPollerRestart() {
+	for {
+		<-poller.Started
+		if err := pollerSendConfig(); err != nil {
+			Stop()
+		}
+	}
 }
 
 // Stop shuts down the poller
