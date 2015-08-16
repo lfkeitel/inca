@@ -4,3 +4,5 @@ logs/*
 data/*
 private/*
 inca
+poller
+poller.out

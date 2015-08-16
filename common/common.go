@@ -9,6 +9,7 @@ type Config struct {
 	DashboardLogLevel   string
 	Server              serverConf
 	Database            databaseConf
+	Poller              pollerConf
 }
 
 type serverConf struct {
@@ -22,4 +23,22 @@ type databaseConf struct {
 	Username string
 	Password string
 	Name     string
+}
+
+type pollerConf struct {
+	Connection string
+	Path       string
+	Port       string
+}
+
+// PollerCommand represents a command given to the poller
+type PollerCommand struct {
+	Cmd  string
+	Data interface{}
+}
+
+// PollerResponse represents a response from the poller for a command
+type PollerResponse struct {
+	Error string
+	Data  interface{}
 }

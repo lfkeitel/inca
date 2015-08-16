@@ -10,6 +10,7 @@ import (
 	"github.com/naoina/toml"
 
 	"github.com/dragonrider23/inca/common"
+	"github.com/dragonrider23/inca/configs"
 	"github.com/dragonrider23/inca/database"
 	"github.com/dragonrider23/inca/logger"
 	"github.com/dragonrider23/inca/server"
@@ -61,12 +62,16 @@ func main() {
 	go func() {
 		<-c
 		appLogger.Info("Shutting Down...")
+		configs.Stop()
 		database.Close()
 		os.Exit(1)
 	}()
 
 	conf, _ := loadAppConfig(configFile)
 	database.Prepare(conf)
+	if err := configs.Prepare(conf); err != nil {
+		appLogger.Fatal("Failed to start poller: %s", err.Error())
+	}
 	server.Start(conf)
 	return
 }

@@ -10,6 +10,7 @@
         update: $("#deviceUpdateBtn"),
         refresh: $("#refreshBtn"),
         search: $("#searchBtn"),
+        heart: $("#heartbeatBtn"),
     };
 
     // Collection of click handlers
@@ -56,6 +57,12 @@
                 var query = $('#searchbox').val();
                 location.assign("/devices/?query="+encodeURIComponent(query));
             },
+
+            heart: function() {
+                $.get('/api/inca/hb', {}, function(r) {
+                    console.log(r);
+                }, 'json');
+            }
         },
 
         configs: function(id, button) {

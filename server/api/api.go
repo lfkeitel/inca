@@ -28,8 +28,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		data, err = devicesAPI(r, urlPieces[1:])
 	case "cp":
 		data, err = cpAPI(r, urlPieces[1:])
-	// case "inca":
-	// 	data, err = incaAPI(r, urlPieces[1:])
+	case "inca":
+		data, err = incaAPI(r, urlPieces[1:])
 	// case "scripts":
 	// 	data, err = scriptsAPI(r, urlPieces[1:])
 	default:
