@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/dragonrider23/inca/configs"
+	"github.com/dragonrider23/inca/poller"
 )
 
 func incaAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
@@ -11,16 +11,22 @@ func incaAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 	case "hb":
 		return incaHeartbeat(r)
 	default:
-		return "", newError("Endpoint /cp/"+urlPieces[0]+" not found", 1)
+		return "", newError("Endpoint /inca/"+urlPieces[0]+" not found", 1)
 	}
 
 	return "Invalid job", nil
 }
 
 func incaHeartbeat(r *http.Request) (string, *apiError) {
-	s, e := configs.HeartBeat()
-	if e != nil {
-		return "", newError(e.Error(), 1)
+	c, err := poller.Process(poller.Job{
+		Cmd:  "echo",
+		Data: "heartbeat",
+	})
+
+	if err != nil {
+		return "", newError(err.Error(), 1)
 	}
-	return s, nil
+
+	res := <-c
+	return res.Data.(string), nil
 }

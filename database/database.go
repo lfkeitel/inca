@@ -10,18 +10,17 @@ import (
 	"github.com/dragonrider23/inca/common"
 )
 
-var conf *common.Config
 var Conn *sql.DB
 var Ready = false
 
-func Prepare(config *common.Config) error {
-	conf = config
+func Prepare() error {
+	c := common.Config
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
-		conf.Database.Username,
-		conf.Database.Password,
-		conf.Database.Address,
-		conf.Database.Port,
-		conf.Database.Name,
+		c.Database.Username,
+		c.Database.Password,
+		c.Database.Address,
+		c.Database.Port,
+		c.Database.Name,
 	)
 
 	db, err := sql.Open("mysql", dsn)
