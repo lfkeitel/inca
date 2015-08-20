@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/dragonrider23/inca/common"
+	"github.com/dragonrider23/inca/internal/common"
 )
 
 var Conn *sql.DB

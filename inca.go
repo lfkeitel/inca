@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/dragonrider23/inca/common"
 	"github.com/dragonrider23/inca/database"
+	"github.com/dragonrider23/inca/internal/common"
 	"github.com/dragonrider23/inca/logger"
 	"github.com/dragonrider23/inca/poller"
 	"github.com/dragonrider23/inca/server"
