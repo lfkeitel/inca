@@ -29,14 +29,15 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 func deviceSave(r *http.Request) *apiError {
 	formValues, err := getParams(r,
 		[]string{
-			"deviceid",
 			"name",
 			"hostname",
 			"connprofile",
-			"manufacturer",
-			"model",
 			"disabled",
-		}, nil)
+		}, map[string]string{
+			"deviceid":     "-1",
+			"manufacturer": "",
+			"model":        "",
+		})
 	if err != nil {
 		return newError("Make sure all required fields are filled in", 2)
 	}

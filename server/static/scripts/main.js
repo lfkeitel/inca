@@ -43,11 +43,6 @@ function updatePieChartDownDevices(up, down, unknown) {
                 backgroundOpacity: 0.8,
                 fontSize: 15
             }
-        },
-        misc: {
-            pieCenterOffset: {
-                x: -30
-            }
         }
     });
 }
