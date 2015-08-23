@@ -54,7 +54,7 @@
                     <table class="table table-hover1">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" id="selectAllDevices" disabled="disabled"></th>
+                                <th><input type="checkbox" id="selectAllDevices"></th>
                                 <th>Status</th>
                                 <th>Enabled</th>
                                 <th>Device Name</th>
@@ -67,7 +67,7 @@
                         <tbody>
                         {{range .Hosts}}
                             <tr class="selectable_row" data-did="{{.Deviceid}}">
-                                <td><input type="checkbox" id="device-{{.Deviceid}}" class="deviceChecked"></td>
+                                <td><input type="checkbox" id="device-{{.Deviceid}}" class="device-checked"></td>
                                 {{if eq .Status.Status 2}}
                                     <td class="glyph-cell" title="Device down">
                                         <span style="color: red;" class="glyphicon glyphicon-remove"></span>

@@ -16,6 +16,7 @@ type Device struct {
 type dStatus struct {
 	Status     int
 	LastPolled int
+	LastError  string
 }
 
 type ConnProfile struct {

@@ -83,6 +83,11 @@ function updateDeviceStatus(timeout) {
                         html += "<td>Never</td>";
                     }
 
+                    if (device.Status.LastError === "") {
+                        html += "<td>Unknown</td>";
+                    } else {
+                        html += "<td>"+device.Status.LastError+"</td>";
+                    }
                     html += "</tr>"
                     var row = $(html).click(function(e) {
                         goToConfigs(device.DeviceID, e.button);
@@ -95,6 +100,7 @@ function updateDeviceStatus(timeout) {
                 var downT = $("<tbody>").attr("id", "down-table-body");
                 downT.append("<tr>" +
                     "<td>No down devices</td>" +
+                    "<td>&nbsp;</td>" +
                     "<td>&nbsp;</td>" +
                     "<td>&nbsp;</td>" +
                 "</tr>");

@@ -8,8 +8,22 @@ import (
 	db "github.com/dragonrider23/inca/database"
 )
 
-func GetDevicesForConfigs() ([]Device, error) {
-	return getDevices(true, 0, -1)
+func GetDevicesForConfigGrab(ids []int) ([]Device, error) {
+	var args []interface{}
+	statement := `SELECT d.*, s.status, s.last_polled, s.last_error
+		FROM devices AS d
+		LEFT JOIN device_status AS s
+		ON d.deviceid = s.deviceid
+		WHERE 0`
+
+	if ids != nil {
+		for _, i := range ids {
+			statement += " OR d.deviceid = ?"
+			args = append(args, i)
+		}
+	}
+
+	return getDevicesFromQuery(statement, args)
 }
 
 func GetAllDevices() ([]Device, error) {
@@ -18,7 +32,7 @@ func GetAllDevices() ([]Device, error) {
 
 func getDevices(disabled bool, id int, status int) ([]Device, error) {
 	var args []interface{}
-	statement := `SELECT d.*, s.status, s.last_polled
+	statement := `SELECT d.*, s.status, s.last_polled, s.last_error
 		FROM devices AS d
 		LEFT JOIN device_status AS s
 		ON d.deviceid = s.deviceid`
@@ -37,6 +51,10 @@ func getDevices(disabled bool, id int, status int) ([]Device, error) {
 		args = append(args, status)
 	}
 
+	return getDevicesFromQuery(statement, args)
+}
+
+func getDevicesFromQuery(statement string, args []interface{}) ([]Device, error) {
 	rows, err := db.Conn.Query(statement, args...)
 	if err != nil {
 		return nil, err
@@ -58,6 +76,7 @@ func getDevices(disabled bool, id int, status int) ([]Device, error) {
 			&d.ParseConfig,
 			&d.Status.Status,
 			&d.Status.LastPolled,
+			&d.Status.LastError,
 		)
 
 		if err != nil {
@@ -113,7 +132,7 @@ func CreateDevice(d Device) error {
 	}
 
 	_, err = tx.Exec(`INSERT INTO device_status
-		VALUES (null, ?, 1, 0)`, dID)
+		VALUES (null, ?, 1, 0, "")`, dID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -213,4 +232,20 @@ func GetDeviceStats() (DeviceStatus, error) {
 	}
 
 	return d, nil
+}
+
+func UpdateDeviceStatus(d Device, s int, t int64, le string) error {
+	_, err := db.Conn.Exec(`UPDATE device_status
+        SET status = ?,
+            last_polled = ?,
+            last_error = ?
+        WHERE deviceid = ?`,
+		s,
+		t,
+		le,
+		d.Deviceid)
+	if err != nil {
+		return err
+	}
+	return nil
 }

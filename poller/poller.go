@@ -10,7 +10,7 @@ import (
 // Job represents a command given to the poller
 type Job struct {
 	Cmd  string
-	Data interface{}
+	Data map[string]interface{}
 }
 
 // Response represents a response from the poller for a command
@@ -20,35 +20,44 @@ type Response struct {
 }
 
 var (
-	acceptNew = true
-	wg        = sync.WaitGroup{}
+	acceptNew       = true
+	wg              = sync.WaitGroup{}
+	errBadJob       = errors.New("Bad job")
+	errNotAccepting = errors.New("Not accepting new jobs")
 )
 
 // Process receives job j and starts a goroutine to process a response. The response will be sent
 // on the returned channel. An error will return if the job didn't start successfully
-func Process(j Job) (<-chan *Response, error) {
+func Process(j Job) (<-chan *Response, <-chan error, error) {
 	if !acceptNew {
-		return nil, errors.New("Not accepting new jobs")
+		return nil, nil, errNotAccepting
 	}
 	out := make(chan *Response, 1)
+	err := make(chan error, 1)
 
 	switch j.Cmd {
 	case "echo":
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			echoJob(j, out)
+			echoJob(j, out, err)
 		}()
 	case "sleep":
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			sleepJob(j, out)
+			sleepJob(j, out, err)
+		}()
+	case "poll":
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			configJob(j, out, err)
 		}()
 	default:
-		return nil, errors.New("Bad command")
+		return nil, nil, errBadJob
 	}
-	return out, nil
+	return out, err, nil
 }
 
 // Close stops the poller from accepting new jobs and waits for the currently running ones
@@ -59,15 +68,15 @@ func Close() {
 	wg.Wait()
 }
 
-func echoJob(j Job, out chan<- *Response) {
+func echoJob(j Job, out chan<- *Response, e chan<- error) {
 	out <- &Response{
 		Error: "",
-		Data:  j.Data,
+		Data:  j.Data["echo"],
 	}
 }
 
-func sleepJob(j Job, out chan<- *Response) {
-	<-time.After(time.Duration(j.Data.(int)) * time.Second)
+func sleepJob(j Job, out chan<- *Response, e chan<- error) {
+	<-time.After(time.Duration(j.Data["timeout"].(int)) * time.Second)
 	out <- &Response{
 		Error: "",
 		Data:  "",

@@ -102,6 +102,11 @@
         clickHandlers.configs(id, e.button);
     });
 
+    // Wire up select all rows
+    $('#selectAllDevices').click(function() {
+        $('.selectable_row').click();
+    });
+
     // Wire up row selection
     $('.selectable_row').click(function() {
         var id = $(this).data("did");

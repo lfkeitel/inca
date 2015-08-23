@@ -6,8 +6,11 @@ import (
 	db "github.com/dragonrider23/inca/database"
 )
 
+// Search searchs the database for devices using query q. If q is a valid
+// IP address then it will search the hostname, otherwise it will
+// search the device names.
 func Search(q string) ([]Device, error) {
-	statement := `SELECT d.*, s.status, s.last_polled
+	statement := `SELECT d.*, s.status, s.last_polled, s.last_error
 		FROM devices AS d
 		LEFT JOIN device_status AS s
 		ON d.deviceid = s.deviceid`
@@ -40,6 +43,7 @@ func Search(q string) ([]Device, error) {
 			&d.ParseConfig,
 			&d.Status.Status,
 			&d.Status.LastPolled,
+			&d.Status.LastError,
 		)
 
 		if err != nil {

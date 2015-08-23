@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/dragonrider23/inca/devices"
+	"github.com/dragonrider23/inca/poller"
 )
 
 func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
@@ -15,8 +16,8 @@ func devicesAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 		return "", deviceSave(r)
 	case "delete":
 		return "", deviceDelete(r)
-	// case "update":
-	// 	return "", update(r)
+	case "update":
+		return update(r)
 	case "status":
 		return deviceStatus(r)
 	default:
@@ -103,25 +104,52 @@ func deviceDelete(r *http.Request) *apiError {
 	return newEmptyError()
 }
 
-func update(r *http.Request) *apiError {
-	// formValues, err := getRequiredParams(r,
-	// 	[]string{
-	// 		"deviceids",
-	// 	})
-	// if err != nil {
-	// 	return newError("Make sure all required fields are filled in", 2)
-	// }
-	//
-	// ids, err := jsonUnmarshallDeviceIDs(formValues["deviceids"])
-	// if err != nil {
-	// 	return newError(err.Error(), 2)
-	// }
+func update(r *http.Request) (string, *apiError) {
+	formValues, er := getParams(r, nil, map[string]string{
+		"deviceids": "-1",
+	})
+	if er != nil {
+		return "", newError("Make sure all required fields are filled in", 2)
+	}
 
-	// err = devices.DeleteDevices(ids)
-	// if err != nil {
-	// 	return newError(err.Error(), 2)
-	// }
-	return newEmptyError()
+	var d []devices.Device
+	var err error
+
+	if formValues["deviceids"] == "-1" {
+		d, err = devices.GetDevicesForConfigGrab(nil)
+		if err != nil {
+			return "", newError("Failed to start poll job x1", 2)
+		}
+	} else {
+		ids, err := jsonUnmarshallIntArray(formValues["deviceids"])
+		if err != nil {
+			return "", newError(err.Error(), 2)
+		}
+
+		d, err = devices.GetDevicesForConfigGrab(ids)
+		if err != nil {
+			return "", newError("Failed to start poll job x2", 2)
+		}
+	}
+
+	cp, err := devices.GetConnProfiles()
+	if err != nil {
+		return "", newError("Failed to start poll job x3", 2)
+	}
+
+	_, _, err = poller.Process(poller.Job{
+		Cmd: "poll",
+		Data: map[string]interface{}{
+			"devices":      d,
+			"connProfiles": cp,
+		},
+	})
+
+	if err != nil {
+		return "", newError(err.Error(), 1)
+	}
+
+	return "Update started", newEmptyError()
 }
 
 func deviceStatus(r *http.Request) (devices.DeviceStatus, *apiError) {

@@ -18,9 +18,11 @@ func incaAPI(r *http.Request, urlPieces []string) (interface{}, *apiError) {
 }
 
 func incaHeartbeat(r *http.Request) (string, *apiError) {
-	c, err := poller.Process(poller.Job{
-		Cmd:  "echo",
-		Data: "heartbeat",
+	c, _, err := poller.Process(poller.Job{
+		Cmd: "echo",
+		Data: map[string]interface{}{
+			"echo": "heartbeat",
+		},
 	})
 
 	if err != nil {
