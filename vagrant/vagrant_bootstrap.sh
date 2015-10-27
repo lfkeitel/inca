@@ -19,8 +19,8 @@ apt-get update
 apt-get install -y mariadb-server npm nodejs-legacy git
 
 # Install Go
-wget https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz
-tar -C /usr/local -xzf go1.4.2.linux-amd64.tar.gz
+wget https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz
+tar -C /usr/local -xzf go1.5.1.linux-amd64.tar.gz
 
 echo 'export GOPATH=/srv/go' >> "/home/vagrant/.bashrc"
 echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> "/home/vagrant/.bashrc"
