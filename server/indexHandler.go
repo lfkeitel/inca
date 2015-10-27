@@ -8,6 +8,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == rootPath {
 		renderTemplate(w, "index", nil)
 	} else {
-		http.NotFound(w, r)
+		http.Redirect(w, r, rootPath, 302)
 	}
 }
