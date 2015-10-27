@@ -179,16 +179,7 @@ func saveStatusInfoToDb(device devices.Device, filename string, timestamp int64,
 		status = 2
 	}
 
-	_, err := db.Conn.Exec(`UPDATE device_status
-        SET status = ?,
-            last_polled = ?,
-            last_error = ?
-        WHERE deviceid = ?`,
-		status,
-		timestamp,
-		lastError,
-		device.Deviceid)
-	if err != nil {
+	if err := devices.UpdateDeviceStatus(device, status, timestamp, lastError); err != nil {
 		return err
 	}
 
@@ -206,12 +197,14 @@ func saveStatusInfoToDb(device devices.Device, filename string, timestamp int64,
 
 func pingDevice(d devices.Device) error {
 	status := 0
+	lastError := ""
 
 	_, err := un.Ping(d.Hostname, false)
 	if err != nil {
 		fmt.Println(err.Error())
 		status = 2
+		lastError = "Host Unreachable"
 	}
 
-	return devices.UpdateDeviceStatus(d, status, time.Now().Unix(), "")
+	return devices.UpdateDeviceStatus(d, status, time.Now().Unix(), lastError)
 }
