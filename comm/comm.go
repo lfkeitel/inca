@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dragonrider23/go-logger"
+	"github.com/lfkeitel/go-logger"
 )
 
 type Config struct {

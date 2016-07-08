@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/BurntSushi/toml"
 
-	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
-	"github.com/dragonrider23/infrastructure-config-archive/grabber"
-	"github.com/dragonrider23/infrastructure-config-archive/server"
+	"github.com/lfkeitel/go-logger"
+	"github.com/lfkeitel/inca/comm"
+	"github.com/lfkeitel/inca/grabber"
+	"github.com/lfkeitel/inca/server"
 )
 
 var appLogger *logger.Logger

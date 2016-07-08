@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
-	"github.com/dragonrider23/infrastructure-config-archive/grabber"
+	"github.com/lfkeitel/inca/comm"
+	"github.com/lfkeitel/inca/grabber"
 )
 
 type apiRequest struct{}

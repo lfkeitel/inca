@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
+	"github.com/lfkeitel/go-logger"
+	"github.com/lfkeitel/inca/comm"
 )
 
 type deviceConfigFile struct {

@@ -30,7 +30,7 @@ Getting Started Developing
 --------------------------
 
 ```Bash
-go get github.com/dragonrider23/infrastructure-config-archive
+go get github.com/lfkeitel/inca
 npm install
 ```
 
@@ -57,6 +57,11 @@ will run on boot.
 
 Release Notes
 -------------
+
+v2.3.0
+
+- Use new Github links
+- Notify user if a configuration grab failed
 
 v2.2.0
 

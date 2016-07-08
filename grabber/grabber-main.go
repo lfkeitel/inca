@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
-	"github.com/dragonrider23/infrastructure-config-archive/targz"
+	"github.com/lfkeitel/go-logger"
+	"github.com/lfkeitel/inca/comm"
+	"github.com/lfkeitel/inca/targz"
 )
 
 var appLogger *logger.Logger
@@ -19,7 +19,7 @@ var finishedDevices = 0
 
 func init() {
 	appLogger = logger.New("grabber").Verbose(3).Path("logs/main/")
-	stdOutLogger = logger.New("execStdOut").Path("logs/main/")
+	stdOutLogger = logger.New("execStdOut").Verbose(3).Path("logs/main/")
 	configGrabRunning = false
 }
 

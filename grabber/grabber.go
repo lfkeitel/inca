@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dragonrider23/infrastructure-config-archive/comm"
+	"github.com/lfkeitel/inca/comm"
 )
 
 func loadDeviceList(conf comm.Config) ([]host, error) {
@@ -199,10 +199,11 @@ func getArguments(argStr string, host host, filename string, conf comm.Config) [
 }
 
 func scriptExecute(sfn string, args []string) error {
-	_, err := exec.Command("scripts/"+sfn, args...).Output()
+	out, err := exec.Command("scripts/"+sfn, args...).Output()
 	if err != nil {
 		appLogger.Error(err.Error())
+		appLogger.Error(string(out))
+		comm.UserLogError("Failed getting config from %s", args[0])
 	}
-	//stdOutLogger.Info(string(out))
 	return nil
 }
