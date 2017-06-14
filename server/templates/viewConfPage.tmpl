@@ -4,11 +4,10 @@
     <h2>Latest Configuration For {{.Name}} ({{.Address}} | {{.Manufacturer}}):</h2>
     <h4>Filename: {{.Path}} <a href="/download/{{.Path}}" download="{{.Path}}">Download File <span style="color: black;" class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></h4>
 
-    <p class="configText">
+    <pre class="configText">
     {{range .ConfText}}
-        {{.}}<br>
-    {{end}}
-    </p>
+    {{.}}{{end}}
+    </pre>
 
     {{template "scripts"}}
     {{template "footer"}}

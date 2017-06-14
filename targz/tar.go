@@ -11,13 +11,20 @@ import (
 	"io"
 	"os"
 
-	"github.com/lfkeitel/go-logger"
+	"github.com/lfkeitel/verbose"
 )
 
-var appLogger *logger.Logger
+var appLogger *verbose.Logger
 
 func init() {
-	appLogger = logger.New("tarGz-log").Path("logs/tar/")
+	appLogger = verbose.New("tarGz-log")
+
+	fileLogger, err := verbose.NewFileHandler("logs/tar/")
+	if err != nil {
+		panic("Failed to open logging directory")
+	}
+
+	appLogger.AddHandler("file", fileLogger)
 }
 
 func handleError(_e error) {

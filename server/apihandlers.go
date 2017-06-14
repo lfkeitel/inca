@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lfkeitel/inca/comm"
+	"github.com/lfkeitel/inca/common"
 	"github.com/lfkeitel/inca/grabber"
 )
 
@@ -59,13 +59,12 @@ func saveDeviceConfigFile(n, t string) string {
 		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
 	}
 
+	t = strings.Replace(t, "-", "_", -1)
 	err := ioutil.WriteFile(n, []byte(t), 0664)
 	if err != nil {
 		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
-	} else {
-		return "{\"success\": true}"
 	}
-
+	return "{\"success\": true}"
 }
 
 type errorLogLine struct {
@@ -88,7 +87,7 @@ func (a *apiRequest) errorlog(r *http.Request) string {
 		logLines = logLines[:len(logLines)-1]
 	}
 
-	logLines = comm.ReverseSlice(logLines)
+	logLines = common.ReverseSlice(logLines)
 
 	// If the slice is longer than the requested events, shorten it
 	if len(logLines) > limit {

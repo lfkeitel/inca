@@ -1,16 +1,16 @@
 package grabber
 
 import (
-	"github.com/lfkeitel/inca/comm"
+	"github.com/lfkeitel/inca/common"
 )
 
 type connGroup struct {
 	numOfConnections int
 	goChan           chan bool
-	conf             comm.Config
+	conf             common.Config
 }
 
-func newConnGroup(conf comm.Config) connGroup {
+func newConnGroup(conf common.Config) connGroup {
 	return connGroup{
 		conf: conf,
 	}
