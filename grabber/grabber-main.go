@@ -5,23 +5,32 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/common"
-	"github.com/dragonrider23/infrastructure-config-archive/targz"
+	"github.com/lfkeitel/inca/common"
+	"github.com/lfkeitel/inca/targz"
+	"github.com/lfkeitel/verbose"
 )
 
-var appLogger *logger.Logger
-var stdOutLogger *logger.Logger
-var configGrabRunning bool
+var appLogger *verbose.Logger
+var stdOutLogger *verbose.Logger
+var configGrabRunning = false
 var conf common.Config
 
 var totalDevices = 0
 var finishedDevices = 0
 
 func init() {
-	appLogger = logger.New("grabber").Verbose(3).Path("logs/main/")
-	stdOutLogger = logger.New("execStdOut").Path("logs/main/")
 	configGrabRunning = false
+
+	appLogger = verbose.New("grabber")
+	stdOutLogger = verbose.New("execStdOut")
+
+	fileLogger, err := verbose.NewFileHandler("logs/main/")
+	if err != nil {
+		panic("Failed to open logging directory")
+	}
+
+	appLogger.AddHandler("file", fileLogger)
+	stdOutLogger.AddHandler("file", fileLogger)
 }
 
 func LoadConfig(config common.Config) {

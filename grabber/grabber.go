@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dragonrider23/infrastructure-config-archive/common"
+	"github.com/lfkeitel/inca/common"
 )
 
 func loadDeviceList(conf common.Config) ([]host, error) {

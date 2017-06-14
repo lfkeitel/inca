@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dragonrider23/go-logger"
-	"github.com/dragonrider23/infrastructure-config-archive/common"
+	"github.com/lfkeitel/inca/common"
+	"github.com/lfkeitel/verbose"
 )
 
 type deviceConfigFile struct {
@@ -25,14 +25,22 @@ type deviceList struct {
 }
 
 var templates *template.Template
-var appLogger *logger.Logger
+var appLogger *verbose.Logger
 var config common.Config
 
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration common.Config) {
 	config = configuration
 	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
-	appLogger = logger.New("httpServer").Path("logs/server/")
+
+	appLogger = verbose.New("httpServer")
+
+	fileLogger, err := verbose.NewFileHandler("logs/server/")
+	if err != nil {
+		panic("Failed to open logging directory")
+	}
+
+	appLogger.AddHandler("file", fileLogger)
 }
 
 // Start front-end HTTP server
@@ -40,7 +48,6 @@ func StartServer(conf common.Config) {
 	initServer(conf)
 
 	logText := "Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort)
-	appLogger.Verbose(3)
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
 
@@ -62,8 +69,8 @@ func StartServer(conf common.Config) {
 
 // Wrapper to render template of name
 func renderTemplate(w http.ResponseWriter, name string, d interface{}) {
-	err := templates.ExecuteTemplate(w, name, d)
-	if isErr := logger.CheckError(err, appLogger); isErr {
+	if err := templates.ExecuteTemplate(w, name, d); err != nil {
+		appLogger.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	return
@@ -72,7 +79,7 @@ func renderTemplate(w http.ResponseWriter, name string, d interface{}) {
 // Generic function to recover from server errors
 func httpRecovery(w http.ResponseWriter) {
 	if re := recover(); re != nil {
-		appLogger.Error("%s", re)
+		appLogger.Errorf("%s", re)
 		errorMess := struct{ ErrorMessage string }{"An internal server error has occured."}
 		renderTemplate(w, "errorpage", errorMess)
 		return

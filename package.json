@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dragonrider23/infrastructure-config-archive"
+    "url": "https://github.com/lfkeitel/inca"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

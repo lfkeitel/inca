@@ -30,7 +30,7 @@ Getting Started Developing
 --------------------------
 
 ```Bash
-go get github.com/dragonrider23/infrastructure-config-archive
+go get github.com/lfkeitel/inca
 npm install
 ```
 

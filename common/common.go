@@ -1,11 +1,6 @@
 package common
 
-import (
-	"os"
-	"time"
-
-	"github.com/dragonrider23/go-logger"
-)
+import "github.com/lfkeitel/verbose"
 
 type Config struct {
 	RemoteUsername      string
@@ -24,7 +19,14 @@ type serverConf struct {
 }
 
 func init() {
-	logger.New("endUserLog").NoStdout().Raw().Path("logs/endUser/")
+	userLog := verbose.New("endUserLog")
+
+	fileLogger, err := verbose.NewFileHandler("logs/endUser/")
+	if err != nil {
+		panic("Failed to open logging directory")
+	}
+
+	userLog.AddHandler("file", fileLogger)
 }
 
 func ReverseSlice(s []string) []string {
@@ -35,26 +37,17 @@ func ReverseSlice(s []string) []string {
 }
 
 func UserLogInfo(format string, v ...interface{}) {
-	format = "INFO:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
-	return
+	verbose.Get("endUserLog").Infof(format, v...)
 }
 
 func UserLogWarning(format string, v ...interface{}) {
-	format = "WARNING:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
-	return
+	verbose.Get("endUserLog").Warningf(format, v...)
 }
 
 func UserLogError(format string, v ...interface{}) {
-	format = "ERROR:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
-	return
+	verbose.Get("endUserLog").Errorf(format, v...)
 }
 
 func UserLogFatal(format string, v ...interface{}) {
-	format = "FATAL:-:" + time.Now().Format("2006-01-02 15:04:05") + ":-:" + format
-	logger.Get("endUserLog").Log("log", logger.Cyan, format, v...)
-	os.Exit(1)
-	return
+	verbose.Get("endUserLog").Fatalf(format, v...)
 }
