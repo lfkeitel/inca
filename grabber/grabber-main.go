@@ -24,7 +24,7 @@ func init() {
 	appLogger = verbose.New("grabber")
 	stdOutLogger = verbose.New("execStdOut")
 
-	fileLogger, err := verbose.NewFileHandler("logs/main/")
+	fileLogger, err := verbose.NewFileHandler("logs/main.log")
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
@@ -48,9 +48,6 @@ func PerformConfigGrab() {
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
 
-	// Clean up tftp directory
-	removeDir(conf.FullConfDir)
-
 	hosts, err := loadDeviceList(conf)
 	if err != nil {
 		appLogger.Error(err.Error())
@@ -63,11 +60,17 @@ func PerformConfigGrab() {
 		return
 	}
 
+	existing, err := loadCurrentConfigs(conf)
+	if err != nil {
+		appLogger.Error(err.Error())
+		return
+	}
+
 	totalDevices = len(hosts)
 	finishedDevices = 0
-	dateSuffix := time.Now().Format("2006012")
+	dateSuffix := time.Now().Format("20060102")
 
-	grabConfigs(hosts, dtypes, dateSuffix, conf)
+	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()
@@ -103,11 +106,17 @@ func PerformSingleRun(name, hostname, brand, method string) {
 		return
 	}
 
+	existing, err := loadCurrentConfigs(conf)
+	if err != nil {
+		appLogger.Error(err.Error())
+		return
+	}
+
 	totalDevices = 1
 	finishedDevices = 0
-	dateSuffix := time.Now().Format("2006012")
+	dateSuffix := time.Now().Format("20060102")
 
-	grabConfigs(hosts, dtypes, dateSuffix, conf)
+	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	endTime := time.Now()

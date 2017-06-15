@@ -3,14 +3,45 @@ package grabber
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/lfkeitel/inca/common"
 )
+
+func loadCurrentConfigs(conf common.Config) (map[string]string, error) {
+	src, err := os.Stat(conf.FullConfDir)
+	if err != nil {
+		return nil, err
+	}
+	if !src.IsDir() {
+		return nil, errors.New("Path is not a directory")
+	}
+
+	fileList, err := ioutil.ReadDir(conf.FullConfDir)
+	if err != nil {
+		return nil, err
+	}
+
+	current := make(map[string]string, len(fileList))
+
+	for _, file := range fileList {
+		if file.Name()[0] == '.' {
+			continue
+		}
+
+		deviceName := strings.SplitN(file.Name(), "-", 2)[0]
+		current[deviceName] = filepath.Join(conf.FullConfDir, file.Name())
+	}
+
+	return current, nil
+}
 
 func loadDeviceList(conf common.Config) ([]host, error) {
 	listFile, err := os.Open(conf.DeviceListFile)
@@ -21,7 +52,7 @@ func loadDeviceList(conf common.Config) ([]host, error) {
 
 	scanner := bufio.NewScanner(listFile)
 	scanner.Split(bufio.ScanLines)
-	hostList := make([]host, 0)
+	var hostList []host
 	lineNum := 0
 
 	for scanner.Scan() {
@@ -54,7 +85,7 @@ func loadDeviceList(conf common.Config) ([]host, error) {
 	return hostList, nil
 }
 
-// Parses string s as if it was a device [type] list and checks for errors
+// CheckDeviceList parses string s as if it was a device/type list and checks for errors
 func CheckDeviceList(s string) error {
 	lines := strings.Split(s, "\n")
 
@@ -80,7 +111,7 @@ func loadDeviceTypes(conf common.Config) ([]dtype, error) {
 
 	scanner := bufio.NewScanner(typeFile)
 	scanner.Split(bufio.ScanLines)
-	dtypeList := make([]dtype, 0)
+	var dtypeList []dtype
 	lineNum := 0
 
 	for scanner.Scan() {
@@ -113,7 +144,7 @@ func loadDeviceTypes(conf common.Config) ([]dtype, error) {
 	return dtypeList, nil
 }
 
-func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Config) error {
+func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Config, existing map[string]string) error {
 	var wg sync.WaitGroup
 	ccg := newConnGroup(conf) // Used to enforce a maximum number of connections
 
@@ -132,7 +163,15 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Co
 						wg.Done()
 						ccg.done()
 					}()
-					scriptExecute(dtype.scriptfile, args)
+					if err := scriptExecute(dtype.scriptfile, args); err != nil {
+						common.UserLogError("Failed getting config from %s", host.name)
+						os.Remove(fname)
+						return
+					}
+
+					if oldName, exists := existing[host.name]; exists && oldName != fname {
+						os.Remove(oldName)
+					}
 				}()
 				match = true
 				break
@@ -203,6 +242,7 @@ func scriptExecute(sfn string, args []string) error {
 	if err != nil {
 		appLogger.Error(err.Error())
 		appLogger.Error(string(out))
+		return err
 	}
 	return nil
 }

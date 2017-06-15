@@ -19,7 +19,7 @@ var appLogger *verbose.Logger
 func init() {
 	appLogger = verbose.New("tarGz-log")
 
-	fileLogger, err := verbose.NewFileHandler("logs/tar/")
+	fileLogger, err := verbose.NewFileHandler("logs/tar.log")
 	if err != nil {
 		panic("Failed to open logging directory")
 	}

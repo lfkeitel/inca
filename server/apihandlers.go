@@ -75,7 +75,7 @@ type errorLogLine struct {
 
 func (a *apiRequest) errorlog(r *http.Request) string {
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
-	log, err := ioutil.ReadFile("logs/endUser/enduserlog-log.log")
+	log, err := ioutil.ReadFile("logs/endUser.log")
 	if err != nil {
 		return "{}"
 	}
@@ -97,19 +97,19 @@ func (a *apiRequest) errorlog(r *http.Request) string {
 	// Parse the log lines into their elemental parts
 	parsedLines := []errorLogLine{}
 	for _, l := range logLines {
-		line := strings.Split(l, ":-:")
+		line := strings.Split(l, ": ")
 
 		sLine := errorLogLine{
-			Etype:   line[0],
-			Time:    line[1],
-			Message: line[2],
+			Etype:   line[1],
+			Time:    line[0],
+			Message: line[3],
 		}
 		parsedLines = append(parsedLines, sLine)
 	}
 
-	logJson, err := json.Marshal(parsedLines)
+	logJSON, err := json.Marshal(parsedLines)
 	if err != nil {
 		return "{}"
 	}
-	return string(logJson)
+	return string(logJSON)
 }

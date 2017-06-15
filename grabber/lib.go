@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -50,7 +51,7 @@ func removeDir(path string) error {
 			continue
 		}
 
-		os.Remove(path + "/" + file.Name())
+		os.RemoveAll(filepath.Join(path, file.Name()))
 	}
 
 	return nil

@@ -60,21 +60,6 @@ func archiveHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// Generate page with the application configuration
-func settingsHandler(w http.ResponseWriter, r *http.Request) {
-	defer httpRecovery(w)
-	confText, err := ioutil.ReadFile("config/configuration.toml")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	data := struct {
-		ConfText []string
-	}{strings.Split(string(confText), "\n")}
-	renderTemplate(w, "settingsPage", data)
-	return
-}
-
 // Generate page with the device definitions
 func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
