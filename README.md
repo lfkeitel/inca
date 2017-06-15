@@ -46,6 +46,12 @@ will run on boot.
 
 ## Release Notes
 
+v2.4.0
+
+- Simpler logging
+- Show device name and ip address/hostname when a grab fails
+- Keeps an older configuration until a new one doesn't fail
+
 v2.3.0
 
 - Use new Github links
