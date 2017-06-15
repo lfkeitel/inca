@@ -14,7 +14,7 @@ var appLogger *verbose.Logger
 func init() {
 	appLogger = verbose.New("app")
 
-	fileLogger, err := verbose.NewFileHandler("logs/app/")
+	fileLogger, err := verbose.NewFileHandler("logs/app.log")
 	if err != nil {
 		panic("Failed to open logging directory")
 	}

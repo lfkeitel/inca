@@ -35,7 +35,7 @@ func initServer(configuration common.Config) {
 
 	appLogger = verbose.New("httpServer")
 
-	fileLogger, err := verbose.NewFileHandler("logs/server/")
+	fileLogger, err := verbose.NewFileHandler("logs/server.log")
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
@@ -54,9 +54,9 @@ func StartServer(conf common.Config) {
 	http.Handle("/", http.FileServer(http.Dir("server/static")))
 	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/archive", archiveHandler)
-	http.HandleFunc("/settings", settingsHandler)
 	http.HandleFunc("/view/", viewConfHandler)
 	http.HandleFunc("/download/", downloadConfHandler)
+	http.HandleFunc("/delete/", deleteConfHandler)
 	http.HandleFunc("/devicelist", deviceListHandler)
 	http.HandleFunc("/devicetypes", deviceTypesHandler)
 

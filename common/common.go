@@ -21,7 +21,7 @@ type serverConf struct {
 func init() {
 	userLog := verbose.New("endUserLog")
 
-	fileLogger, err := verbose.NewFileHandler("logs/endUser/")
+	fileLogger, err := verbose.NewFileHandler("logs/endUser.log")
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
