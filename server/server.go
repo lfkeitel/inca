@@ -56,6 +56,7 @@ func StartServer(conf common.Config) {
 	http.HandleFunc("/archive", archiveHandler)
 	http.HandleFunc("/view/", viewConfHandler)
 	http.HandleFunc("/download/", downloadConfHandler)
+	http.HandleFunc("/delete/", deleteConfHandler)
 	http.HandleFunc("/devicelist", deviceListHandler)
 	http.HandleFunc("/devicetypes", deviceTypesHandler)
 
