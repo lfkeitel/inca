@@ -27,9 +27,9 @@ func init() {
 	appLogger.AddHandler("file", fileLogger)
 }
 
-func handleError(_e error) {
-	if _e != nil {
-		appLogger.Error(_e.Error())
+func handleError(err error) {
+	if err != nil {
+		appLogger.Error(err.Error())
 	}
 }
 
@@ -63,7 +63,6 @@ func iterDirectory(dirPath string, tw *tar.Writer) {
 		if fi.IsDir() {
 			iterDirectory(curPath, tw)
 		} else {
-			appLogger.Info("adding... %s", curPath)
 			tarGzWrite(curPath, tw, fi)
 		}
 	}
