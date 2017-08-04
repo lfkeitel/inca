@@ -160,9 +160,11 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Co
 				ccg.add(1)
 				go func() {
 					defer func() {
+						appLogger.Debugf("Done with %s", host.name)
 						wg.Done()
 						ccg.done()
 					}()
+
 					if err := scriptExecute(dtype.scriptfile, args); err != nil {
 						common.UserLogError("Failed getting config from %s (%s)", host.name, host.address)
 						os.Remove(fname)
@@ -184,10 +186,13 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Co
 			common.UserLogWarning(logText)
 			finishedDevices++
 		}
+		appLogger.Debug("Waiting for available slot")
 		ccg.wait()
 	}
 
+	appLogger.Debug("Waiting for all devices")
 	wg.Wait()
+	appLogger.Debug("All devices finished")
 	return nil
 }
 

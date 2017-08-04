@@ -28,6 +28,7 @@ func init() {
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
+	fileLogger.SetMinLevel(verbose.LogLevelInfo)
 
 	appLogger.AddHandler("file", fileLogger)
 	stdOutLogger.AddHandler("file", fileLogger)
