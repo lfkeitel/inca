@@ -1,6 +1,9 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+
 	"github.com/BurntSushi/toml"
 
 	"github.com/lfkeitel/inca/common"
@@ -9,9 +12,20 @@ import (
 	"github.com/lfkeitel/verbose"
 )
 
-var appLogger *verbose.Logger
+var (
+	appLogger *verbose.Logger
+
+	showVersion bool
+
+	version   = ""
+	buildTime = ""
+	builder   = ""
+	goversion = ""
+)
 
 func init() {
+	flag.BoolVar(&showVersion, "v", false, "Print version information")
+
 	appLogger = verbose.New("app")
 
 	fileLogger, err := verbose.NewFileHandler("logs/app.log")
@@ -23,6 +37,13 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
+
+	if showVersion {
+		displayVersionInfo()
+		return
+	}
+
 	conf, _ := loadAppConfig()
 	grabber.LoadConfig(conf)
 	server.StartServer(conf)
@@ -35,4 +56,14 @@ func loadAppConfig() (common.Config, error) {
 		return common.Config{}, err
 	}
 	return conf, nil
+}
+
+func displayVersionInfo() {
+	fmt.Printf(`INCA - (C) 2017 University of Southern Indiana - Lee Keitel
+
+Version:     %s
+Built:       %s
+Compiled by: %s
+Go version:  %s
+`, version, buildTime, builder, goversion)
 }
