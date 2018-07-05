@@ -167,7 +167,9 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Co
 
 					if err := scriptExecute(dtype.scriptfile, args); err != nil {
 						common.UserLogError("Failed getting config from %s (%s)", host.name, host.address)
-						os.Remove(fname)
+						if oldName, _ := existing[host.name]; oldName != fname {
+							os.Remove(fname)
+						}
 						return
 					}
 
