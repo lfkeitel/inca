@@ -44,4 +44,4 @@ vet:
 	@go vet $$(go list ./src/...)
 
 build:
-	GOBIN="$(GOBIN)" go install -v -ldflags "$(LDFLAGS)" -tags '$(BUILDTAGS)' .
+	go build -v -ldflags "$(LDFLAGS)" -tags '$(BUILDTAGS)' -o bin/inca .

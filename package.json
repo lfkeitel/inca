@@ -3,7 +3,7 @@
   "description": "Grab configuration files from network infrastructure.",
   "homepage": "http://onesimussystems.com/ica",
   "author": "Lee Keitel <onesimussystems@gmail.com> (http://onesimussystems.com)",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
