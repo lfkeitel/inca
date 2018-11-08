@@ -9,7 +9,7 @@ set enablepassword [lindex $argv 4]
 
 # Announce which device we are working on and at what time
 send_user "\n"
-send_user ">>>>>  Working on $hostname @ [exec date] <<<<<\n"
+send_user ">>>>> Working on $hostname @ [exec date] <<<<<\n"
 send_user "\n"
 
 # Start telnet session
@@ -38,15 +38,29 @@ expect {
         send "enable\n"
         expect "*assword"
         send "$enablepassword\n"
-        expect "*#"
+        expect {
+            "% Access denied" {
+                send_user "\nEnable Mode Failed - Check Password\n"
+                exit 1
+            }
+            "*#"
+        }
     }
 }
 
+set timeout 120
+
 send "terminal length 0\n"
-expect "#"
+expect "*#"
 
 log_file -noappend $confFileName
 send "show running-config\n"
+expect "*#"
+send "show version\n"
+expect "*#"
+send "show vtp stat\n"
+expect "#"
+send "show inventory\n"
 expect "#"
 log_file
 

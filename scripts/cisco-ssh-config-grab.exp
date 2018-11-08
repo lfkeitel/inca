@@ -9,11 +9,11 @@ set enablepassword [lindex $argv 4]
 
 # Announce which device we are working on and at what time
 send_user "\n"
-send_user ">>>>>  Working on $hostname @ [exec date] <<<<<\n"
+send_user ">>>>> Working on $hostname @ [exec date] <<<<<\n"
 send_user "\n"
 
 # Don't check keys
-spawn ssh -o StrictHostKeyChecking=no $username\@$hostname
+spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $username\@$hostname
 
 # Allow this script to handle ssh connection issues
 expect {
@@ -40,6 +40,7 @@ expect {
     }
 }
 
+set timeout 120
 send "terminal length 0\n"
 expect "#"
 
@@ -47,6 +48,10 @@ send_user "Config file $confFileName"
 
 log_file -noappend $confFileName
 send "show running-config\n"
+expect "#"
+send "show version\n"
+expect "#"
+send "show vtp stat\n"
 expect "#"
 log_file
 

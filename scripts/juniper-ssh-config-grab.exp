@@ -8,11 +8,11 @@ set confFileName [lindex $argv 3]
 
 # Announce which device we are working on and at what time
 send_user "\n"
-send_user ">>>>>  Working on $hostname @ [exec date] <<<<<\n"
+send_user ">>>>> Working on $hostname @ [exec date] <<<<<\n"
 send_user "\n"
 
 # Don't check keys
-spawn ssh -o StrictHostKeyChecking=no $username\@$hostname
+spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $username\@$hostname
 
 # Allow this script to handle ssh connection issues
 expect {
@@ -27,16 +27,30 @@ expect {
     }
 }
 
+set timeout 120
 expect ">"
 send "configure\n"
 expect "#"
 
 log_file -noappend $confFileName
+send "show | no-more\n"
+expect -re ".*?@\[^\n\]*?#"
 send "show | display set | no-more\n"
 expect "*#"
+send "exit\n"
+expect {
+    "Exit with uncommitted changes?" { send "yes\n" }
+    "*>"
+}
+send "show chassis hardware\n"
+expect "*>"
+send "show version\n"
+expect "*>"
+send "show system uptime\n"
+expect "*>"
+send "show system alarm\n"
+expect "*>"
 log_file
 
-send "exit\n"
-expect "*>"
 send "exit\n"
 exit
