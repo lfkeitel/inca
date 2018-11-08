@@ -11,11 +11,17 @@ type Config struct {
 	FullConfDir         string
 	MaxSimultaneousConn int
 	Server              serverConf
+	Hooks               hookConf
 }
 
 type serverConf struct {
 	BindAddress string
 	BindPort    int
+}
+
+type hookConf struct {
+	PreScript  string
+	PostScript string
 }
 
 func init() {

@@ -2,6 +2,7 @@ package grabber
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -49,6 +50,13 @@ func PerformConfigGrab() {
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
 
+	if conf.Hooks.PreScript != "" {
+		appLogger.Info("Running pre script")
+		if err := exec.Command(conf.Hooks.PreScript).Run(); err != nil {
+			appLogger.Error(err)
+		}
+	}
+
 	hosts, err := loadDeviceList(conf)
 	if err != nil {
 		appLogger.Error(err.Error())
@@ -74,6 +82,13 @@ func PerformConfigGrab() {
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
+	if conf.Hooks.PostScript != "" {
+		appLogger.Info("Running post script")
+		if err := exec.Command(conf.Hooks.PostScript).Run(); err != nil {
+			appLogger.Error(err)
+		}
+	}
+
 	endTime := time.Now()
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
 	appLogger.Info(logText)
@@ -91,6 +106,13 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	configGrabRunning = true
 	defer func() { configGrabRunning = false }()
 	name = strings.Replace(name, "-", "_", -1)
+
+	if conf.Hooks.PreScript != "" {
+		appLogger.Info("Running pre script")
+		if err := exec.Command(conf.Hooks.PreScript).Run(); err != nil {
+			appLogger.Error(err)
+		}
+	}
 
 	hosts := make([]host, 1)
 
@@ -119,6 +141,13 @@ func PerformSingleRun(name, hostname, brand, method string) {
 
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+
+	if conf.Hooks.PostScript != "" {
+		appLogger.Info("Running post script")
+		if err := exec.Command(conf.Hooks.PostScript).Run(); err != nil {
+			appLogger.Error(err)
+		}
+	}
 
 	endTime := time.Now()
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())

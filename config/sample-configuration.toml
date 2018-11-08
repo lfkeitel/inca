@@ -21,3 +21,7 @@ BindAddress = ""
 
 # Port to bind
 BindPort = 8080
+
+[hooks]
+PreScript = ""
+PostScript = ""
