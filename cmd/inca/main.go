@@ -6,9 +6,9 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/lfkeitel/inca/common"
-	"github.com/lfkeitel/inca/grabber"
-	"github.com/lfkeitel/inca/server"
+	"github.com/lfkeitel/inca/src/common"
+	"github.com/lfkeitel/inca/src/grabber"
+	"github.com/lfkeitel/inca/src/server"
 	"github.com/lfkeitel/verbose"
 )
 

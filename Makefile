@@ -44,4 +44,4 @@ vet:
 	@go vet $$(go list ./src/...)
 
 build:
-	go build -v -ldflags "$(LDFLAGS)" -tags '$(BUILDTAGS)' -o bin/inca .
+	go build -v -ldflags "$(LDFLAGS)" -tags '$(BUILDTAGS)' -o bin/inca ./cmd/inca

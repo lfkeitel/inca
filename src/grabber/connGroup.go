@@ -1,7 +1,7 @@
 package grabber
 
 import (
-	"github.com/lfkeitel/inca/common"
+	"github.com/lfkeitel/inca/src/common"
 )
 
 type connGroup struct {

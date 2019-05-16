@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lfkeitel/inca/common"
-	"github.com/lfkeitel/inca/grabber"
+	"github.com/lfkeitel/inca/src/common"
+	"github.com/lfkeitel/inca/src/grabber"
 )
 
 type apiRequest struct{}

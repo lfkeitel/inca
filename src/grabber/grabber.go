@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/lfkeitel/inca/common"
+	"github.com/lfkeitel/inca/src/common"
 )
 
 func loadCurrentConfigs(conf common.Config) (map[string]string, error) {

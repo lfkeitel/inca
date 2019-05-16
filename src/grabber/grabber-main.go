@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lfkeitel/inca/common"
-	tarGz "github.com/lfkeitel/inca/targz"
+	"github.com/lfkeitel/inca/src/common"
+	tarGz "github.com/lfkeitel/inca/src/targz"
 	"github.com/lfkeitel/verbose"
 )
 
