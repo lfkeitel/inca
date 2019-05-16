@@ -3,9 +3,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
   entry: {
-    main: './frontend/source/scripts/main.js',
-    deviceListPage: './frontend/source/scripts/deviceListPage.js',
-    archive: './frontend/source/scripts/archive.js'
+    main: './frontend/src/scripts/main.ts',
+    deviceListPage: './frontend/src/scripts/deviceListPage.ts',
+    archive: './frontend/src/scripts/archive.ts'
   },
 
   plugins: [
@@ -25,5 +25,9 @@ module.exports = {
         exclude: /node_modules/
       }
     ]
-  }
+  },
+
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  },
 };

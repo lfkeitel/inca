@@ -55,6 +55,7 @@ func (a *apiRequest) devicelist() string {
 
 func (a *apiRequest) savedevicelist(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
+	listText = strings.Replace(listText, "-", "_", -1)
 	return saveDeviceConfigFile(config.DeviceListFile, listText)
 }
 
@@ -70,7 +71,6 @@ func saveDeviceConfigFile(n, t string) string {
 		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
 	}
 
-	t = strings.Replace(t, "-", "_", -1)
 	err := ioutil.WriteFile(n, []byte(t), 0664)
 	if err != nil {
 		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
@@ -79,9 +79,9 @@ func saveDeviceConfigFile(n, t string) string {
 }
 
 type errorLogLine struct {
-	Etype   string
-	Time    string
-	Message string
+	Etype   string `json:"etype"`
+	Time    string `json:"time"`
+	Message string `json:"message"`
 }
 
 func (a *apiRequest) errorlog(r *http.Request) string {

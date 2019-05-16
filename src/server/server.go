@@ -12,16 +12,16 @@ import (
 )
 
 type deviceConfigFile struct {
-	Path         string
-	Name         string
-	Address      string
-	Proto        string
-	ConfText     []string
-	Manufacturer string
+	Path         string   `json:"path"`
+	Name         string   `json:"name"`
+	Address      string   `json:"address"`
+	Proto        string   `json:"proto"`
+	ConfText     []string `json:"conf_text"`
+	Manufacturer string   `json:"manufacturer"`
 }
 
 type deviceList struct {
-	Devices []deviceConfigFile
+	Devices []deviceConfigFile `json:"devices"`
 }
 
 var templates *template.Template

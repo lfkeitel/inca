@@ -1,9 +1,8 @@
 configuration.toml
 device-definitions-dev.conf
 node_modules/
-archive/
-logs/
-latest/
 bin/
 ./vendor/
 inca-dist.tar.gz
+frontend/dist/css
+frontend/dist/js

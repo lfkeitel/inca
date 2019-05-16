@@ -24,7 +24,11 @@
     "build:dev": "yarn run build:js:dev && yarn run build:css",
     "build:js:dev": "webpack --mode development --config webpack.dev.js",
     "build:js:prod": "webpack --mode production --config webpack.prod.js",
-    "build:css": "for file in frontend/source/styles/less/*.less; do lessc --clean-css $file frontend/dist/css/$(basename $file .less).css; done"
+    "build:css": "for file in frontend/src/styles/*.less; do lessc --clean-css $file frontend/dist/css/$(basename $file .less).css; done"
   },
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+    "@types/jquery": "^3.3.29",
+    "jquery": "^3.4.1"
+  }
 }

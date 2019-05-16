@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "outDir": "./frontend/dist/js",
+        "module": "es6",
+        "target": "es6",
+        "allowJs": true,
+        "noImplicitAny": true
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "include": [
+        "frontend/src/scripts/*"
+    ]
+}
