@@ -1,11 +1,15 @@
 {
   "name": "inca",
   "description": "Grab configuration files from network infrastructure.",
-  "homepage": "http://onesimussystems.com/ica",
-  "author": "Lee Keitel <onesimussystems@gmail.com> (http://onesimussystems.com)",
+  "homepage": "http://blog.onesimussystems.com/inca",
+  "author": "Lee Keitel <lee@keitel.xyz>",
   "version": "2.5.0",
   "license": "BSD-3-Clause",
   "repository": "https://github.com/lfkeitel/inca",
+  "dependencies": {
+    "@types/jquery": "^3.3.29",
+    "jquery": "^3.4.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "babel-loader": "^8.0.6",
@@ -25,10 +29,5 @@
     "build:js:dev": "webpack --mode development --config webpack.dev.js",
     "build:js:prod": "webpack --mode production --config webpack.prod.js",
     "build:css": "for file in frontend/src/styles/*.less; do lessc --clean-css $file frontend/dist/css/$(basename $file .less).css; done"
-  },
-  "main": "index.js",
-  "dependencies": {
-    "@types/jquery": "^3.3.29",
-    "jquery": "^3.4.1"
   }
 }
