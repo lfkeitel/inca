@@ -1,7 +1,7 @@
 # Infrastructure Config Archive v2.2.0
 
 Infrastructure Config Archive (INCA) was developed to solve the problem of
-backing up network infrustructure configurations. INCA can be easily expanded to
+backing up network infrastructure configurations. INCA can be easily expanded to
 accommodate multiple types of devices since it uses Expect underneath to handle
 the config grabbing.
 
@@ -9,11 +9,11 @@ the config grabbing.
 
 To Run:
 
-* Expect
+- Expect
 
 To Build:
 
-* Go v1.4
+- Go 1.12+
 
 ## Setting INCA
 
@@ -23,9 +23,18 @@ For documentation on setting up INCA, please go to
 ## Getting Started Developing
 
 ```Bash
-go get github.com/lfkeitel/inca
-npm install
+git clone https://github.com/lfkeitel/inca
+cd inca
+make build # Build Go application
+yarn install # Install and build web frontend
+yarn run build
 ```
+
+## Making a Production Distributable
+
+Clone the repo and run the `package.sh` script. It will build the application
+and web frontend and create a compressed tarball in the project root that can
+be deployed to a server or Docker container.
 
 ## Setup Cron Job
 
@@ -36,19 +45,21 @@ that executes:
 curl http://[hostname]:[port]/api/runnow
 ```
 
-Set the job to run however often you feel necessary. Crontab is the recommended
-tool for setting this up and weekly is the recommended schedule.
+Set the job to run however often you feel necessary.
 
-## Setup Upstart Job
+## Systemd
 
-INCA comes with a template upstart script called `upstart.conf`. You can use this
-file as a base to build an upstart job to start INCA on boot and to easily manage
-the service. Copy the completed script to /etc/init/inca.conf.
-
-You can manage the service with the commands `start inca` `status inca` and `stop
-inca`. The upstart job by default will run on boot.
+There's a baseline Systemd service file in the config directory. You may need
+to make edits for settings such as the user/group names, and where the application
+is on disk.
 
 ## Release Notes
+
+v2.5.0
+
+- Better search on archive page
+- Consistent JSON from API
+- Code restructure for better maintainability
 
 v2.4.0
 

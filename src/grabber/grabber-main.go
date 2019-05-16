@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/lfkeitel/inca/src/common"
-	tarGz "github.com/lfkeitel/inca/src/targz"
+	"github.com/lfkeitel/inca/src/targz"
 	"github.com/lfkeitel/verbose"
 )
 
@@ -82,7 +82,7 @@ func PerformConfigGrab() {
 
 	stage = "grabbing"
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
-	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+	targz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")
@@ -96,7 +96,6 @@ func PerformConfigGrab() {
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
-	return
 }
 
 func PerformSingleRun(name, hostname, brand, method string) {
@@ -149,7 +148,7 @@ func PerformSingleRun(name, hostname, brand, method string) {
 
 	stage = "grabbing"
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
-	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+	targz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")
@@ -163,7 +162,6 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
-	return
 }
 
 func IsRunning() bool {

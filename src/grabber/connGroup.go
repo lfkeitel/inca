@@ -21,7 +21,6 @@ func (c *connGroup) add(delta int) {
 		c.goChan = make(chan bool)
 	}
 	c.numOfConnections += delta
-	return
 }
 
 func (c *connGroup) done() {
@@ -30,7 +29,6 @@ func (c *connGroup) done() {
 	if c.numOfConnections < c.conf.MaxSimultaneousConn {
 		c.goChan <- true
 	}
-	return
 }
 
 func (c *connGroup) wait() {
@@ -38,5 +36,4 @@ func (c *connGroup) wait() {
 		return
 	}
 	<-c.goChan
-	return
 }

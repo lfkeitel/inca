@@ -1,4 +1,4 @@
-package tarGz
+package targz
 
 /**
  * The code for this package was taken from MadCrazy's question on StackOverflow
@@ -49,7 +49,6 @@ func tarGzWrite(_path string, tw *tar.Writer, fi os.FileInfo) {
 
 	_, err = io.Copy(tw, fr)
 	handleError(err)
-	return
 }
 
 func iterDirectory(dirPath string, tw *tar.Writer) {
@@ -66,7 +65,6 @@ func iterDirectory(dirPath string, tw *tar.Writer) {
 			tarGzWrite(curPath, tw, fi)
 		}
 	}
-	return
 }
 
 func TarGz(outFilePath string, inPath string) {
@@ -84,5 +82,4 @@ func TarGz(outFilePath string, inPath string) {
 	defer tw.Close()
 
 	iterDirectory(inPath, tw)
-	return
 }

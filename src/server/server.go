@@ -64,7 +64,6 @@ func StartServer(conf common.Config) {
 	if err != nil {
 		appLogger.Fatal(err.Error())
 	}
-	return
 }
 
 // Wrapper to render template of name
@@ -73,7 +72,6 @@ func renderTemplate(w http.ResponseWriter, name string, d interface{}) {
 		appLogger.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	return
 }
 
 // Generic function to recover from server errors
@@ -82,7 +80,6 @@ func httpRecovery(w http.ResponseWriter) {
 		appLogger.Errorf("%s", re)
 		errorMess := struct{ ErrorMessage string }{"An internal server error has occured."}
 		renderTemplate(w, "errorpage", errorMess)
-		return
 	}
 }
 
