@@ -5,4 +5,5 @@ archive/
 logs/
 latest/
 bin/
-vendor/
+./vendor/
+inca-dist.tar.gz

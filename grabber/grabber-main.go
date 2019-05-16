@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/lfkeitel/inca/common"
-	"github.com/lfkeitel/inca/targz"
+	tarGz "github.com/lfkeitel/inca/targz"
 	"github.com/lfkeitel/verbose"
 )
 
@@ -18,10 +18,9 @@ var conf common.Config
 
 var totalDevices = 0
 var finishedDevices = 0
+var stage = ""
 
 func init() {
-	configGrabRunning = false
-
 	appLogger = verbose.New("grabber")
 	stdOutLogger = verbose.New("execStdOut")
 
@@ -35,10 +34,7 @@ func init() {
 	stdOutLogger.AddHandler("file", fileLogger)
 }
 
-func LoadConfig(config common.Config) {
-	conf = config
-	return
-}
+func LoadConfig(config common.Config) { conf = config }
 
 func PerformConfigGrab() {
 	if configGrabRunning {
@@ -48,15 +44,20 @@ func PerformConfigGrab() {
 
 	startTime := time.Now()
 	configGrabRunning = true
-	defer func() { configGrabRunning = false }()
+	defer func() {
+		configGrabRunning = false
+		stage = ""
+	}()
 
 	if conf.Hooks.PreScript != "" {
 		appLogger.Info("Running pre script")
+		stage = "pre-script"
 		if err := exec.Command(conf.Hooks.PreScript).Run(); err != nil {
 			appLogger.Error(err)
 		}
 	}
 
+	stage = "loading-configuration"
 	hosts, err := loadDeviceList(conf)
 	if err != nil {
 		appLogger.Error(err.Error())
@@ -79,11 +80,13 @@ func PerformConfigGrab() {
 	finishedDevices = 0
 	dateSuffix := time.Now().Format("20060102")
 
+	stage = "grabbing"
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")
+		stage = "post-script"
 		if err := exec.Command(conf.Hooks.PostScript).Run(); err != nil {
 			appLogger.Error(err)
 		}
@@ -104,16 +107,21 @@ func PerformSingleRun(name, hostname, brand, method string) {
 
 	startTime := time.Now()
 	configGrabRunning = true
-	defer func() { configGrabRunning = false }()
+	defer func() {
+		configGrabRunning = false
+		stage = ""
+	}()
 	name = strings.Replace(name, "-", "_", -1)
 
 	if conf.Hooks.PreScript != "" {
 		appLogger.Info("Running pre script")
+		stage = "pre-script"
 		if err := exec.Command(conf.Hooks.PreScript).Run(); err != nil {
 			appLogger.Error(err)
 		}
 	}
 
+	stage = "loading-configuration"
 	hosts := make([]host, 1)
 
 	hosts[0] = host{
@@ -139,11 +147,13 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	finishedDevices = 0
 	dateSuffix := time.Now().Format("20060102")
 
+	stage = "grabbing"
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
 	tarGz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")
+		stage = "post-script"
 		if err := exec.Command(conf.Hooks.PostScript).Run(); err != nil {
 			appLogger.Error(err)
 		}
@@ -160,7 +170,7 @@ func IsRunning() bool {
 	return configGrabRunning
 }
 
-func Remaining() (total, finished int) {
+func remainingDeviceCount() (total, finished int) {
 	if !configGrabRunning {
 		if totalDevices == 0 {
 			hosts, err := loadDeviceList(conf)
@@ -177,4 +187,21 @@ func Remaining() (total, finished int) {
 	}
 
 	return totalDevices, finishedDevices
+}
+
+type State struct {
+	Running         bool
+	Total, Finished int
+	Stage           string
+}
+
+func CurrentState() State {
+	total, finished := remainingDeviceCount()
+
+	return State{
+		Running:  configGrabRunning,
+		Total:    total,
+		Finished: finished,
+		Stage:    stage,
+	}
 }

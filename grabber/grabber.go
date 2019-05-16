@@ -214,7 +214,7 @@ func getConfigFileName(host host, dateSuffix string, conf common.Config) string 
 	filename.WriteString(host.method)
 	filename.WriteString(".conf")
 
-	touch(conf.FullConfDir + "/" + filename.String())
+	touch(filename.String())
 
 	return filename.String()
 }

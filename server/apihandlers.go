@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -15,12 +16,12 @@ import (
 type apiRequest struct{}
 
 func (a *apiRequest) running() string {
-	return "{\"running\": " + strconv.FormatBool(grabber.IsRunning()) + " }"
+	return fmt.Sprintf(`{"running": %t}`, grabber.IsRunning())
 }
 
 func (a *apiRequest) runnow() string {
 	go grabber.PerformConfigGrab()
-	return "{\"status\": \"started\", \"running\": true}"
+	return `{"status": "started", "running": true}`
 }
 
 func (a *apiRequest) singlerun(r *http.Request) string {
@@ -29,12 +30,22 @@ func (a *apiRequest) singlerun(r *http.Request) string {
 	brand := r.FormValue("brand")
 	proto := r.FormValue("proto")
 	go grabber.PerformSingleRun(name, hostname, brand, proto)
-	return "{\"status\": \"started\", \"running\": true}"
+	return `{"status": "started", "running": true}`
 }
 
 func (a *apiRequest) status() string {
-	total, finished := grabber.Remaining()
-	return "{\"status\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"running\": " + strconv.FormatBool(grabber.IsRunning()) + ", \"totalDevices\": " + strconv.Itoa(total) + ", \"finished\": " + strconv.Itoa(finished) + "}"
+	state := grabber.CurrentState()
+	return fmt.Sprintf(`{
+	"running": %t,
+	"totalDevices": %d,
+	"finished": %d,
+	"stage": "%s"
+}`,
+		grabber.IsRunning(),
+		state.Total,
+		state.Finished,
+		state.Stage,
+	)
 }
 
 func (a *apiRequest) devicelist() string {
@@ -56,15 +67,15 @@ func (a *apiRequest) savedevicetypes(r *http.Request) string {
 // Save text t to file n after validating the text formatting
 func saveDeviceConfigFile(n, t string) string {
 	if err := grabber.CheckDeviceList(t); err != nil {
-		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
+		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
 	}
 
 	t = strings.Replace(t, "-", "_", -1)
 	err := ioutil.WriteFile(n, []byte(t), 0664)
 	if err != nil {
-		return "{\"success\": false, \"error\": \"" + err.Error() + "\"}"
+		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
 	}
-	return "{\"success\": true}"
+	return `{"success": true}`
 }
 
 type errorLogLine struct {

@@ -3,9 +3,9 @@
 "use strict"; // jshint ignore:line
 
 function saveDeviceList() {
-    var listText = $('#deviceListConfig').val();
+    const listText = $('#deviceListConfig').val();
 
-    $.post('/api/savedevicelist', {text: encodeURIComponent(listText)}, null, "json")
+    $.post('/api/savedevicelist', { text: encodeURIComponent(listText) }, null, "json")
         .done(function(data) {
             if (!data.success) {
                 alert(data.error);
@@ -16,9 +16,9 @@ function saveDeviceList() {
 }
 
 function saveDeviceTypes() {
-    var listText = $('#deviceTypeConfig').val();
+    const listText = $('#deviceTypeConfig').val();
 
-    $.post('/api/savedevicetypes', {text: encodeURIComponent(listText)}, null, "json")
+    $.post('/api/savedevicetypes', { text: encodeURIComponent(listText) }, null, "json")
         .done(function(data) {
             if (!data.success) {
                 alert(data.error);

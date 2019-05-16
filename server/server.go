@@ -31,7 +31,7 @@ var config common.Config
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration common.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob("server/templates/*.tmpl"))
+	templates = template.Must(template.ParseGlob("frontend/dist/templates/*.tmpl"))
 
 	appLogger = verbose.New("httpServer")
 
@@ -51,7 +51,7 @@ func StartServer(conf common.Config) {
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
 
-	http.Handle("/", http.FileServer(http.Dir("server/static")))
+	http.Handle("/", http.FileServer(http.Dir("frontend/dist")))
 	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/archive", archiveHandler)
 	http.HandleFunc("/view/", viewConfHandler)

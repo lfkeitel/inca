@@ -5,7 +5,7 @@
 
     <form>
         <input type="text" id="searchAddress" value="">
-        <button type="button" id="searchBtn">Search By Address</button>
+        <button type="button" id="searchBtn">Search</button>
     </form>
 
     <br>
@@ -26,7 +26,16 @@
         </thead>
         {{range .Devices}}
             <tr>
-                <td style="text-align: center;"><button type="button" onClick="singleRun('{{.Address}}', '{{.Manufacturer}}', '{{.Proto}}', '{{.Name}}');"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button></td>
+                <td style="text-align: center;">
+                    <button type="button"
+                        class="single-run-btn"
+                        data-address="{{.Address}}"
+                        data-man="{{.Manufacturer}}"
+                        data-proto="{{.Proto}}"
+                        data-name="{{.Name}}">
+                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
+                    </button>
+                </td>
                 <td>{{.Address}}</td>
                 <td>{{.Name}}</td>
                 <td>{{.Proto}}</td>
@@ -37,7 +46,6 @@
     </table>
 
     {{template "scripts"}}
-    <script type="text/javascript" src="/scripts/archive.js"></script>
-    <!-- <script type="text/javascript" src="/js/prod.min.js"></script> -->
+    <script type="text/javascript" src="/js/archive.min.js"></script>
     {{template "footer"}}
 {{end}}

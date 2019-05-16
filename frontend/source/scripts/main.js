@@ -1,12 +1,18 @@
 /* global $:false, setInterval, clearInterval, alert */
 
 "use strict"; // jshint ignore:line
-var runningRefreshTimer = null;
-var bgRefreshTimer = null;
+let runningRefreshTimer = null;
+let bgRefreshTimer = null;
+const initial_view_data = {
+    stage: "",
+    running: true,
+    totalDevices: 1,
+    finished: 0
+}
 
 function run() {
     server.performRun(function(data) {
-        view.updateView({"running": true, "totalDevices": 1, "finished": 0});
+        view.updateView(initial_view_data);
         progressBar.setProgressBarToRunning(true);
     });
     if (runningRefreshTimer === null) {
@@ -24,7 +30,20 @@ function checkRequest(data) {
     }
 }
 
-var view = {
+function stage_to_user_string(stage) {
+    switch (stage) {
+        case "grabbing":
+            return "Grabbing";
+        case "loading-configuration":
+            return "Loading Configuration";
+        case "post-script":
+            return "Post Script";
+        case "pre-script":
+            return "Pre Script";
+    }
+}
+
+const view = {
     updateView: function(data) {
         progressBar.setProgressBarActive(data.running);
 
@@ -36,7 +55,11 @@ var view = {
                 bgRefreshTimer = setInterval(function() { server.checkStatus(view.updateView); }, 30000);
             }
         } else {
-            $('#currentStatus').html('Running').addClass('runningStatus');
+            if (data.stage !== '') {
+                $('#currentStatus').html(`Running - ${stage_to_user_string(data.stage)}`).addClass('runningStatus');
+            } else {
+                $('#currentStatus').html('Running').addClass('runningStatus');
+            }
             $('#currentStatus').removeClass('idleStatus');
             server.getErrorLog(view.updateLogView);
             if (runningRefreshTimer === null) {
@@ -60,8 +83,8 @@ var view = {
 
     updateLogView: function(data) {
         // jshint multistr:true
-        var table = $('<table/>');
-        var tableHead = '<thead><tr>\
+        const table = $('<table/>');
+        const tableHead = '<thead><tr>\
             <td>Type</td>\
             <td>Time</td>\
             <td>Message</td>\
@@ -69,16 +92,16 @@ var view = {
 
         table.append(tableHead);
 
-        for (var key in data) {
+        for (let key in data) {
             if (!data.hasOwnProperty(key))
                 continue;
 
-            var log = data[key];
+            const log = data[key];
 
-            var html = '<tr class="'+log.Etype.toLowerCase()+'">\
-                <td class="'+log.Etype.toLowerCase()+'">'+log.Etype+'</td>\
-                <td>'+log.Time+'</td>\
-                <td>'+log.Message+'</td>\
+            const html = '<tr class="' + log.Etype.toLowerCase() + '">\
+                <td class="'+ log.Etype.toLowerCase() + '">' + log.Etype + '</td>\
+                <td>'+ log.Time + '</td>\
+                <td>'+ log.Message + '</td>\
                 </tr>';
 
             table.append(html);
@@ -91,15 +114,15 @@ var view = {
 };
 
 function manualSingleDeviceRun() {
-    var manName = $('#manName').val();
-    var manAddr = $('#manAddr').val();
-    var manType = $('#manType').val();
-    var manProto = $('#manProto').val();
-    server.runSingleDeviceGrab(manAddr, manType, manProto, manName, function(data){alert("Downloading new config. Check Status page.");});
+    const manName = $('#manName').val();
+    const manAddr = $('#manAddr').val();
+    const manType = $('#manType').val();
+    const manProto = $('#manProto').val();
+    server.runSingleDeviceGrab(manAddr, manType, manProto, manName, function(data) { alert("Downloading new config. Check Status page."); });
     return;
 }
 
-var server = {
+const server = {
     checkStatus: function(callback) {
         $.get('/api/status', {}, null, 'json')
             .done(function(data) {
@@ -131,7 +154,7 @@ var server = {
     },
 
     getErrorLog: function(callback) {
-        $.get('/api/errorlog', {limit: 10}, null, 'json')
+        $.get('/api/errorlog', { limit: 10 }, null, 'json')
             .done(function(data) {
                 if (typeof callback !== 'undefined') {
                     callback(data);
@@ -142,10 +165,10 @@ var server = {
     }
 }; // server
 
-var progressBar = {
+const progressBar = {
     setProgressBarValue: function(val) {
-        var max = $('#statusProgressBar').attr('aria-valuemax');
-        $('#statusProgressBar').css('width', ((val/max)*100)+'%').attr('aria-valuenow', val);
+        const max = $('#statusProgressBar').attr('aria-valuemax');
+        $('#statusProgressBar').css('width', ((val / max) * 100) + '%').attr('aria-valuenow', val);
         return;
     },
 
