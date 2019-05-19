@@ -1,3 +1,7 @@
+# Maximum number of concurrent connections to devices
+# MaxSimultaneousConn = 1000
+
+[credentials]
 # Username and password to login to device
 RemoteUsername = ""
 RemotePassword = ""
@@ -5,23 +9,20 @@ RemotePassword = ""
 # Enable password for Cisco devices
 EnablePassword = ""
 
-# Filename of device list
-DeviceListFile = "config/device-definitions.conf"
-DeviceTypeFile = "config/device-types.conf"
-
-# Folder being served by the TFTP server
-FullConfDir    = "latest"
-
-# Maximum number of concurrent connections to devices
-MaxSimultaneousConn = 1000
+[paths]
+# DeviceList  = "config/device-definitions.conf"
+# DeviceTypes = "config/device-types.conf"
+# ConfDir     = "latest"
+# ScriptDir   = "scripts"
+# ArchiveDir  = "archive"
 
 [server]
 # Address to bind server (keep blank unless you know what you're doing)
-BindAddress = ""
+# BindAddress = ""
 
 # Port to bind
-BindPort = 8080
+# BindPort = 8080
 
 [hooks]
-PreScript = ""
-PostScript = ""
+# PreScript = ""
+# PostScript = ""

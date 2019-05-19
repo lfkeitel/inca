@@ -48,7 +48,7 @@ func archiveHandler(w http.ResponseWriter, r *http.Request) {
 // Generate page with the device definitions
 func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
-	confText, err := ioutil.ReadFile(config.DeviceListFile)
+	confText, err := ioutil.ReadFile(config.Paths.DeviceList)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -56,14 +56,14 @@ func deviceListHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		ConfText string
 		Path     string
-	}{string(confText), config.DeviceListFile}
+	}{string(confText), config.Paths.DeviceList}
 	renderTemplate(w, "deviceListPage", data)
 }
 
 // Generate page with the device type definitions
 func deviceTypesHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
-	confText, err := ioutil.ReadFile(config.DeviceTypeFile)
+	confText, err := ioutil.ReadFile(config.Paths.DeviceTypes)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -71,7 +71,7 @@ func deviceTypesHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		ConfText string
 		Path     string
-	}{string(confText), config.DeviceTypeFile}
+	}{string(confText), config.Paths.DeviceTypes}
 	renderTemplate(w, "deviceTypePage", data)
 }
 
@@ -81,7 +81,7 @@ func viewConfHandler(w http.ResponseWriter, r *http.Request) {
 	splitURL := strings.Split(r.URL.Path, "/")     // [0] = '', [1] = 'view', [2] = filename
 	splitName := strings.Split(splitURL[2], "-")   // [0] = name, [1] = datesuffix, [2] = hostname, [3] = dtype
 	splitProto := strings.Split(splitName[4], ".") // [0] = method, [1] = ".conf"
-	confText, err := ioutil.ReadFile(config.FullConfDir + "/" + splitURL[2])
+	confText, err := ioutil.ReadFile(filepath.Join(config.Paths.ConfDir, splitURL[2]))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -102,7 +102,7 @@ func viewConfHandler(w http.ResponseWriter, r *http.Request) {
 func downloadConfHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	splitURL := strings.Split(r.URL.Path, "/") // [0] = '', [1] = 'download', [2] = filename
-	confText, err := ioutil.ReadFile(config.FullConfDir + "/" + splitURL[2])
+	confText, err := ioutil.ReadFile(filepath.Join(config.Paths.ConfDir, splitURL[2]))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -114,6 +114,6 @@ func downloadConfHandler(w http.ResponseWriter, r *http.Request) {
 func deleteConfHandler(w http.ResponseWriter, r *http.Request) {
 	defer httpRecovery(w)
 	splitURL := strings.Split(r.URL.Path, "/") // [0] = '', [1] = 'download', [2] = filename
-	os.Remove(filepath.Join(config.FullConfDir, splitURL[2]))
+	os.Remove(filepath.Join(config.Paths.ConfDir, splitURL[2]))
 	http.Redirect(w, r, "/archive", http.StatusTemporaryRedirect)
 }

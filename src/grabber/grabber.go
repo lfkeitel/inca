@@ -15,8 +15,8 @@ import (
 	"github.com/lfkeitel/inca/src/common"
 )
 
-func loadCurrentConfigs(conf common.Config) (map[string]string, error) {
-	src, err := os.Stat(conf.FullConfDir)
+func loadCurrentConfigs(conf *common.Config) (map[string]string, error) {
+	src, err := os.Stat(conf.Paths.ConfDir)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func loadCurrentConfigs(conf common.Config) (map[string]string, error) {
 		return nil, errors.New("Path is not a directory")
 	}
 
-	fileList, err := ioutil.ReadDir(conf.FullConfDir)
+	fileList, err := ioutil.ReadDir(conf.Paths.ConfDir)
 	if err != nil {
 		return nil, err
 	}
@@ -37,14 +37,14 @@ func loadCurrentConfigs(conf common.Config) (map[string]string, error) {
 		}
 
 		deviceName := strings.SplitN(file.Name(), "-", 2)[0]
-		current[deviceName] = filepath.Join(conf.FullConfDir, file.Name())
+		current[deviceName] = filepath.Join(conf.Paths.ConfDir, file.Name())
 	}
 
 	return current, nil
 }
 
-func loadDeviceList(conf common.Config) ([]host, error) {
-	listFile, err := os.Open(conf.DeviceListFile)
+func loadDeviceList(conf *common.Config) ([]host, error) {
+	listFile, err := os.Open(conf.Paths.DeviceList)
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +102,8 @@ func CheckDeviceList(s string) error {
 	return nil
 }
 
-func loadDeviceTypes(conf common.Config) ([]dtype, error) {
-	typeFile, err := os.Open(conf.DeviceTypeFile)
+func loadDeviceTypes(conf *common.Config) ([]dtype, error) {
+	typeFile, err := os.Open(conf.Paths.DeviceTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func loadDeviceTypes(conf common.Config) ([]dtype, error) {
 	return dtypeList, nil
 }
 
-func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Config, existing map[string]string) error {
+func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.Config, existing map[string]string) error {
 	var wg sync.WaitGroup
 	ccg := newConnGroup(conf) // Used to enforce a maximum number of connections
 
@@ -198,11 +198,9 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf common.Co
 	return nil
 }
 
-func getConfigFileName(host host, dateSuffix string, conf common.Config) string {
+func getConfigFileName(host host, dateSuffix string, conf *common.Config) string {
 	var filename bytes.Buffer
 
-	filename.WriteString(conf.FullConfDir)
-	filename.WriteString("/")
 	filename.WriteString(host.name)
 	filename.WriteString("-")
 	filename.WriteString(dateSuffix)
@@ -214,12 +212,14 @@ func getConfigFileName(host host, dateSuffix string, conf common.Config) string 
 	filename.WriteString(host.method)
 	filename.WriteString(".conf")
 
-	touch(filename.String())
+	confPath := filepath.Join(conf.Paths.ConfDir, filename.String())
 
-	return filename.String()
+	touch(confPath)
+
+	return confPath
 }
 
-func getArguments(argStr string, host host, filename string, conf common.Config) []string {
+func getArguments(argStr string, host host, filename string, conf *common.Config) []string {
 	args := strings.Split(argStr, ",")
 	argList := make([]string, len(args))
 	for i, a := range args {
@@ -228,16 +228,16 @@ func getArguments(argStr string, host host, filename string, conf common.Config)
 			argList[i] = host.address
 			break
 		case "$username":
-			argList[i] = conf.RemoteUsername
+			argList[i] = conf.Credentials.RemoteUsername
 			break
 		case "$password":
-			argList[i] = conf.RemotePassword
+			argList[i] = conf.Credentials.RemotePassword
 			break
 		case "$logfile":
 			argList[i] = filename
 			break
 		case "$enablepw":
-			argList[i] = conf.EnablePassword
+			argList[i] = conf.Credentials.EnablePassword
 			break
 		}
 	}
@@ -245,7 +245,7 @@ func getArguments(argStr string, host host, filename string, conf common.Config)
 }
 
 func scriptExecute(sfn string, args []string) error {
-	out, err := exec.Command("scripts/"+sfn, args...).Output()
+	out, err := exec.Command(filepath.Join(conf.Paths.ScriptDir, sfn), args...).Output()
 	if err != nil {
 		appLogger.Error(err.Error())
 		appLogger.Error(string(out))

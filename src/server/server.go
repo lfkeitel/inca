@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -26,32 +27,33 @@ type deviceList struct {
 
 var templates *template.Template
 var appLogger *verbose.Logger
-var config common.Config
+var config *common.Config
 
 // Initialize HTTP server with app configuration and templates
-func initServer(configuration common.Config) {
+func initServer(configuration *common.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob("frontend/dist/templates/*.tmpl"))
+	templates = template.Must(template.ParseGlob(filepath.Join("frontend", "dist", "templates", "*.tmpl")))
 
 	appLogger = verbose.New("httpServer")
 
-	fileLogger, err := verbose.NewFileHandler("logs/server.log")
+	fileLogger, err := verbose.NewFileHandler(filepath.Join(configuration.Paths.LogDir, "server.log"))
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
 
 	appLogger.AddHandler("file", fileLogger)
+	appLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
 }
 
 // Start front-end HTTP server
-func StartServer(conf common.Config) {
+func StartServer(conf *common.Config) {
 	initServer(conf)
 
 	logText := "Starting webserver on port " + conf.Server.BindAddress + ":" + strconv.Itoa(conf.Server.BindPort)
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
 
-	http.Handle("/", http.FileServer(http.Dir("frontend/dist")))
+	http.Handle("/", http.FileServer(http.Dir(filepath.Join("frontend", "dist"))))
 	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/archive", archiveHandler)
 	http.HandleFunc("/view/", viewConfHandler)
@@ -85,7 +87,7 @@ func httpRecovery(w http.ResponseWriter) {
 
 // Get a list of all devices in the config.FullConfDir directory
 func getDeviceList() deviceList {
-	configFileList, _ := ioutil.ReadDir(config.FullConfDir)
+	configFileList, _ := ioutil.ReadDir(config.Paths.ConfDir)
 
 	deviceConfigs := deviceList{}
 

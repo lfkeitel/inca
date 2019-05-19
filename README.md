@@ -55,6 +55,13 @@ is on disk.
 
 ## Release Notes
 
+v2.6.0
+
+- Made application paths configurable
+- Configuration path can be given as a flag
+- Log to stdout as well as files
+- Better cross-platform support
+
 v2.5.0
 
 - Better search on archive page

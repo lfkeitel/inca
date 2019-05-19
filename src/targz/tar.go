@@ -10,25 +10,21 @@ import (
 	"compress/gzip"
 	"io"
 	"os"
-
-	"github.com/lfkeitel/verbose"
+	"path/filepath"
 )
 
-var appLogger *verbose.Logger
+var appLogger Logger
 
-func init() {
-	appLogger = verbose.New("tarGz-log")
+type Logger interface {
+	Error(...interface{})
+}
 
-	fileLogger, err := verbose.NewFileHandler("logs/tar.log")
-	if err != nil {
-		panic("Failed to open logging directory")
-	}
-
-	appLogger.AddHandler("file", fileLogger)
+func SetLogger(l Logger) {
+	appLogger = l
 }
 
 func handleError(err error) {
-	if err != nil {
+	if err != nil && appLogger != nil {
 		appLogger.Error(err.Error())
 	}
 }
@@ -58,7 +54,7 @@ func iterDirectory(dirPath string, tw *tar.Writer) {
 	fis, err := dir.Readdir(0)
 	handleError(err)
 	for _, fi := range fis {
-		curPath := dirPath + "/" + fi.Name()
+		curPath := filepath.Join(dirPath, fi.Name())
 		if fi.IsDir() {
 			iterDirectory(curPath, tw)
 		} else {

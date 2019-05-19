@@ -7,10 +7,10 @@ import (
 type connGroup struct {
 	numOfConnections int
 	goChan           chan bool
-	conf             common.Config
+	conf             *common.Config
 }
 
-func newConnGroup(conf common.Config) connGroup {
+func newConnGroup(conf *common.Config) connGroup {
 	return connGroup{
 		conf: conf,
 	}

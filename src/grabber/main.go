@@ -3,6 +3,7 @@ package grabber
 import (
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -14,27 +15,29 @@ import (
 var appLogger *verbose.Logger
 var stdOutLogger *verbose.Logger
 var configGrabRunning = false
-var conf common.Config
+var conf *common.Config
 
 var totalDevices = 0
 var finishedDevices = 0
 var stage = ""
 
-func init() {
-	appLogger = verbose.New("grabber")
-	stdOutLogger = verbose.New("execStdOut")
+func Init(config *common.Config) {
+	conf = config
 
-	fileLogger, err := verbose.NewFileHandler("logs/main.log")
+	fileLogger, err := verbose.NewFileHandler(filepath.Join(config.Paths.LogDir, "main.log"))
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
 	fileLogger.SetMinLevel(verbose.LogLevelInfo)
 
+	appLogger = verbose.New("grabber")
 	appLogger.AddHandler("file", fileLogger)
-	stdOutLogger.AddHandler("file", fileLogger)
-}
+	appLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
 
-func LoadConfig(config common.Config) { conf = config }
+	stdOutLogger = verbose.New("execStdOut")
+	stdOutLogger.AddHandler("file", fileLogger)
+	stdOutLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
+}
 
 func PerformConfigGrab() {
 	if configGrabRunning {
@@ -82,7 +85,7 @@ func PerformConfigGrab() {
 
 	stage = "grabbing"
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
-	targz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+	targz.TarGz(filepath.Join(conf.Paths.ArchiveDir, dateSuffix+".tar.gz"), conf.Paths.ConfDir)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")
@@ -148,7 +151,7 @@ func PerformSingleRun(name, hostname, brand, method string) {
 
 	stage = "grabbing"
 	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
-	targz.TarGz("archive/"+dateSuffix+".tar.gz", conf.FullConfDir)
+	targz.TarGz(filepath.Join(conf.Paths.ArchiveDir, dateSuffix+".tar.gz"), conf.Paths.ConfDir)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")

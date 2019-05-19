@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -56,12 +57,12 @@ func (a *apiRequest) devicelist() string {
 func (a *apiRequest) savedevicelist(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
 	listText = strings.Replace(listText, "-", "_", -1)
-	return saveDeviceConfigFile(config.DeviceListFile, listText)
+	return saveDeviceConfigFile(config.Paths.DeviceList, listText)
 }
 
 func (a *apiRequest) savedevicetypes(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
-	return saveDeviceConfigFile(config.DeviceTypeFile, listText)
+	return saveDeviceConfigFile(config.Paths.DeviceTypes, listText)
 
 }
 
@@ -86,7 +87,7 @@ type errorLogLine struct {
 
 func (a *apiRequest) errorlog(r *http.Request) string {
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
-	log, err := ioutil.ReadFile("logs/endUser.log")
+	log, err := ioutil.ReadFile(filepath.Join(config.Paths.LogDir, "endUser.log"))
 	if err != nil {
 		return "{}"
 	}

@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	"github.com/BurntSushi/toml"
+	"path/filepath"
 
 	"github.com/lfkeitel/inca/src/common"
 	"github.com/lfkeitel/inca/src/grabber"
 	"github.com/lfkeitel/inca/src/server"
+	"github.com/lfkeitel/inca/src/targz"
 	"github.com/lfkeitel/verbose"
 )
 
@@ -16,6 +16,7 @@ var (
 	appLogger *verbose.Logger
 
 	showVersion bool
+	configFile  string
 
 	version   = ""
 	buildTime = ""
@@ -25,15 +26,7 @@ var (
 
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "Print version information")
-
-	appLogger = verbose.New("app")
-
-	fileLogger, err := verbose.NewFileHandler("logs/app.log")
-	if err != nil {
-		panic("Failed to open logging directory")
-	}
-
-	appLogger.AddHandler("file", fileLogger)
+	flag.StringVar(&configFile, "c", "config/configuration.toml", "Configuration file")
 }
 
 func main() {
@@ -44,18 +37,38 @@ func main() {
 		return
 	}
 
-	conf, _ := loadAppConfig()
-	grabber.LoadConfig(conf)
+	conf, _ := common.LoadConfig(configFile, appLogger)
+
+	setupLogger(conf.Paths.LogDir)
+
+	common.InitUserLog(conf.Paths.LogDir)
+	grabber.Init(conf)
 	server.StartServer(conf)
 }
 
-func loadAppConfig() (common.Config, error) {
-	var conf common.Config
-	if _, err := toml.DecodeFile("config/configuration.toml", &conf); err != nil {
-		appLogger.Fatalf("Couldn't load configuration: %s", err.Error())
-		return common.Config{}, err
+func setupLogger(logdir string) {
+	appLogger = verbose.New("app")
+
+	fileLogger, err := verbose.NewFileHandler(filepath.Join(logdir, "app.log"))
+	if err != nil {
+		panic("Failed to open logging directory")
 	}
-	return conf, nil
+
+	appLogger.AddHandler("file", fileLogger)
+	appLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
+}
+
+func setupTarLogger(logdir string) {
+	appLogger := verbose.New("tarGz-log")
+
+	fileLogger, err := verbose.NewFileHandler("logs/tar.log")
+	if err != nil {
+		panic("Failed to open logging directory")
+	}
+
+	appLogger.AddHandler("file", fileLogger)
+	appLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
+	targz.SetLogger(appLogger)
 }
 
 func displayVersionInfo() {
