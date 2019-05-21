@@ -1,0 +1,4 @@
+github.com/BurntSushi/toml v0.3.0 h1:e1/Ivsx3Z0FVTV0NSOv/aVgbUWyQuzj7DDnFblkRvsY=
+github.com/BurntSushi/toml v0.3.0/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/lfkeitel/verbose v0.0.0-20170322193154-332f9e728b78 h1:JXuKCuZJwb+sA9jtOLUyidBw/uRiO1OhXaTaoaSUPEs=
+github.com/lfkeitel/verbose v0.0.0-20170322193154-332f9e728b78/go.mod h1:EQUiv6cpTLjUSlKDzEhQbOA2xK1m9H1ywujgNLTypwU=
