@@ -61,6 +61,7 @@ v2.6.0
 - Configuration path can be given as a flag
 - Log to stdout as well as files
 - Better cross-platform support
+- Rewrote frontend as a SPA in Vue
 
 v2.5.0
 

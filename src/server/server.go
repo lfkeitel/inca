@@ -50,13 +50,28 @@ func StartServer(conf *common.Config) {
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
 
-	http.Handle("/", http.FileServer(http.Dir(filepath.Join("frontend"))))
+	http.HandleFunc("/", spaServer)
 	http.HandleFunc("/api/", apiHandler)
 
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)
 	if err != nil {
 		appLogger.Fatal(err.Error())
 	}
+}
+
+func spaServer(w http.ResponseWriter, r *http.Request) {
+	upath := r.URL.Path
+	if !strings.HasPrefix(upath, "/") {
+		upath = "/" + upath
+		r.URL.Path = upath
+	}
+
+	path := filepath.Join("frontend", upath)
+	if !common.FileExists(path) {
+		// Redirect all requests to the index page
+		path = filepath.Join("frontend", "index.html")
+	}
+	http.ServeFile(w, r, path)
 }
 
 // Get a list of all devices in the config.FullConfDir directory

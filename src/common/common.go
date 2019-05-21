@@ -85,19 +85,19 @@ func setDefaults(c *Config) error {
 }
 
 func makeDirectories(c *Config) error {
-	if !fileExists(c.Paths.ConfDir) {
+	if !FileExists(c.Paths.ConfDir) {
 		if err := os.MkdirAll(c.Paths.ConfDir, 0755); err != nil {
 			return err
 		}
 	}
 
-	if !fileExists(c.Paths.ArchiveDir) {
+	if !FileExists(c.Paths.ArchiveDir) {
 		if err := os.MkdirAll(c.Paths.ArchiveDir, 0755); err != nil {
 			return err
 		}
 	}
 
-	if !fileExists(c.Paths.ScriptDir) {
+	if !FileExists(c.Paths.ScriptDir) {
 		if err := os.MkdirAll(c.Paths.ScriptDir, 0755); err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func makeDirectories(c *Config) error {
 	return nil
 }
 
-func fileExists(file string) bool {
+func FileExists(file string) bool {
 	_, err := os.Stat(file)
 	return !os.IsNotExist(err)
 }
