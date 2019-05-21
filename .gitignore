@@ -1,8 +1,6 @@
 inca-dist.tar.gz
-/frontend/dist/css
-/frontend/dist/js
+/frontend
 
-/node_modules
 /vendor
 /bin
 /private
@@ -10,3 +8,4 @@ inca-dist.tar.gz
 /archive
 /latest
 /scripts
+/dist

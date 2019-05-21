@@ -183,7 +183,7 @@ func remainingDeviceCount() (total, finished int) {
 		}
 
 		if finishedDevices == 0 {
-			finishedDevices = -1
+			finishedDevices = totalDevices
 		}
 	}
 

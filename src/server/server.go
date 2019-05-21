@@ -1,7 +1,6 @@
 package server
 
 import (
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -25,14 +24,12 @@ type deviceList struct {
 	Devices []deviceConfigFile `json:"devices"`
 }
 
-var templates *template.Template
 var appLogger *verbose.Logger
 var config *common.Config
 
 // Initialize HTTP server with app configuration and templates
 func initServer(configuration *common.Config) {
 	config = configuration
-	templates = template.Must(template.ParseGlob(filepath.Join("frontend", "dist", "templates", "*.tmpl")))
 
 	appLogger = verbose.New("httpServer")
 
@@ -53,35 +50,12 @@ func StartServer(conf *common.Config) {
 	appLogger.Info(logText)
 	common.UserLogInfo(logText)
 
-	http.Handle("/", http.FileServer(http.Dir(filepath.Join("frontend", "dist"))))
+	http.Handle("/", http.FileServer(http.Dir(filepath.Join("frontend"))))
 	http.HandleFunc("/api/", apiHandler)
-	http.HandleFunc("/archive", archiveHandler)
-	http.HandleFunc("/view/", viewConfHandler)
-	http.HandleFunc("/download/", downloadConfHandler)
-	http.HandleFunc("/delete/", deleteConfHandler)
-	http.HandleFunc("/devicelist", deviceListHandler)
-	http.HandleFunc("/devicetypes", deviceTypesHandler)
 
 	err := http.ListenAndServe(conf.Server.BindAddress+":"+strconv.Itoa(conf.Server.BindPort), nil)
 	if err != nil {
 		appLogger.Fatal(err.Error())
-	}
-}
-
-// Wrapper to render template of name
-func renderTemplate(w http.ResponseWriter, name string, d interface{}) {
-	if err := templates.ExecuteTemplate(w, name, d); err != nil {
-		appLogger.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// Generic function to recover from server errors
-func httpRecovery(w http.ResponseWriter) {
-	if re := recover(); re != nil {
-		appLogger.Errorf("%s", re)
-		errorMess := struct{ ErrorMessage string }{"An internal server error has occured."}
-		renderTemplate(w, "errorpage", errorMess)
 	}
 }
 

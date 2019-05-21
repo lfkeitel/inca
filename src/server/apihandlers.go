@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -63,7 +64,14 @@ func (a *apiRequest) savedevicelist(r *http.Request) string {
 func (a *apiRequest) savedevicetypes(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
 	return saveDeviceConfigFile(config.Paths.DeviceTypes, listText)
+}
 
+func (a *apiRequest) deleteconf(r *http.Request) string {
+	path, _ := url.QueryUnescape(r.FormValue("path"))
+	if err := os.Remove(filepath.Join(config.Paths.ConfDir, path)); err != nil {
+		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
+	}
+	return `{"success": true}`
 }
 
 // Save text t to file n after validating the text formatting

@@ -1,15 +1,21 @@
 #!/bin/bash
 
+git_tmp=$(mktemp -d)
+git clone https://github.com/lfkeitel/inca-frontend "$git_tmp"
+pushd "$git_tmp"
+yarn install
+yarn build
+popd
+
 # Build application
-yarn run build
 make build
 
 # Setup folder structure
 rm -rf dist
-mkdir -p dist/{archive,logs,latest,frontend}
+mkdir -p dist/{archive,logs,latest}
 
 # Copy application
-cp -R frontend/dist dist/frontend/dist
+mv $git_tmp/dist dist/frontend
 cp -R config dist/
 cp -R scripts dist/
 
@@ -24,3 +30,4 @@ cd ..
 
 # Cleanup
 rm -rf dist
+rm -rf $git_tmp
