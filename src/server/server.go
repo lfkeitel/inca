@@ -1,6 +1,8 @@
 package server
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -16,7 +18,7 @@ type deviceConfigFile struct {
 	Name         string   `json:"name"`
 	Address      string   `json:"address"`
 	Proto        string   `json:"proto"`
-	ConfText     []string `json:"conf_text"`
+	Configs      []string `json:"configs"`
 	Manufacturer string   `json:"manufacturer"`
 }
 
@@ -76,26 +78,50 @@ func spaServer(w http.ResponseWriter, r *http.Request) {
 
 // Get a list of all devices in the config.FullConfDir directory
 func getDeviceList() deviceList {
+	type host struct {
+		Name    string `json:"name"`
+		Address string `json:"address"`
+		Dtype   string `json:"dtype"`
+		Method  string `json:"method"`
+	}
+
 	configFileList, _ := ioutil.ReadDir(config.Paths.ConfDir)
 
 	deviceConfigs := deviceList{}
 
 	for _, file := range configFileList {
-		filename := file.Name()
-		if filename[0] == '.' {
+		if !file.IsDir() {
 			continue
 		}
-		splitName := strings.Split(filename, "-")      // [0] = name, [1] = datesuffix, [2] = hostname, [3] = manufacturer
-		splitProto := strings.Split(splitName[4], ".") // [0] = protocol, [1] = ".conf"
 
-		device := deviceConfigFile{
-			Path:         file.Name(),
-			Name:         splitName[0],
-			Address:      splitName[2],
-			Proto:        splitProto[0],
-			Manufacturer: splitName[3],
+		hostdir := filepath.Join(config.Paths.ConfDir, file.Name())
+		filename := filepath.Join(hostdir, "_metadata.json")
+		data, err := ioutil.ReadFile(filename)
+		if err != nil {
+			continue
 		}
-		deviceConfigs.Devices = append(deviceConfigs.Devices, device)
+
+		var device host
+		if err := json.Unmarshal(data, &device); err != nil {
+			continue
+		}
+
+		dircontents, _ := ioutil.ReadDir(hostdir)
+		files := make([]string, 0, len(dircontents)-1)
+		for _, f := range dircontents {
+			if f.Name() != "_metadata.json" {
+				files = append(files, f.Name())
+			}
+		}
+
+		deviceConfigs.Devices = append(deviceConfigs.Devices, deviceConfigFile{
+			Path:         fmt.Sprintf("%s-%s", device.Name, device.Address),
+			Name:         device.Name,
+			Address:      device.Address,
+			Proto:        device.Dtype,
+			Manufacturer: device.Method,
+			Configs:      files,
+		})
 	}
 
 	return deviceConfigs

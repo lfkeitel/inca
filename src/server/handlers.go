@@ -54,15 +54,15 @@ func configFileApiHandler(w http.ResponseWriter, r *http.Request, file string) {
 		panic(err.Error())
 	}
 
-	w.Header().Set("Content-Type", "plain/text")
+	w.Header().Set("Content-Type", "text/plain")
 	w.Write(confText)
 }
 
 func downloadConfApiHandler(w http.ResponseWriter, r *http.Request) {
 	splitURL := strings.Split(r.URL.Path, "/")
-	path := splitURL[3]
+	path := filepath.Join(splitURL[3:]...)
 
-	w.Header().Set("Content-Type", "plain/text")
+	w.Header().Set("Content-Type", "text/plain")
 
 	confText, err := ioutil.ReadFile(filepath.Join(config.Paths.ConfDir, path))
 	if err != nil {

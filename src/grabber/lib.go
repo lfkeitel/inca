@@ -9,10 +9,10 @@ import (
 )
 
 type host struct {
-	name    string
-	address string
-	dtype   string
-	method  string
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Dtype   string `json:"dtype"`
+	Method  string `json:"method"`
 }
 
 type dtype struct {
@@ -55,4 +55,22 @@ func removeDir(path string) error {
 	}
 
 	return nil
+}
+
+func filterStrings(s []string, f func(string) bool) []string {
+	ret := make([]string, 0)
+	for _, e := range s {
+		if f(e) {
+			ret = append(ret, e)
+		}
+	}
+	return ret
+}
+
+func dirlistToFilenames(dl []os.FileInfo) []string {
+	ret := make([]string, 0, len(dl))
+	for _, f := range dl {
+		ret = append(ret, f.Name())
+	}
+	return ret
 }

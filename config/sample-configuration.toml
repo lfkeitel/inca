@@ -1,5 +1,6 @@
 # Maximum number of concurrent connections to devices
 # MaxSimultaneousConn = 1000
+# KeepLimit = 10
 
 [credentials]
 # Username and password to login to device
@@ -14,7 +15,6 @@ EnablePassword = ""
 # DeviceTypes = "config/device-types.conf"
 # ConfDir     = "latest"
 # ScriptDir   = "scripts"
-# ArchiveDir  = "archive"
 
 [server]
 # Address to bind server (keep blank unless you know what you're doing)

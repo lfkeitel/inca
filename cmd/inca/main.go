@@ -8,7 +8,6 @@ import (
 	"github.com/lfkeitel/inca/src/common"
 	"github.com/lfkeitel/inca/src/grabber"
 	"github.com/lfkeitel/inca/src/server"
-	"github.com/lfkeitel/inca/src/targz"
 	"github.com/lfkeitel/verbose"
 )
 
@@ -56,19 +55,6 @@ func setupLogger(logdir string) {
 
 	appLogger.AddHandler("file", fileLogger)
 	appLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
-}
-
-func setupTarLogger(logdir string) {
-	appLogger := verbose.New("tarGz-log")
-
-	fileLogger, err := verbose.NewFileHandler("logs/tar.log")
-	if err != nil {
-		panic("Failed to open logging directory")
-	}
-
-	appLogger.AddHandler("file", fileLogger)
-	appLogger.AddHandler("stdout", verbose.NewStdoutHandler(true))
-	targz.SetLogger(appLogger)
 }
 
 func displayVersionInfo() {

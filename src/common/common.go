@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	MaxSimultaneousConn int
+	KeepLimit           int
 	Credentials         credentialsConf
 	Paths               pathsConf
 	Server              serverConf
@@ -32,7 +33,6 @@ type pathsConf struct {
 	DeviceTypes string
 	ConfDir     string
 	ScriptDir   string
-	ArchiveDir  string
 	LogDir      string
 }
 
@@ -72,11 +72,11 @@ func LoadConfig(path string, logger appLogger) (*Config, error) {
 
 func setDefaults(c *Config) error {
 	c.MaxSimultaneousConn = intOrDefault(c.MaxSimultaneousConn, 1000)
+	c.KeepLimit = intOrDefault(c.KeepLimit, 10)
 
 	c.Paths.DeviceList = stringOrDefault(c.Paths.DeviceList, "config/device-definitions.conf")
 	c.Paths.DeviceTypes = stringOrDefault(c.Paths.DeviceTypes, "config/device-types.conf")
 	c.Paths.ConfDir = stringOrDefault(c.Paths.ConfDir, "latest")
-	c.Paths.ArchiveDir = stringOrDefault(c.Paths.ArchiveDir, "archive")
 	c.Paths.ScriptDir = stringOrDefault(c.Paths.ScriptDir, "scripts")
 	c.Paths.LogDir = stringOrDefault(c.Paths.LogDir, "logs")
 
@@ -87,12 +87,6 @@ func setDefaults(c *Config) error {
 func makeDirectories(c *Config) error {
 	if !FileExists(c.Paths.ConfDir) {
 		if err := os.MkdirAll(c.Paths.ConfDir, 0755); err != nil {
-			return err
-		}
-	}
-
-	if !FileExists(c.Paths.ArchiveDir) {
-		if err := os.MkdirAll(c.Paths.ArchiveDir, 0755); err != nil {
 			return err
 		}
 	}

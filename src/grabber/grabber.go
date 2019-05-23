@@ -2,8 +2,7 @@ package grabber
 
 import (
 	"bufio"
-	"bytes"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,35 +12,8 @@ import (
 	"sync"
 
 	"github.com/lfkeitel/inca/src/common"
+	"github.com/lfkeitel/inca/src/diff"
 )
-
-func loadCurrentConfigs(conf *common.Config) (map[string]string, error) {
-	src, err := os.Stat(conf.Paths.ConfDir)
-	if err != nil {
-		return nil, err
-	}
-	if !src.IsDir() {
-		return nil, errors.New("Path is not a directory")
-	}
-
-	fileList, err := ioutil.ReadDir(conf.Paths.ConfDir)
-	if err != nil {
-		return nil, err
-	}
-
-	current := make(map[string]string, len(fileList))
-
-	for _, file := range fileList {
-		if file.Name()[0] == '.' {
-			continue
-		}
-
-		deviceName := strings.SplitN(file.Name(), "-", 2)[0]
-		current[deviceName] = filepath.Join(conf.Paths.ConfDir, file.Name())
-	}
-
-	return current, nil
-}
 
 func loadDeviceList(conf *common.Config) ([]host, error) {
 	listFile, err := os.Open(conf.Paths.DeviceList)
@@ -73,10 +45,10 @@ func loadDeviceList(conf *common.Config) ([]host, error) {
 		}
 
 		device := host{
-			name:    splitLine[0],
-			address: splitLine[1],
-			dtype:   splitLine[2],
-			method:  splitLine[3],
+			Name:    splitLine[0],
+			Address: splitLine[1],
+			Dtype:   splitLine[2],
+			Method:  splitLine[3],
 		}
 
 		hostList = append(hostList, device)
@@ -90,7 +62,7 @@ func CheckDeviceList(s string) error {
 	lines := strings.Split(s, "\n")
 
 	for i, line := range lines {
-		if len(line) < 1 || line[0] == '#' || line[0] == ' ' {
+		if len(line) == 0 || line[0] == '#' || line[0] == ' ' {
 			continue
 		}
 
@@ -144,37 +116,77 @@ func loadDeviceTypes(conf *common.Config) ([]dtype, error) {
 	return dtypeList, nil
 }
 
-func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.Config, existing map[string]string) error {
+func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.Config) error {
 	var wg sync.WaitGroup
 	ccg := newConnGroup(conf) // Used to enforce a maximum number of connections
+	fname := dateSuffix + ".conf"
 
 	for _, host := range hosts {
 		host := host
 		match := false
 		for _, dtype := range dtypes {
-			if host.dtype == dtype.deviceType && (dtype.method == "*" || host.method == dtype.method) {
-				fname := getConfigFileName(host, dateSuffix, conf)
-				args := getArguments(dtype.args, host, fname, conf)
+			if host.Dtype == dtype.deviceType && (dtype.method == "*" || host.Method == dtype.method) {
+				hostdir := filepath.Join(conf.Paths.ConfDir, fmt.Sprintf("%s-%s", host.Name, host.Address))
+				hostfname := filepath.Join(hostdir, fname)
+				metadatafile := filepath.Join(hostdir, "_metadata.json")
+				args := getArguments(dtype.args, host, hostfname, conf)
+
+				if !common.FileExists(hostdir) {
+					if err := os.MkdirAll(hostdir, 0750); err != nil {
+						common.UserLogError(err.Error())
+						break
+					}
+				}
+
+				if !common.FileExists(metadatafile) {
+					hostmetafile := metadatafile
+					d, _ := json.Marshal(host)
+					if err := ioutil.WriteFile(hostmetafile, d, 0640); err != nil {
+						common.UserLogError(err.Error())
+						break
+					}
+				}
 
 				wg.Add(1)
 				ccg.add(1)
 				go func() {
 					defer func() {
-						appLogger.Debugf("Done with %s", host.name)
+						appLogger.Debugf("Done with %s", host.Name)
 						wg.Done()
 						ccg.done()
 					}()
 
-					if err := scriptExecute(dtype.scriptfile, args); err != nil {
-						common.UserLogError("Failed getting config from %s (%s)", host.name, host.address)
-						if oldName, _ := existing[host.name]; oldName != fname {
-							os.Remove(fname)
+					// Get latest config filename before new one is created
+					dircontents, _ := ioutil.ReadDir(hostdir)
+					latestConfig := ""
+					for _, f := range dircontents {
+						if f.Name() != "_metadata.json" {
+							latestConfig = f.Name()
 						}
+					}
+
+					// Get new config
+					if err := scriptExecute(dtype.scriptfile, args); err != nil {
+						common.UserLogError("Failed getting config from %s (%s)", host.Name, host.Address)
+						os.Remove(hostfname)
 						return
 					}
 
-					if oldName, exists := existing[host.name]; exists && oldName != fname {
-						os.Remove(oldName)
+					// If an old config existed, check if it's different from the new one
+					if latestConfig != "" {
+						same, err := diff.SameFileContents(hostfname, filepath.Join(hostdir, latestConfig))
+						if err != nil {
+							appLogger.Error(err.Error())
+							return
+						}
+
+						if same {
+							appLogger.Debug(
+								"(%s) Last config and this config are the same, deleting file",
+								host.Name,
+							)
+							os.Remove(hostfname)
+						}
 					}
 				}()
 				match = true
@@ -183,7 +195,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 		}
 
 		if !match {
-			logText := fmt.Sprintf("Device type '%s' using method '%s' wasn't found.", host.dtype, host.method)
+			logText := fmt.Sprintf("Device type '%s' using method '%s' wasn't found.", host.Dtype, host.Method)
 			appLogger.Warning(logText)
 			common.UserLogWarning(logText)
 			finishedDevices++
@@ -198,24 +210,29 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 	return nil
 }
 
+func cleanUpHostDirs(hosts []host) {
+	for _, h := range hosts {
+		hostdir := filepath.Join(conf.Paths.ConfDir, fmt.Sprintf("%s-%s", h.Name, h.Address))
+		dirlist, _ := ioutil.ReadDir(hostdir)
+
+		if len(dirlist) > conf.KeepLimit+1 { // +1 for metadata file
+			dirlist := filterStrings(
+				dirlistToFilenames(dirlist),
+				func(s string) bool { return s != "_metadata.json" },
+			)
+
+			for _, f := range dirlist[:len(dirlist)-conf.KeepLimit] {
+				os.Remove(filepath.Join(hostdir, f))
+			}
+		}
+	}
+}
+
 func getConfigFileName(host host, dateSuffix string, conf *common.Config) string {
-	var filename bytes.Buffer
-
-	filename.WriteString(host.name)
-	filename.WriteString("-")
-	filename.WriteString(dateSuffix)
-	filename.WriteString("-")
-	filename.WriteString(host.address)
-	filename.WriteString("-")
-	filename.WriteString(host.dtype)
-	filename.WriteString("-")
-	filename.WriteString(host.method)
-	filename.WriteString(".conf")
-
-	confPath := filepath.Join(conf.Paths.ConfDir, filename.String())
+	filename := fmt.Sprintf("%s-%s-%s-%s-%s.conf", host.Name, dateSuffix, host.Address, host.Dtype, host.Method)
+	confPath := filepath.Join(conf.Paths.ConfDir, filename)
 
 	touch(confPath)
-
 	return confPath
 }
 
@@ -225,7 +242,7 @@ func getArguments(argStr string, host host, filename string, conf *common.Config
 	for i, a := range args {
 		switch a {
 		case "$address":
-			argList[i] = host.address
+			argList[i] = host.Address
 			break
 		case "$username":
 			argList[i] = conf.Credentials.RemoteUsername

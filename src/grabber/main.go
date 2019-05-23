@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/lfkeitel/inca/src/common"
-	"github.com/lfkeitel/inca/src/targz"
 	"github.com/lfkeitel/verbose"
 )
 
@@ -40,68 +39,22 @@ func Init(config *common.Config) {
 }
 
 func PerformConfigGrab() {
-	if configGrabRunning {
-		appLogger.Error("Job already running")
-		return
-	}
-
-	startTime := time.Now()
-	configGrabRunning = true
-	defer func() {
-		configGrabRunning = false
-		stage = ""
-	}()
-
-	if conf.Hooks.PreScript != "" {
-		appLogger.Info("Running pre script")
-		stage = "pre-script"
-		if err := exec.Command(conf.Hooks.PreScript).Run(); err != nil {
-			appLogger.Error(err)
-		}
-	}
-
-	stage = "loading-configuration"
-	hosts, err := loadDeviceList(conf)
-	if err != nil {
-		appLogger.Error(err.Error())
-		return
-	}
-
-	dtypes, err := loadDeviceTypes(conf)
-	if err != nil {
-		appLogger.Error(err.Error())
-		return
-	}
-
-	existing, err := loadCurrentConfigs(conf)
-	if err != nil {
-		appLogger.Error(err.Error())
-		return
-	}
-
-	totalDevices = len(hosts)
-	finishedDevices = 0
-	dateSuffix := time.Now().Format("20060102")
-
-	stage = "grabbing"
-	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
-	targz.TarGz(filepath.Join(conf.Paths.ArchiveDir, dateSuffix+".tar.gz"), conf.Paths.ConfDir)
-
-	if conf.Hooks.PostScript != "" {
-		appLogger.Info("Running post script")
-		stage = "post-script"
-		if err := exec.Command(conf.Hooks.PostScript).Run(); err != nil {
-			appLogger.Error(err)
-		}
-	}
-
-	endTime := time.Now()
-	logText := fmt.Sprintf("Config grab took %s", endTime.Sub(startTime).String())
-	appLogger.Info(logText)
-	common.UserLogInfo(logText)
+	runGeneric(nil)
 }
 
 func PerformSingleRun(name, hostname, brand, method string) {
+	name = strings.Replace(name, "-", "_", -1)
+	hosts := make([]host, 1)
+	hosts[0] = host{
+		Name:    name,
+		Address: hostname,
+		Dtype:   brand,
+		Method:  method,
+	}
+	runGeneric(hosts)
+}
+
+func runGeneric(hosts []host) {
 	if configGrabRunning {
 		appLogger.Error("Job already running")
 		return
@@ -113,7 +66,6 @@ func PerformSingleRun(name, hostname, brand, method string) {
 		configGrabRunning = false
 		stage = ""
 	}()
-	name = strings.Replace(name, "-", "_", -1)
 
 	if conf.Hooks.PreScript != "" {
 		appLogger.Info("Running pre script")
@@ -124,22 +76,16 @@ func PerformSingleRun(name, hostname, brand, method string) {
 	}
 
 	stage = "loading-configuration"
-	hosts := make([]host, 1)
-
-	hosts[0] = host{
-		name:    name,
-		address: hostname,
-		dtype:   brand,
-		method:  method,
+	if hosts == nil {
+		var err error
+		hosts, err = loadDeviceList(conf)
+		if err != nil {
+			appLogger.Error(err.Error())
+			return
+		}
 	}
 
 	dtypes, err := loadDeviceTypes(conf)
-	if err != nil {
-		appLogger.Error(err.Error())
-		return
-	}
-
-	existing, err := loadCurrentConfigs(conf)
 	if err != nil {
 		appLogger.Error(err.Error())
 		return
@@ -147,11 +93,13 @@ func PerformSingleRun(name, hostname, brand, method string) {
 
 	totalDevices = 1
 	finishedDevices = 0
-	dateSuffix := time.Now().Format("20060102")
+	dateSuffix := time.Now().Format("2006-01-02T15:04:05")
 
 	stage = "grabbing"
-	grabConfigs(hosts, dtypes, dateSuffix, conf, existing)
-	targz.TarGz(filepath.Join(conf.Paths.ArchiveDir, dateSuffix+".tar.gz"), conf.Paths.ConfDir)
+	grabConfigs(hosts, dtypes, dateSuffix, conf)
+
+	stage = "cleanup"
+	cleanUpHostDirs(hosts)
 
 	if conf.Hooks.PostScript != "" {
 		appLogger.Info("Running post script")

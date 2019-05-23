@@ -55,6 +55,12 @@ is on disk.
 
 ## Release Notes
 
+v3.0.0
+
+- Save multiple versions of configs
+- Keep last X number of unique configurations
+- Don't generate a tarball archive anymore
+
 v2.6.0
 
 - Made application paths configurable
