@@ -91,7 +91,7 @@ func runGeneric(hosts []host) {
 		return
 	}
 
-	totalDevices = 1
+	totalDevices = len(hosts)
 	finishedDevices = 0
 	dateSuffix := time.Now().Format("2006-01-02T15:04:05")
 

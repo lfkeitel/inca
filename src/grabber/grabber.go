@@ -181,7 +181,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 						}
 
 						if same {
-							appLogger.Debug(
+							appLogger.Debugf(
 								"(%s) Last config and this config are the same, deleting file",
 								host.Name,
 							)
