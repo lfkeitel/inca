@@ -118,8 +118,8 @@ func getDeviceList() deviceList {
 			Path:         fmt.Sprintf("%s-%s", device.Name, device.Address),
 			Name:         device.Name,
 			Address:      device.Address,
-			Proto:        device.Dtype,
-			Manufacturer: device.Method,
+			Proto:        device.Method,
+			Manufacturer: device.Dtype,
 			Configs:      files,
 		})
 	}
