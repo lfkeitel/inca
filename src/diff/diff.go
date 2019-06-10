@@ -31,7 +31,7 @@ func SameFileContents(file1, file2 string) (bool, error) {
 	}
 	defer fh1.Close()
 
-	fh2, err := os.Open(file1)
+	fh2, err := os.Open(file2)
 	if err != nil {
 		return false, err
 	}
