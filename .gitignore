@@ -1,6 +1,5 @@
 inca-dist.tar.gz
 /frontend
-
 /vendor
 /bin
 /private
@@ -9,3 +8,6 @@ inca-dist.tar.gz
 /latest
 /scripts
 /dist
+device-definitions.conf
+device-types.conf
+configuration.toml
