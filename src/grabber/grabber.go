@@ -137,13 +137,10 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 					}
 				}
 
-				if !common.FileExists(metadatafile) {
-					hostmetafile := metadatafile
-					d, _ := json.Marshal(host)
-					if err := os.WriteFile(hostmetafile, d, 0640); err != nil {
-						common.UserLogError(err.Error())
-						break
-					}
+				d, _ := json.Marshal(host)
+				if err := os.WriteFile(metadatafile, d, 0640); err != nil {
+					common.UserLogError(err.Error())
+					break
 				}
 
 				wg.Add(1)
