@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -141,7 +140,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 				if !common.FileExists(metadatafile) {
 					hostmetafile := metadatafile
 					d, _ := json.Marshal(host)
-					if err := ioutil.WriteFile(hostmetafile, d, 0640); err != nil {
+					if err := os.WriteFile(hostmetafile, d, 0640); err != nil {
 						common.UserLogError(err.Error())
 						break
 					}
@@ -157,7 +156,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 					}()
 
 					// Get latest config filename before new one is created
-					dircontents, _ := ioutil.ReadDir(hostdir)
+					dircontents, _ := os.ReadDir(hostdir)
 					latestConfig := ""
 					for _, f := range dircontents {
 						if f.Name() != "_metadata.json" {
@@ -213,7 +212,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 func cleanUpHostDirs(hosts []host) {
 	for _, h := range hosts {
 		hostdir := filepath.Join(conf.Paths.ConfDir, fmt.Sprintf("%s-%s", h.Name, h.Address))
-		dirlist, _ := ioutil.ReadDir(hostdir)
+		dirlist, _ := os.ReadDir(hostdir)
 
 		if len(dirlist) > conf.KeepLimit+1 { // +1 for metadata file
 			dirlist := filterStrings(

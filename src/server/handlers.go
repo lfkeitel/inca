@@ -1,8 +1,8 @@
 package server
 
 import (
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -49,7 +49,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
 // Generate page with the device type definitions
 func configFileApiHandler(w http.ResponseWriter, r *http.Request, file string) {
-	confText, err := ioutil.ReadFile(file)
+	confText, err := os.ReadFile(file)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -64,7 +64,7 @@ func downloadConfApiHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 
-	confText, err := ioutil.ReadFile(filepath.Join(config.Paths.ConfDir, path))
+	confText, err := os.ReadFile(filepath.Join(config.Paths.ConfDir, path))
 	if err != nil {
 		w.Write([]byte("Configuration file does not exist"))
 		return

@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -80,7 +79,7 @@ func saveDeviceConfigFile(n, t string) string {
 		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
 	}
 
-	err := ioutil.WriteFile(n, []byte(t), 0664)
+	err := os.WriteFile(n, []byte(t), 0664)
 	if err != nil {
 		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
 	}
@@ -95,7 +94,7 @@ type errorLogLine struct {
 
 func (a *apiRequest) errorlog(r *http.Request) string {
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
-	log, err := ioutil.ReadFile(filepath.Join(config.Paths.LogDir, "endUser.log"))
+	log, err := os.ReadFile(filepath.Join(config.Paths.LogDir, "endUser.log"))
 	if err != nil {
 		return "{}"
 	}

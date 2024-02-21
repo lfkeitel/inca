@@ -2,7 +2,6 @@ package grabber
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -41,7 +40,7 @@ func removeDir(path string) error {
 		return errors.New("Path is not a directory")
 	}
 
-	fileList, err := ioutil.ReadDir(path)
+	fileList, err := os.ReadDir(path)
 	if err != nil {
 		return err
 	}
@@ -67,7 +66,7 @@ func filterStrings(s []string, f func(string) bool) []string {
 	return ret
 }
 
-func dirlistToFilenames(dl []os.FileInfo) []string {
+func dirlistToFilenames(dl []os.DirEntry) []string {
 	ret := make([]string, 0, len(dl))
 	for _, f := range dl {
 		ret = append(ret, f.Name())

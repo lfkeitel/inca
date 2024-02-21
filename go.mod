@@ -5,4 +5,4 @@ require (
 	github.com/lfkeitel/verbose v0.0.0-20170322193154-332f9e728b78
 )
 
-go 1.13
+go 1.22

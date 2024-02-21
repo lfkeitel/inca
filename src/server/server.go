@@ -3,8 +3,8 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -85,7 +85,7 @@ func getDeviceList() deviceList {
 		Method  string `json:"method"`
 	}
 
-	configFileList, _ := ioutil.ReadDir(config.Paths.ConfDir)
+	configFileList, _ := os.ReadDir(config.Paths.ConfDir)
 
 	deviceConfigs := deviceList{}
 
@@ -96,7 +96,7 @@ func getDeviceList() deviceList {
 
 		hostdir := filepath.Join(config.Paths.ConfDir, file.Name())
 		filename := filepath.Join(hostdir, "_metadata.json")
-		data, err := ioutil.ReadFile(filename)
+		data, err := os.ReadFile(filename)
 		if err != nil {
 			continue
 		}
@@ -106,7 +106,7 @@ func getDeviceList() deviceList {
 			continue
 		}
 
-		dircontents, _ := ioutil.ReadDir(hostdir)
+		dircontents, _ := os.ReadDir(hostdir)
 		files := make([]string, 0, len(dircontents)-1)
 		for _, f := range dircontents {
 			if f.Name() != "_metadata.json" {
