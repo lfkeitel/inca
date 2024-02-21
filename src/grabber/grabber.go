@@ -146,6 +146,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 				wg.Add(1)
 				ccg.add(1)
 				go func() {
+					appLogger.Debugf("Starting %s", host.Name)
 					defer func() {
 						appLogger.Debugf("Done with %s", host.Name)
 						wg.Done()

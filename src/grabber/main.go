@@ -27,7 +27,12 @@ func Init(config *common.Config) {
 	if err != nil {
 		panic("Failed to open logging directory")
 	}
-	fileLogger.SetMinLevel(verbose.LogLevelInfo)
+
+	if config.Debug {
+		fileLogger.SetMinLevel(verbose.LogLevelDebug)
+	} else {
+		fileLogger.SetMinLevel(verbose.LogLevelInfo)
+	}
 
 	appLogger = verbose.New("grabber")
 	appLogger.AddHandler("file", fileLogger)

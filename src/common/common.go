@@ -15,6 +15,7 @@ type Config struct {
 	Paths               pathsConf
 	Server              serverConf
 	Hooks               hookConf
+	Debug               bool
 }
 
 type credentialsConf struct {
