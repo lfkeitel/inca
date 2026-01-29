@@ -11,14 +11,27 @@ import (
 	"github.com/lfkeitel/verbose"
 )
 
-var appLogger *verbose.Logger
-var stdOutLogger *verbose.Logger
-var configGrabRunning = false
-var conf *common.Config
+type Status int
 
-var totalDevices = 0
-var finishedDevices = 0
-var stage = ""
+const (
+	statusReady    Status = 0
+	statusWaiting  Status = 1
+	statusRunning  Status = 2
+	statusFinished Status = 3
+	statusFailed   Status = 4
+)
+
+var (
+	appLogger         *verbose.Logger
+	stdOutLogger      *verbose.Logger
+	configGrabRunning = false
+	conf              *common.Config
+
+	totalDevices    = 0
+	finishedDevices = 0
+	stage           = "idle"
+	deviceStatus    map[string]Status
+)
 
 func Init(config *common.Config) {
 	conf = config
@@ -48,7 +61,7 @@ func PerformConfigGrab() {
 }
 
 func PerformSingleRun(name, hostname, brand, method string) {
-	name = strings.Replace(name, "-", "_", -1)
+	name = strings.ReplaceAll(name, "-", "_")
 	hosts := make([]host, 1)
 	hosts[0] = host{
 		Name:    name,
@@ -97,6 +110,10 @@ func runGeneric(hosts []host) {
 	}
 
 	totalDevices = len(hosts)
+	deviceStatus = make(map[string]Status, len(hosts))
+	for _, host := range hosts {
+		deviceStatus[host.Name] = statusWaiting
+	}
 	finishedDevices = 0
 	dateSuffix := time.Now().Format("2006-01-02T15:04:05")
 
@@ -147,15 +164,26 @@ type State struct {
 	Running         bool
 	Total, Finished int
 	Stage           string
+	Devices         map[string]Status
 }
 
 func CurrentState() State {
 	total, finished := remainingDeviceCount()
+	if deviceStatus == nil {
+		hosts, err := loadDeviceList(conf)
+		if err == nil {
+			deviceStatus = make(map[string]Status, len(hosts))
+			for _, host := range hosts {
+				deviceStatus[host.Name] = statusReady
+			}
+		}
+	}
 
 	return State{
 		Running:  configGrabRunning,
 		Total:    total,
 		Finished: finished,
 		Stage:    stage,
+		Devices:  deviceStatus,
 	}
 }

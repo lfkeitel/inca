@@ -1,6 +1,7 @@
 # Maximum number of concurrent connections to devices
 # MaxSimultaneousConn = 1000
 # KeepLimit = 10
+# BasePath = ""
 
 [credentials]
 # Username and password to login to device

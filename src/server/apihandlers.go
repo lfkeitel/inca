@@ -34,19 +34,46 @@ func (a *apiRequest) singlerun(r *http.Request) string {
 	return `{"status": "started", "running": true}`
 }
 
+type runStatus struct {
+	Running      bool   `json:"running"`
+	TotalDevices int    `json:"totalDevices"`
+	Finished     int    `json:"finished"`
+	Stage        string `json:"stage"`
+}
+
+type runStatusFull struct {
+	Running      bool                      `json:"running"`
+	TotalDevices int                       `json:"totalDevices"`
+	Finished     int                       `json:"finished"`
+	Stage        string                    `json:"stage"`
+	Devices      map[string]grabber.Status `json:"devices"`
+}
+
 func (a *apiRequest) status() string {
 	state := grabber.CurrentState()
-	return fmt.Sprintf(`{
-	"running": %t,
-	"totalDevices": %d,
-	"finished": %d,
-	"stage": "%s"
-}`,
-		grabber.IsRunning(),
-		state.Total,
-		state.Finished,
-		state.Stage,
-	)
+	status := runStatus{
+		Running:      grabber.IsRunning(),
+		TotalDevices: state.Total,
+		Finished:     state.Finished,
+		Stage:        state.Stage,
+	}
+
+	j, _ := json.Marshal(&status)
+	return string(j)
+}
+
+func (a *apiRequest) statusFull() string {
+	state := grabber.CurrentState()
+	status := runStatusFull{
+		Running:      grabber.IsRunning(),
+		TotalDevices: state.Total,
+		Finished:     state.Finished,
+		Stage:        state.Stage,
+		Devices:      state.Devices,
+	}
+
+	j, _ := json.Marshal(&status)
+	return string(j)
 }
 
 func (a *apiRequest) devicelist() string {
@@ -56,7 +83,7 @@ func (a *apiRequest) devicelist() string {
 
 func (a *apiRequest) savedevicelist(r *http.Request) string {
 	listText, _ := url.QueryUnescape(r.FormValue("text"))
-	listText = strings.Replace(listText, "-", "_", -1)
+	listText = strings.ReplaceAll(listText, "-", "_")
 	return saveDeviceConfigFile(config.Paths.DeviceList, listText)
 }
 

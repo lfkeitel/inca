@@ -11,6 +11,7 @@ import (
 type Config struct {
 	MaxSimultaneousConn int
 	KeepLimit           int
+	BasePath            string
 	Credentials         credentialsConf
 	Paths               pathsConf
 	Server              serverConf
@@ -54,7 +55,7 @@ func InitUserLog(logdir string) {
 }
 
 type appLogger interface {
-	Fatalf(string, ...interface{})
+	Fatalf(string, ...any)
 }
 
 func LoadConfig(path string, logger appLogger) (*Config, error) {
@@ -126,18 +127,18 @@ func ReverseSlice(s []string) []string {
 	return s
 }
 
-func UserLogInfo(format string, v ...interface{}) {
+func UserLogInfo(format string, v ...any) {
 	verbose.Get("endUserLog").Infof(format, v...)
 }
 
-func UserLogWarning(format string, v ...interface{}) {
+func UserLogWarning(format string, v ...any) {
 	verbose.Get("endUserLog").Warningf(format, v...)
 }
 
-func UserLogError(format string, v ...interface{}) {
+func UserLogError(format string, v ...any) {
 	verbose.Get("endUserLog").Errorf(format, v...)
 }
 
-func UserLogFatal(format string, v ...interface{}) {
+func UserLogFatal(format string, v ...any) {
 	verbose.Get("endUserLog").Fatalf(format, v...)
 }

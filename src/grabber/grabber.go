@@ -117,7 +117,7 @@ func loadDeviceTypes(conf *common.Config) ([]dtype, error) {
 
 func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.Config) error {
 	var wg sync.WaitGroup
-	ccg := newConnGroup(conf) // Used to enforce a maximum number of connections
+	ccg := newConnGroup(conf.MaxSimultaneousConn) // Used to enforce a maximum number of connections
 	fname := dateSuffix + ".conf"
 
 	for _, host := range hosts {
@@ -147,8 +147,13 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 				ccg.add(1)
 				go func() {
 					appLogger.Debugf("Starting %s", host.Name)
+					deviceStatus[host.Name] = statusRunning
 					defer func() {
 						appLogger.Debugf("Done with %s", host.Name)
+						if deviceStatus[host.Name] == statusRunning {
+							deviceStatus[host.Name] = statusFinished
+						}
+						finishedDevices++
 						wg.Done()
 						ccg.done()
 					}()
@@ -165,6 +170,7 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 					// Get new config
 					if err := scriptExecute(dtype.scriptfile, args); err != nil {
 						common.UserLogError("Failed getting config from %s (%s)", host.Name, host.Address)
+						deviceStatus[host.Name] = statusFailed
 						os.Remove(hostfname)
 						return
 					}
@@ -240,19 +246,14 @@ func getArguments(argStr string, host host, filename string, conf *common.Config
 		switch a {
 		case "$address":
 			argList[i] = host.Address
-			break
 		case "$username":
 			argList[i] = conf.Credentials.RemoteUsername
-			break
 		case "$password":
 			argList[i] = conf.Credentials.RemotePassword
-			break
 		case "$logfile":
 			argList[i] = filename
-			break
 		case "$enablepw":
 			argList[i] = conf.Credentials.EnablePassword
-			break
 		}
 	}
 	return argList

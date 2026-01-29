@@ -1,18 +1,14 @@
 package grabber
 
-import (
-	"github.com/lfkeitel/inca/src/common"
-)
-
 type connGroup struct {
 	numOfConnections int
 	goChan           chan bool
-	conf             *common.Config
+	max              int
 }
 
-func newConnGroup(conf *common.Config) connGroup {
+func newConnGroup(max int) connGroup {
 	return connGroup{
-		conf: conf,
+		max: max,
 	}
 }
 
@@ -25,14 +21,13 @@ func (c *connGroup) add(delta int) {
 
 func (c *connGroup) done() {
 	c.add(-1)
-	finishedDevices++
-	if c.numOfConnections < c.conf.MaxSimultaneousConn {
+	if c.numOfConnections < c.max {
 		c.goChan <- true
 	}
 }
 
 func (c *connGroup) wait() {
-	if c.numOfConnections < c.conf.MaxSimultaneousConn {
+	if c.numOfConnections < c.max {
 		return
 	}
 	<-c.goChan

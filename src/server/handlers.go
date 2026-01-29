@@ -22,6 +22,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		response = api.singlerun(r)
 	case "status":
 		response = api.status()
+	case "status-full":
+		response = api.statusFull()
 	case "devicelist":
 		response = api.devicelist()
 	case "savedevicelist":
