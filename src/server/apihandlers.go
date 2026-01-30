@@ -100,6 +100,16 @@ func (a *apiRequest) deleteconf(r *http.Request) string {
 	return `{"success": true}`
 }
 
+func (a *apiRequest) deleteDevice(r *http.Request) string {
+	name, _ := url.QueryUnescape(r.FormValue("name"))
+	address, _ := url.QueryUnescape(r.FormValue("address"))
+
+	if err := os.RemoveAll(filepath.Join(config.Paths.ConfDir, fmt.Sprintf("%s-%s", name, address))); err != nil {
+		return fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error())
+	}
+	return `{"success": true}`
+}
+
 // Save text t to file n after validating the text formatting
 func saveDeviceConfigFile(n, t string) string {
 	if err := grabber.CheckDeviceList(t); err != nil {

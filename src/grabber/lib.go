@@ -1,9 +1,7 @@
 package grabber
 
 import (
-	"errors"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -28,31 +26,6 @@ func touch(filename string) error {
 		return err
 	}
 	file.Close()
-	return nil
-}
-
-func removeDir(path string) error {
-	src, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
-	if !src.IsDir() {
-		return errors.New("Path is not a directory")
-	}
-
-	fileList, err := os.ReadDir(path)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range fileList {
-		if file.Name()[0] == '.' {
-			continue
-		}
-
-		os.RemoveAll(filepath.Join(path, file.Name()))
-	}
-
 	return nil
 }
 

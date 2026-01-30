@@ -43,6 +43,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case "delete":
 		response = api.deleteconf(r)
+	case "delete-device":
+		response = api.deleteDevice(r)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
