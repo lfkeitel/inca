@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lfkeitel/inca/src/common"
@@ -27,10 +28,11 @@ var (
 	configGrabRunning = false
 	conf              *common.Config
 
-	totalDevices    = 0
-	finishedDevices = 0
-	stage           = "idle"
-	deviceStatus    map[string]Status
+	totalDevices      = 0
+	finishedDevices   = 0
+	stage             = "idle"
+	deviceStatusMutex = sync.Mutex{}
+	deviceStatus      map[string]Status
 )
 
 func Init(config *common.Config) {

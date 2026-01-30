@@ -147,12 +147,16 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 				ccg.add(1)
 				go func() {
 					appLogger.Debugf("Starting %s", host.Name)
+					deviceStatusMutex.Lock()
 					deviceStatus[host.Name] = statusRunning
+					deviceStatusMutex.Unlock()
 					defer func() {
 						appLogger.Debugf("Done with %s", host.Name)
+						deviceStatusMutex.Lock()
 						if deviceStatus[host.Name] == statusRunning {
 							deviceStatus[host.Name] = statusFinished
 						}
+						deviceStatusMutex.Unlock()
 						finishedDevices++
 						wg.Done()
 						ccg.done()
@@ -170,7 +174,9 @@ func grabConfigs(hosts []host, dtypes []dtype, dateSuffix string, conf *common.C
 					// Get new config
 					if err := scriptExecute(dtype.scriptfile, args); err != nil {
 						common.UserLogError("Failed getting config from %s (%s)", host.Name, host.Address)
+						deviceStatusMutex.Lock()
 						deviceStatus[host.Name] = statusFailed
+						deviceStatusMutex.Unlock()
 						os.Remove(hostfname)
 						return
 					}
